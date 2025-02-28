@@ -9,13 +9,13 @@ import {
   integer,
   timestamp,
   pgEnum,
-  serial
+  serial,
+  date
 } from 'drizzle-orm/pg-core';
-import { count, eq, ilike } from 'drizzle-orm';
+import { count, eq, ilike, desc } from 'drizzle-orm';
 import { createInsertSchema } from 'drizzle-zod';
 
-export const db = drizzle(neon(process.env.POSTGRES_URL!));
-
+// Define the schema
 export const statusEnum = pgEnum('status', ['active', 'inactive', 'archived']);
 
 export const products = pgTable('products', {
@@ -28,8 +28,22 @@ export const products = pgTable('products', {
   availableAt: timestamp('available_at').notNull()
 });
 
+export const events = pgTable('events', {
+  id: serial('id').primaryKey(),
+  userId: text('user_id').notNull(),
+  name: text('name').notNull(),
+  date: date('date').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull()
+});
+
+// Create the database connection with schema
+const schema = { events, products };
+export const db = drizzle(neon(process.env.POSTGRES_URL!), { schema });
+
 export type SelectProduct = typeof products.$inferSelect;
 export const insertProductSchema = createInsertSchema(products);
+
+export type Event = typeof events.$inferSelect;
 
 export async function getProducts(
   search: string,
@@ -69,4 +83,56 @@ export async function getProducts(
 
 export async function deleteProductById(id: number) {
   await db.delete(products).where(eq(products.id, id));
+}
+
+export async function getEvents(userId: string): Promise<Event[]> {
+  return db
+    .select()
+    .from(events)
+    .where(eq(events.userId, userId))
+    .orderBy(desc(events.date));
+}
+
+export async function createEvent(
+  userId: string,
+  name: string,
+  date: Date
+): Promise<Event> {
+  // Convert Date to ISO string for Drizzle
+  const dateStr = date.toISOString();
+
+  const result = await db
+    .insert(events)
+    .values({
+      userId,
+      name,
+      date: dateStr
+    })
+    .returning();
+
+  return result[0];
+}
+
+export async function deleteEventById(id: number) {
+  await db.delete(events).where(eq(events.id, id));
+}
+
+export async function updateEvent(
+  id: number,
+  name: string,
+  date: Date
+): Promise<Event> {
+  // Convert Date to ISO string for Drizzle
+  const dateStr = date.toISOString();
+
+  const result = await db
+    .update(events)
+    .set({
+      name,
+      date: dateStr
+    })
+    .where(eq(events.id, id))
+    .returning();
+
+  return result[0];
 }
