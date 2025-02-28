@@ -4,7 +4,10 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "migrate": "tsx lib/migrate.ts"
+    "migrate": "tsx lib/migrate.ts",
+    "lint": "next lint",
+    "test": "echo 'No tests yet'",
+    "prepare": "husky"
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.9.5",
@@ -48,6 +51,7 @@
     "trailingComma": "none"
   },
   "devDependencies": {
+    "husky": "^9.1.7",
     "tsx": "^4.19.3"
   }
 }
