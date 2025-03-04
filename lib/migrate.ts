@@ -61,6 +61,26 @@ async function migrate() {
         'Existing tables:',
         (result as any[]).map((r) => r.table_name).join(', ')
       );
+
+      // Check columns in the users table
+      console.log('Checking users table columns...');
+      const usersColumns = await sql(
+        "SELECT column_name, data_type FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'users';"
+      );
+      console.log('Users table columns:');
+      for (const col of usersColumns as any[]) {
+        console.log(`- ${col.column_name} (${col.data_type})`);
+      }
+
+      // Check columns in the events table
+      console.log('Checking events table columns...');
+      const eventsColumns = await sql(
+        "SELECT column_name, data_type FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'events';"
+      );
+      console.log('Events table columns:');
+      for (const col of eventsColumns as any[]) {
+        console.log(`- ${col.column_name} (${col.data_type})`);
+      }
     } catch (err) {
       console.error('Failed to verify tables:', err.message);
     }

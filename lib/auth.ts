@@ -1,6 +1,93 @@
 import NextAuth from 'next-auth';
-import GitHub from 'next-auth/providers/github';
+import Credentials from 'next-auth/providers/credentials';
+import { z } from 'zod';
+import { getUserByEmail } from './db';
+import { comparePasswords } from './auth-helpers';
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  providers: [GitHub]
+  pages: {
+    signIn: '/login'
+  },
+  debug: true,
+  callbacks: {
+    async signIn({ user, account, profile, email, credentials }) {
+      console.log('Sign-in callback:', {
+        user,
+        account,
+        profile,
+        email,
+        credentials
+      });
+      return true;
+    }
+  },
+  providers: [
+    Credentials({
+      id: 'credentials',
+      name: 'Email and Password',
+      credentials: {
+        email: {
+          label: 'Email',
+          type: 'email',
+          placeholder: 'name@example.com'
+        },
+        password: {
+          label: 'Password',
+          type: 'password'
+        }
+      },
+      async authorize(credentials) {
+        try {
+          // Schema validation
+          const parsedCredentials = z
+            .object({
+              email: z.string().email(),
+              password: z.string().min(6)
+            })
+            .safeParse(credentials);
+
+          if (!parsedCredentials.success) {
+            console.error(
+              'Validation error:',
+              parsedCredentials.error.format()
+            );
+            return null;
+          }
+
+          const { email, password } = parsedCredentials.data;
+          console.log(`Looking up user with email: ${email}`);
+
+          const user = await getUserByEmail(email);
+
+          if (!user) {
+            console.error(`No user found with email: ${email}`);
+            return null;
+          }
+
+          console.log(`User found: ${user.id}, attempting password comparison`);
+
+          const passwordsMatch = await comparePasswords(
+            password,
+            user.passwordHash
+          );
+
+          if (!passwordsMatch) {
+            console.error('Password comparison failed');
+            return null;
+          }
+
+          console.log('Authentication successful');
+
+          return {
+            id: user.id.toString(),
+            name: user.name || null,
+            email: user.email
+          };
+        } catch (error) {
+          console.error('Authorization error:', error);
+          return null;
+        }
+      }
+    })
+  ]
 });

@@ -1,10 +1,5 @@
 -- Create status enum type if it doesn't exist
-DO $$
-BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'status') THEN
-        CREATE TYPE "status" AS ENUM ('active', 'inactive', 'archived');
-    END IF;
-END$$;
+CREATE TYPE IF NOT EXISTS "status" AS ENUM ('active', 'inactive', 'archived');
 
 -- Create products table
 CREATE TABLE IF NOT EXISTS "products" (

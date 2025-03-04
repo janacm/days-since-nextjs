@@ -10,13 +10,32 @@ import {
   timestamp,
   pgEnum,
   serial,
-  date
+  date,
+  uniqueIndex,
+  varchar
 } from 'drizzle-orm/pg-core';
 import { count, eq, ilike, desc } from 'drizzle-orm';
 import { createInsertSchema } from 'drizzle-zod';
 
 // Define the schema
 export const statusEnum = pgEnum('status', ['active', 'inactive', 'archived']);
+
+export const users = pgTable(
+  'users',
+  {
+    id: serial('id').primaryKey(),
+    email: varchar('email', { length: 255 }).notNull(),
+    passwordHash: varchar('password_hash', { length: 255 }).notNull(),
+    name: varchar('name', { length: 255 }),
+    username: varchar('username', { length: 255 }),
+    createdAt: timestamp('created_at').defaultNow().notNull()
+  },
+  (table) => {
+    return {
+      emailIdx: uniqueIndex('email_idx').on(table.email)
+    };
+  }
+);
 
 export const products = pgTable('products', {
   id: serial('id').primaryKey(),
@@ -37,13 +56,70 @@ export const events = pgTable('events', {
 });
 
 // Create the database connection with schema
-const schema = { events, products };
+const schema = { users, events, products };
+
+// Check if we have a database URL
+if (!process.env.POSTGRES_URL) {
+  console.error(
+    'POSTGRES_URL environment variable is not set! Database operations will fail.'
+  );
+}
+
+// Log connection attempt
+console.log('Initializing database connection');
+
 export const db = drizzle(neon(process.env.POSTGRES_URL!), { schema });
+
+export type User = typeof users.$inferSelect;
+export type InsertUser = typeof users.$inferInsert;
+export const insertUserSchema = createInsertSchema(users);
 
 export type SelectProduct = typeof products.$inferSelect;
 export const insertProductSchema = createInsertSchema(products);
 
 export type Event = typeof events.$inferSelect;
+
+// User related database functions
+export async function getUserByEmail(email: string): Promise<User | undefined> {
+  try {
+    console.log(`Looking up user with email: ${email}`);
+    const results = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, email.toLowerCase()))
+      .limit(1);
+
+    console.log(`User lookup results: ${results.length} records found`);
+    return results[0];
+  } catch (error) {
+    console.error('Error getting user by email:', error);
+    throw error;
+  }
+}
+
+export async function createUser(
+  email: string,
+  passwordHash: string,
+  name?: string
+): Promise<User> {
+  try {
+    console.log(`Creating user with email: ${email}`);
+    const result = await db
+      .insert(users)
+      .values({
+        email: email.toLowerCase(),
+        passwordHash,
+        name
+      })
+      .returning();
+
+    console.log('User created successfully');
+    return result[0];
+  } catch (error) {
+    console.error('Error creating user:', error);
+    throw error;
+  }
+}
 
 export async function getProducts(
   search: string,
