@@ -4,11 +4,15 @@ import {
   createEvent,
   deleteEventById,
   updateEvent,
-  deleteProductById
+  deleteProductById,
+  db,
+  events,
+  eventResets
 } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
 import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
+import { eq, sql } from 'drizzle-orm';
 
 export async function addEvent(formData: FormData) {
   const session = await auth();
@@ -73,4 +77,34 @@ export async function editEvent(formData: FormData) {
   await updateEvent(id, name, date);
   revalidatePath('/');
   redirect('/');
+}
+
+export async function resetEvent(formData: FormData) {
+  'use server';
+  const id = formData.get('id') as string;
+  const numericId = parseInt(id, 10);
+  const now = new Date();
+  const dateStr = now.toISOString();
+
+  try {
+    // 1. Update the event's date and increment reset count
+    await db
+      .update(events)
+      .set({
+        date: dateStr,
+        resetCount: sql`COALESCE(reset_count, 0) + 1`
+      })
+      .where(eq(events.id, numericId));
+
+    // 2. Add a record to the event_resets table
+    await db.insert(eventResets).values({
+      eventId: numericId,
+      resetAt: now
+    });
+
+    revalidatePath('/');
+  } catch (error) {
+    console.error('Error resetting event:', error);
+    throw error;
+  }
 }

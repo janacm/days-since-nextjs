@@ -6,10 +6,10 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal } from 'lucide-react';
+import { MoreHorizontal, RotateCcw } from 'lucide-react';
 import { TableCell, TableRow } from '@/components/ui/table';
 import { Event } from '@/lib/db';
-import { deleteEvent } from './actions';
+import { deleteEvent, resetEvent } from './actions';
 import { formatDistanceToNow } from 'date-fns';
 
 export function EventItem({ event }: { event: Event }) {
@@ -40,7 +40,14 @@ export function EventItem({ event }: { event: Event }) {
       <TableCell className="hidden md:table-cell text-muted-foreground">
         {relativeTime}
       </TableCell>
-      <TableCell>
+      <TableCell className="flex items-center gap-2">
+        <form action={resetEvent}>
+          <input type="hidden" name="id" value={event.id} />
+          <Button size="icon" variant="ghost" type="submit">
+            <RotateCcw className="h-4 w-4" />
+            <span className="sr-only">Reset event</span>
+          </Button>
+        </form>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button aria-haspopup="true" size="icon" variant="ghost">

@@ -14,7 +14,7 @@ import {
   uniqueIndex,
   varchar
 } from 'drizzle-orm/pg-core';
-import { count, eq, ilike, desc } from 'drizzle-orm';
+import { count, eq, ilike, desc, sql } from 'drizzle-orm';
 import { createInsertSchema } from 'drizzle-zod';
 
 // Define the schema
@@ -49,14 +49,23 @@ export const products = pgTable('products', {
 
 export const events = pgTable('events', {
   id: serial('id').primaryKey(),
-  userId: text('user_id').notNull(),
-  name: text('name').notNull(),
-  date: date('date').notNull(),
+  userId: varchar('user_id', { length: 255 }).notNull(),
+  name: varchar('name', { length: 255 }).notNull(),
+  date: varchar('date', { length: 255 }).notNull(),
+  resetCount: integer('reset_count').notNull().default(0),
   createdAt: timestamp('created_at').defaultNow().notNull()
 });
 
+export const eventResets = pgTable('event_resets', {
+  id: serial('id').primaryKey(),
+  eventId: integer('event_id')
+    .notNull()
+    .references(() => events.id, { onDelete: 'cascade' }),
+  resetAt: timestamp('reset_at').notNull().defaultNow()
+});
+
 // Create the database connection with schema
-const schema = { users, events, products };
+const schema = { users, events, products, eventResets };
 
 // Check if we have a database URL
 if (!process.env.POSTGRES_URL) {
@@ -78,6 +87,9 @@ export type SelectProduct = typeof products.$inferSelect;
 export const insertProductSchema = createInsertSchema(products);
 
 export type Event = typeof events.$inferSelect;
+export type InsertEvent = typeof events.$inferInsert;
+export type EventReset = typeof eventResets.$inferSelect;
+export type InsertEventReset = typeof eventResets.$inferInsert;
 
 // User related database functions
 export async function getUserByEmail(email: string): Promise<User | undefined> {
@@ -162,11 +174,17 @@ export async function deleteProductById(id: number) {
 }
 
 export async function getEvents(userId: string): Promise<Event[]> {
-  return db
+  const result = await db
     .select()
     .from(events)
     .where(eq(events.userId, userId))
-    .orderBy(desc(events.date));
+    .orderBy(sql`${events.date} DESC`);
+
+  // Add default value for resetCount if it's missing
+  return result.map((event) => ({
+    ...event,
+    resetCount: 'resetCount' in event ? event.resetCount : 0
+  }));
 }
 
 export async function createEvent(
@@ -211,4 +229,12 @@ export async function updateEvent(
     .returning();
 
   return result[0];
+}
+
+export async function getEventResets(eventId: number): Promise<EventReset[]> {
+  return await db
+    .select()
+    .from(eventResets)
+    .where(eq(eventResets.eventId, eventId))
+    .orderBy(sql`${eventResets.resetAt} DESC`);
 }
