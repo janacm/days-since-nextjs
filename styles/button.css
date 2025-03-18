@@ -1,0 +1,21 @@
+.add-task-button {
+  background-color: #0f172a; /* or your desired dark color */
+  border-radius: 50%;
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  border: none;
+  /* Remove any background container or wrapper background */
+  z-index: 100;
+}
+
+/* If there's a wrapper div, ensure it's transparent */
+.add-task-button-wrapper {
+  background: transparent;
+}
