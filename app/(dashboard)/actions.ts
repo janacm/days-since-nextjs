@@ -85,14 +85,32 @@ export async function editEvent(formData: FormData) {
   const id = Number(formData.get('id'));
   const name = formData.get('name') as string;
   const dateStr = formData.get('date') as string;
+  const reminderEnabled = formData.get('reminder') === 'on';
+  const reminderDays = reminderEnabled
+    ? Number(formData.get('reminderDays'))
+    : null;
 
   if (!name || !dateStr) {
     throw new Error('Name and date are required');
   }
 
+  if (reminderEnabled && (!reminderDays || reminderDays < 1)) {
+    throw new Error('Please specify a valid number of days for the reminder');
+  }
+
   const date = new Date(dateStr);
 
-  await updateEvent(id, name, date);
+  const result = await db
+    .update(events)
+    .set({
+      name,
+      date: date.toISOString(),
+      reminderDays,
+      reminderSent: false // Reset reminder status when updating reminder settings
+    })
+    .where(eq(events.id, id))
+    .returning();
+
   revalidatePath('/');
   redirect('/');
 }

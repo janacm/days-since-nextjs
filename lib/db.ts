@@ -217,7 +217,8 @@ export async function deleteEventById(id: number) {
 export async function updateEvent(
   id: number,
   name: string,
-  date: Date
+  date: Date,
+  reminderDays?: number | null
 ): Promise<Event> {
   // Convert Date to ISO string for Drizzle
   const dateStr = date.toISOString();
@@ -226,7 +227,9 @@ export async function updateEvent(
     .update(events)
     .set({
       name,
-      date: dateStr
+      date: dateStr,
+      reminderDays,
+      reminderSent: false // Reset reminder status when updating reminder settings
     })
     .where(eq(events.id, id))
     .returning();

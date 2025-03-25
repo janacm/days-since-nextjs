@@ -8,6 +8,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { editEvent } from '../../actions';
 import Link from 'next/link';
 import { db, events } from '@/lib/db';
@@ -63,6 +64,25 @@ export default async function EditEventPage({
                 type="date"
                 defaultValue={formattedDate}
                 required
+              />
+            </div>
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="reminder"
+                name="reminder"
+                defaultChecked={!!event.reminderDays}
+              />
+              <Label htmlFor="reminder">Set a reminder</Label>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="reminderDays">Remind me after (days)</Label>
+              <Input
+                id="reminderDays"
+                name="reminderDays"
+                type="number"
+                min="1"
+                placeholder="e.g. 30"
+                defaultValue={event.reminderDays || ''}
               />
             </div>
           </CardContent>
