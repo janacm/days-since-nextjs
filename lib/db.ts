@@ -12,7 +12,8 @@ import {
   serial,
   date,
   uniqueIndex,
-  varchar
+  varchar,
+  boolean
 } from 'drizzle-orm/pg-core';
 import { count, eq, ilike, desc, sql } from 'drizzle-orm';
 import { createInsertSchema } from 'drizzle-zod';
@@ -53,7 +54,9 @@ export const events = pgTable('events', {
   name: varchar('name', { length: 255 }).notNull(),
   date: varchar('date', { length: 255 }).notNull(),
   resetCount: integer('reset_count').notNull().default(0),
-  createdAt: timestamp('created_at').defaultNow().notNull()
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  reminderDays: integer('reminder_days'),
+  reminderSent: boolean('reminder_sent').notNull().default(false)
 });
 
 export const eventResets = pgTable('event_resets', {

@@ -1,6 +1,6 @@
 // This file is similar to lib/db.ts but without server-only dependencies
-import { drizzle } from 'drizzle-orm/neon-http';
 import { neon, neonConfig } from '@neondatabase/serverless';
+import { drizzle } from 'drizzle-orm/neon-http';
 import {
   serial,
   pgTable,
@@ -14,18 +14,14 @@ import * as dotenv from 'dotenv';
 // Load environment variables
 dotenv.config({ path: '.env.local' });
 
-// Connect to database
-const connectionString = process.env.DATABASE_URL;
-if (!connectionString) {
-  throw new Error('DATABASE_URL environment variable is not set');
+if (!process.env.DATABASE_URL) {
+  throw new Error('DATABASE_URL environment variable is not set!');
 }
 
 // Configure neon to work in Node.js environment
 neonConfig.fetchConnectionCache = true;
 
-// Create the client correctly for migrations
-const sql_client = neon(connectionString);
-export const db = drizzle(sql_client);
+export const db = drizzle(neon(process.env.DATABASE_URL));
 
 // Define tables
 export const events = pgTable('events', {
