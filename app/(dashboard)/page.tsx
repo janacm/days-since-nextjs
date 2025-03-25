@@ -24,6 +24,9 @@ export default async function DashboardPage() {
           <TabsTrigger value="recent" className="hidden sm:flex">
             Recent
           </TabsTrigger>
+          <TabsTrigger value="reminders">
+            Reminders
+          </TabsTrigger>
         </TabsList>
         <div className="ml-auto flex items-center gap-2">
           <Button size="sm" className="h-8 gap-1" asChild>
@@ -41,6 +44,9 @@ export default async function DashboardPage() {
       </TabsContent>
       <TabsContent value="recent">
         <EventsTable events={events.slice(0, 5)} />
+      </TabsContent>
+      <TabsContent value="reminders">
+        <EventsTable events={events.filter(event => event.reminderDays !== null)} />
       </TabsContent>
     </Tabs>
   );
