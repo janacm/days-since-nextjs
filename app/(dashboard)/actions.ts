@@ -22,14 +22,32 @@ export async function addEvent(formData: FormData) {
 
   const name = formData.get('name') as string;
   const dateStr = formData.get('date') as string;
+  const reminderEnabled = formData.get('reminder') === 'on';
+  const reminderDays = reminderEnabled
+    ? Number(formData.get('reminderDays'))
+    : null;
 
   if (!name || !dateStr) {
     throw new Error('Name and date are required');
   }
 
+  if (reminderEnabled && (!reminderDays || reminderDays < 1)) {
+    throw new Error('Please specify a valid number of days for the reminder');
+  }
+
   const date = new Date(dateStr);
 
-  await createEvent(session.user.email, name, date);
+  const result = await db
+    .insert(events)
+    .values({
+      userId: session.user.email,
+      name,
+      date: date.toISOString(),
+      reminderDays,
+      reminderSent: false
+    })
+    .returning();
+
   revalidatePath('/');
   redirect('/');
 }

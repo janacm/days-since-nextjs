@@ -6,11 +6,12 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal, RotateCcw } from 'lucide-react';
+import { MoreHorizontal, RotateCcw, Bell } from 'lucide-react';
 import { TableCell, TableRow } from '@/components/ui/table';
 import { Event } from '@/lib/db';
 import { deleteEvent, resetEvent } from './actions';
 import { formatDistanceToNow } from 'date-fns';
+import { Badge } from '@/components/ui/badge';
 
 export function EventItem({ event }: { event: Event }) {
   // Calculate days since
@@ -30,9 +31,27 @@ export function EventItem({ event }: { event: Event }) {
     addSuffix: true
   });
 
+  // Check if reminder is due
+  const isReminderDue =
+    event.reminderDays &&
+    daysSince >= event.reminderDays &&
+    !event.reminderSent;
+
   return (
     <TableRow>
-      <TableCell className="font-medium">{event.name}</TableCell>
+      <TableCell className="font-medium">
+        <div className="flex items-center gap-2">
+          {event.name}
+          {event.reminderDays && (
+            <Badge variant={isReminderDue ? 'destructive' : 'secondary'}>
+              <Bell className="h-3 w-3 mr-1" />
+              {isReminderDue
+                ? 'Reminder due!'
+                : `Remind in ${event.reminderDays - daysSince} days`}
+            </Badge>
+          )}
+        </div>
+      </TableCell>
       <TableCell>{formattedDate}</TableCell>
       <TableCell className="text-center">
         <span className="text-lg font-bold">{daysSince}</span>
