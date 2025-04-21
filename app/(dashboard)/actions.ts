@@ -13,6 +13,17 @@ import { revalidatePath } from 'next/cache';
 import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { eq, sql } from 'drizzle-orm';
+import nodemailer from 'nodemailer';
+
+// Initialize Nodemailer transporter
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST as string,
+  port: Number(process.env.SMTP_PORT),
+  auth: {
+    user: process.env.SMTP_USER as string,
+    pass: process.env.SMTP_PASS as string
+  }
+});
 
 export async function addEvent(formData: FormData) {
   const session = await auth();
@@ -141,6 +152,69 @@ export async function resetEvent(formData: FormData) {
     revalidatePath('/');
   } catch (error) {
     console.error('Error resetting event:', error);
+    throw error;
+  }
+}
+
+export async function sendTestEmail() {
+  console.log('🔍 sendTestEmail: Function called');
+  const session = await auth();
+  console.log('🔍 sendTestEmail: Session check', {
+    hasSession: !!session,
+    hasEmail: !!session?.user?.email
+  });
+
+  if (!session?.user?.email) {
+    console.error('🔍 sendTestEmail: No user email found in session');
+    throw new Error('You must be logged in to send test emails');
+  }
+
+  console.log('🔍 sendTestEmail: User email found', {
+    email: session.user.email
+  });
+
+  // Ensure SMTP is configured
+  if (
+    !process.env.SMTP_HOST ||
+    !process.env.SMTP_USER ||
+    !process.env.SMTP_PASS
+  ) {
+    console.error('🔍 sendTestEmail: SMTP config is not configured');
+    throw new Error('Email service is not configured properly');
+  }
+
+  console.log('🔍 sendTestEmail: Transporter configured', {
+    host: process.env.SMTP_HOST,
+    port: process.env.SMTP_PORT
+  });
+
+  try {
+    console.log(
+      '🔍 sendTestEmail: Attempting to send email to',
+      session.user.email
+    );
+
+    const info = await transporter.sendMail({
+      from: 'Days Since <reminders@dayssince.app>',
+      to: session.user.email,
+      subject: 'Test Email from Days Since App',
+      html: `
+        <h1>Test Email</h1>
+        <p>This is a test email from the Days Since App.</p>
+        <p>If you're receiving this, email sending is working correctly!</p>
+      `
+    });
+
+    console.log('🔍 sendTestEmail: Email sent successfully', { info });
+
+    // Redirect back to the admin page
+    revalidatePath('/admin');
+  } catch (error) {
+    console.error('🔍 sendTestEmail: Error sending test email', {
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      email: session.user.email
+    });
     throw error;
   }
 }
