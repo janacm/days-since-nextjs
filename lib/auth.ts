@@ -8,6 +8,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   pages: {
     signIn: '/login'
   },
+  session: {
+    strategy: 'jwt',
+    maxAge: 30 * 24 * 60 * 60 // 30 days
+  },
   debug: true,
   callbacks: {
     async signIn({ user, account, profile, email, credentials }) {
@@ -19,6 +23,20 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         credentials
       });
       return true;
+    },
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.email = user.email;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.id = token.id as string;
+        session.user.email = token.email as string;
+      }
+      return session;
     }
   },
   providers: [
