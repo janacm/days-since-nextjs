@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "jsx": "react",
+    "target": "esnext",
+    "moduleResolution": "node",
+    "allowJs": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "baseUrl": "./",
+    "paths": {
+      "@/shared/*": ["../shared/*"]
+    }
+  }
+}
