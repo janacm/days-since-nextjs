@@ -15,7 +15,7 @@ import {
   CardDescription
 } from '@/components/ui/card';
 import { EventItem } from './event';
-import { Event } from '@/lib/db';
+import { Event } from '@/shared/types';
 
 export function EventsTable({ events }: { events: Event[] }) {
   return (

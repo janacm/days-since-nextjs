@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal, RotateCcw, Bell } from 'lucide-react';
 import { TableCell, TableRow } from '@/components/ui/table';
-import { Event } from '@/lib/db';
+import { Event } from '@/shared/types';
 import { deleteEvent, resetEvent } from './actions';
 import { formatDistanceToNow } from 'date-fns';
 import { Badge } from '@/components/ui/badge';

@@ -62,3 +62,8 @@ pnpm dev
 ```
 
 You should now be able to access the application at http://localhost:3000.
+
+### Mobile App
+
+The `mobile` directory contains a React Native version of the app built with Expo.
+Install dependencies inside that folder and run `pnpm start` to launch the Expo development server. Set `EXPO_PUBLIC_API_URL` in `mobile/.env` to the URL of your deployed backend so the mobile app can communicate with the same API.

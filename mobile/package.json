@@ -1,0 +1,23 @@
+{
+  "name": "days-since-mobile",
+  "version": "1.0.0",
+  "main": "App.tsx",
+  "private": true,
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web"
+  },
+  "dependencies": {
+    "expo": "~50.0.5",
+    "expo-status-bar": "~1.7.3",
+    "react": "18.2.0",
+    "react-native": "0.72.4",
+    "@react-navigation/native": "^6.1.7",
+    "@react-navigation/stack": "^6.3.17"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
