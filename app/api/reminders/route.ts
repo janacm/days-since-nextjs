@@ -2,6 +2,7 @@ import nodemailer from 'nodemailer';
 import { db, events } from '@/lib/db';
 import { eq, and, lt, sql } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
+import { sendNotification } from '@/lib/notifications';
 
 // Initialize Nodemailer transporter
 const transporter = nodemailer.createTransport({
@@ -17,24 +18,6 @@ export async function POST() {
   console.log('📧 Reminders API: Request received');
 
   try {
-    // Ensure SMTP is configured
-    if (
-      !process.env.SMTP_HOST ||
-      !process.env.SMTP_USER ||
-      !process.env.SMTP_PASS
-    ) {
-      console.error('📧 Reminders API: SMTP config is not configured');
-      return NextResponse.json(
-        { error: 'Email service is not configured' },
-        { status: 500 }
-      );
-    }
-
-    console.log('📧 Reminders API: Mailtrap transporter configured', {
-      host: process.env.SMTP_HOST,
-      port: process.env.SMTP_PORT
-    });
-
     // Find all events that need reminders
     console.log('📧 Reminders API: Querying for events needing reminders');
 
@@ -64,24 +47,44 @@ export async function POST() {
       });
 
       try {
-        // Send reminder email
-        console.log('📧 Reminders API: Sending reminder email', {
-          to: event.userId
-        });
+        // Send reminder email if SMTP is configured
+        if (
+          process.env.SMTP_HOST &&
+          process.env.SMTP_USER &&
+          process.env.SMTP_PASS
+        ) {
+          console.log('📧 Reminders API: Sending reminder email', {
+            to: event.userId
+          });
 
-        const info = await transporter.sendMail({
-          from: 'Days Since <reminders@dayssince.app>',
-          to: event.userId,
-          subject: `Reminder: ${event.name}`,
-          html: `
-            <h1>Reminder: ${event.name}</h1>
-            <p>It's been ${event.reminderDays} days since ${event.name}.</p>
-            <p>You set this reminder to check in on this event.</p>
-          `
-        });
+          const info = await transporter.sendMail({
+            from: 'Days Since <reminders@dayssince.app>',
+            to: event.userId,
+            subject: `Reminder: ${event.name}`,
+            html: `
+              <h1>Reminder: ${event.name}</h1>
+              <p>It's been ${event.reminderDays} days since ${event.name}.</p>
+              <p>You set this reminder to check in on this event.</p>
+            `
+          });
 
-        console.log('📧 Reminders API: Email sent successfully', {
-          info,
+          console.log('📧 Reminders API: Email sent successfully', {
+            info,
+            eventId: event.id
+          });
+        }
+
+        // Send push notification
+        const notificationTitle = `Reminder: ${event.name}`;
+        const notificationBody = `It's been ${event.reminderDays} days since ${event.name}.`;
+        const notificationUrl = `/edit/${event.id}`;
+
+        await sendNotification(
+          notificationTitle,
+          notificationBody,
+          notificationUrl
+        );
+        console.log('📧 Reminders API: Push notification sent', {
           eventId: event.id
         });
 

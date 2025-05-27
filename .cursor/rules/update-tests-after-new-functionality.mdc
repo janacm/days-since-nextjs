@@ -1,0 +1,6 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+After adding any new functionality, always update tests accordingly
