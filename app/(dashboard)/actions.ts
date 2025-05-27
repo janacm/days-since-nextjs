@@ -156,6 +156,42 @@ export async function resetEvent(formData: FormData) {
   }
 }
 
+export async function resetEventWithDate(formData: FormData) {
+  'use server';
+  const id = formData.get('id') as string;
+  const customDate = formData.get('resetDate') as string;
+  const numericId = parseInt(id, 10);
+
+  if (!customDate) {
+    throw new Error('Reset date is required');
+  }
+
+  const resetDate = new Date(customDate);
+  const dateStr = resetDate.toISOString();
+
+  try {
+    // 1. Update the event's date and increment reset count
+    await db
+      .update(events)
+      .set({
+        date: dateStr,
+        resetCount: sql`COALESCE(reset_count, 0) + 1`
+      })
+      .where(eq(events.id, numericId));
+
+    // 2. Add a record to the event_resets table
+    await db.insert(eventResets).values({
+      eventId: numericId,
+      resetAt: resetDate
+    });
+
+    revalidatePath('/');
+  } catch (error) {
+    console.error('Error resetting event with custom date:', error);
+    throw error;
+  }
+}
+
 export async function sendTestEmail() {
   console.log('🔍 sendTestEmail: Function called');
   const session = await auth();
