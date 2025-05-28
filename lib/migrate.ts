@@ -45,7 +45,9 @@ async function migrate() {
           console.log('Statement executed successfully');
         } catch (err) {
           // Log the error but continue with other statements
-          console.warn(`Warning: Statement execution failed: ${err.message}`);
+          console.warn(
+            `Warning: Statement execution failed: ${err instanceof Error ? err.message : String(err)}`
+          );
           console.warn('Continuing with next statement...');
         }
       }
@@ -82,7 +84,10 @@ async function migrate() {
         console.log(`- ${col.column_name} (${col.data_type})`);
       }
     } catch (err) {
-      console.error('Failed to verify tables:', err.message);
+      console.error(
+        'Failed to verify tables:',
+        err instanceof Error ? err.message : String(err)
+      );
     }
 
     console.log('Migrations completed');
