@@ -1,3 +1,5 @@
+'use client';
+
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -13,8 +15,11 @@ import { deleteEvent } from './actions';
 import { formatDistanceToNow } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { ResetButton } from './reset-button';
+import { useRouter } from 'next/navigation';
 
 export function EventItem({ event }: { event: Event }) {
+  const router = useRouter();
+
   // Calculate days since
   const daysSince = Math.floor(
     (new Date().getTime() - new Date(event.date).getTime()) / (1000 * 3600 * 24)
@@ -38,8 +43,22 @@ export function EventItem({ event }: { event: Event }) {
     daysSince >= event.reminderDays &&
     !event.reminderSent;
 
+  const handleRowClick = (e: React.MouseEvent) => {
+    // Don't navigate if clicking on buttons or dropdown
+    if (
+      (e.target as HTMLElement).closest('button') ||
+      (e.target as HTMLElement).closest('[role="menuitem"]')
+    ) {
+      return;
+    }
+    router.push(`/events/${event.id}`);
+  };
+
   return (
-    <TableRow>
+    <TableRow
+      className="cursor-pointer hover:bg-muted/50 transition-colors"
+      onClick={handleRowClick}
+    >
       <TableCell className="font-medium">
         <div className="flex items-center gap-2">
           {event.name}
@@ -71,6 +90,9 @@ export function EventItem({ event }: { event: Event }) {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuItem asChild>
+              <a href={`/events/${event.id}`}>View Analytics</a>
+            </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <a href={`/edit/${event.id}`}>Edit</a>
             </DropdownMenuItem>
