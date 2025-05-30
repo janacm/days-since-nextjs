@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns';
+import { AnalyticsCharts } from './analytics-charts';
 
 interface EventAnalyticsPageProps {
   params: Promise<{
@@ -43,7 +44,8 @@ export default async function EventAnalyticsPage({
       currentStreak,
       longestStreak,
       averageDaysBetweenResets,
-      recentResets
+      recentResets,
+      allResets
     } = analytics;
 
     // Format the event date
@@ -88,7 +90,7 @@ export default async function EventAnalyticsPage({
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                Current Streak
+                Days Since Reset
               </CardTitle>
               <Target className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
@@ -118,7 +120,7 @@ export default async function EventAnalyticsPage({
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                Longest Streak
+                Longest Period
               </CardTitle>
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
@@ -131,7 +133,7 @@ export default async function EventAnalyticsPage({
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                Average Streak
+                Average Days
               </CardTitle>
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
@@ -143,6 +145,14 @@ export default async function EventAnalyticsPage({
             </CardContent>
           </Card>
         </div>
+
+        {/* Charts Section */}
+        <AnalyticsCharts
+          event={event}
+          allResets={allResets}
+          currentStreak={currentStreak}
+          totalResets={totalResets}
+        />
 
         {/* Recent Resets */}
         {recentResets.length > 0 && (
@@ -196,7 +206,7 @@ export default async function EventAnalyticsPage({
               <RotateCcw className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-medium mb-2">No resets yet!</h3>
               <p className="text-muted-foreground">
-                You&apos;re on a {currentStreak}-day streak. Keep it up!
+                You&apos;ve been tracking for {currentStreak} days. Keep it up!
               </p>
             </CardContent>
           </Card>

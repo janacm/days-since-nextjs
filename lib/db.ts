@@ -270,7 +270,7 @@ export async function getEventAnalytics(eventId: number, userId: string) {
 
   // Calculate analytics
   const totalResets = resets.length;
-  const currentStreak = Math.floor(
+  const currentDaysSince = Math.floor(
     (new Date().getTime() - new Date(event.date).getTime()) / (1000 * 3600 * 24)
   );
 
@@ -317,8 +317,8 @@ export async function getEventAnalytics(eventId: number, userId: string) {
       intervals.reduce((sum, interval) => sum + interval, 0) / intervals.length;
   }
 
-  // Find longest streak
-  let longestStreak = currentStreak;
+  // Find longest period between resets
+  let longestPeriod = currentDaysSince;
   if (resets.length > 0) {
     const intervals: number[] = [];
     const eventDate = new Date(event.date);
@@ -343,7 +343,7 @@ export async function getEventAnalytics(eventId: number, userId: string) {
       );
     }
 
-    longestStreak = Math.max(...intervals, currentStreak);
+    longestPeriod = Math.max(...intervals, currentDaysSince);
   }
 
   // Get recent resets (last 10)
@@ -352,8 +352,8 @@ export async function getEventAnalytics(eventId: number, userId: string) {
   return {
     event,
     totalResets,
-    currentStreak,
-    longestStreak,
+    currentStreak: currentDaysSince,
+    longestStreak: longestPeriod,
     averageDaysBetweenResets: Math.round(averageDaysBetweenResets),
     recentResets,
     allResets: resets
