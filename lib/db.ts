@@ -277,42 +277,51 @@ export async function getEventAnalytics(eventId: number, userId: string) {
   // Calculate average days between resets
   let averageDaysBetweenResets = 0;
   if (resets.length > 0) {
+    // Calculate actual intervals between consecutive events
     const intervals: number[] = [];
     const eventDate = new Date(event.date);
 
+    // Sort resets by date (oldest first)
+    const sortedResets = [...resets].sort(
+      (a, b) => new Date(a.resetAt).getTime() - new Date(b.resetAt).getTime()
+    );
+
     // Calculate interval from event start to first reset
-    if (resets.length > 0) {
-      const firstReset = resets[resets.length - 1]; // Last in array (oldest)
-      intervals.push(
-        Math.floor(
-          (new Date(firstReset.resetAt).getTime() - eventDate.getTime()) /
-            (1000 * 3600 * 24)
-        )
-      );
-    }
+    const firstReset = sortedResets[0];
+    const firstInterval = Math.max(
+      0,
+      Math.floor(
+        (new Date(firstReset.resetAt).getTime() - eventDate.getTime()) /
+          (1000 * 3600 * 24)
+      )
+    );
+    intervals.push(firstInterval);
 
     // Calculate intervals between consecutive resets
-    for (let i = resets.length - 1; i > 0; i--) {
-      const current = new Date(resets[i].resetAt);
-      const previous = new Date(resets[i - 1].resetAt);
-      intervals.push(
+    for (let i = 1; i < sortedResets.length; i++) {
+      const current = new Date(sortedResets[i].resetAt);
+      const previous = new Date(sortedResets[i - 1].resetAt);
+      const interval = Math.max(
+        0,
         Math.floor(
-          (previous.getTime() - current.getTime()) / (1000 * 3600 * 24)
+          (current.getTime() - previous.getTime()) / (1000 * 3600 * 24)
         )
       );
+      intervals.push(interval);
     }
 
-    // Calculate interval from last reset to now
-    if (resets.length > 0) {
-      const lastReset = resets[0]; // First in array (newest)
-      intervals.push(
-        Math.floor(
-          (new Date().getTime() - new Date(lastReset.resetAt).getTime()) /
-            (1000 * 3600 * 24)
-        )
-      );
-    }
+    // Calculate interval from last reset to now (only if positive)
+    const lastReset = sortedResets[sortedResets.length - 1];
+    const currentInterval = Math.max(
+      0,
+      Math.floor(
+        (new Date().getTime() - new Date(lastReset.resetAt).getTime()) /
+          (1000 * 3600 * 24)
+      )
+    );
+    intervals.push(currentInterval);
 
+    // Calculate average from intervals
     averageDaysBetweenResets =
       intervals.reduce((sum, interval) => sum + interval, 0) / intervals.length;
   }

@@ -139,9 +139,13 @@ export default async function EventAnalyticsPage({
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {totalResets > 0 ? averageDaysBetweenResets : currentStreak}
+                {totalResets > 0
+                  ? Math.round(averageDaysBetweenResets)
+                  : currentStreak}
               </div>
-              <p className="text-xs text-muted-foreground">days on average</p>
+              <p className="text-xs text-muted-foreground">
+                {totalResets > 0 ? 'days on average' : 'days total so far'}
+              </p>
             </CardContent>
           </Card>
         </div>
