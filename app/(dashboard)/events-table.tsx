@@ -23,7 +23,8 @@ export function EventsTable({ events }: { events: Event[] }) {
       <CardHeader>
         <CardTitle>Your Events</CardTitle>
         <CardDescription>
-          Track how many days have passed since important events.
+          Track how many days have passed since important events. Click on any
+          event to view detailed analytics.
         </CardDescription>
       </CardHeader>
       <CardContent>

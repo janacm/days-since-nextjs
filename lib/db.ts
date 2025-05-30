@@ -15,7 +15,7 @@ import {
   varchar,
   boolean
 } from 'drizzle-orm/pg-core';
-import { count, eq, ilike, desc, sql } from 'drizzle-orm';
+import { count, eq, ilike, desc, sql, and } from 'drizzle-orm';
 import { createInsertSchema } from 'drizzle-zod';
 
 // Define the schema
@@ -243,4 +243,128 @@ export async function getEventResets(eventId: number): Promise<EventReset[]> {
     .from(eventResets)
     .where(eq(eventResets.eventId, eventId))
     .orderBy(sql`${eventResets.resetAt} DESC`);
+}
+
+export async function getEventById(
+  id: number,
+  userId: string
+): Promise<Event | undefined> {
+  const result = await db
+    .select()
+    .from(events)
+    .where(and(eq(events.id, id), eq(events.userId, userId)))
+    .limit(1);
+
+  return result[0];
+}
+
+export async function getEventAnalytics(eventId: number, userId: string) {
+  // First verify the event belongs to the user
+  const event = await getEventById(eventId, userId);
+  if (!event) {
+    throw new Error('Event not found or access denied');
+  }
+
+  // Get all resets for this event
+  const resets = await getEventResets(eventId);
+
+  // Calculate analytics
+  const totalResets = resets.length;
+  const currentDaysSince = Math.floor(
+    (new Date().getTime() - new Date(event.date).getTime()) / (1000 * 3600 * 24)
+  );
+
+  // Calculate average days between resets
+  let averageDaysBetweenResets = 0;
+  if (resets.length > 0) {
+    // Calculate actual intervals between consecutive events
+    const intervals: number[] = [];
+    const eventDate = new Date(event.date);
+
+    // Sort resets by date (oldest first)
+    const sortedResets = [...resets].sort(
+      (a, b) => new Date(a.resetAt).getTime() - new Date(b.resetAt).getTime()
+    );
+
+    // Calculate interval from event start to first reset
+    const firstReset = sortedResets[0];
+    const firstInterval = Math.max(
+      0,
+      Math.floor(
+        (new Date(firstReset.resetAt).getTime() - eventDate.getTime()) /
+          (1000 * 3600 * 24)
+      )
+    );
+    intervals.push(firstInterval);
+
+    // Calculate intervals between consecutive resets
+    for (let i = 1; i < sortedResets.length; i++) {
+      const current = new Date(sortedResets[i].resetAt);
+      const previous = new Date(sortedResets[i - 1].resetAt);
+      const interval = Math.max(
+        0,
+        Math.floor(
+          (current.getTime() - previous.getTime()) / (1000 * 3600 * 24)
+        )
+      );
+      intervals.push(interval);
+    }
+
+    // Calculate interval from last reset to now (only if positive)
+    const lastReset = sortedResets[sortedResets.length - 1];
+    const currentInterval = Math.max(
+      0,
+      Math.floor(
+        (new Date().getTime() - new Date(lastReset.resetAt).getTime()) /
+          (1000 * 3600 * 24)
+      )
+    );
+    intervals.push(currentInterval);
+
+    // Calculate average from intervals
+    averageDaysBetweenResets =
+      intervals.reduce((sum, interval) => sum + interval, 0) / intervals.length;
+  }
+
+  // Find longest period between resets
+  let longestPeriod = currentDaysSince;
+  if (resets.length > 0) {
+    const intervals: number[] = [];
+    const eventDate = new Date(event.date);
+
+    // Calculate interval from event start to first reset
+    const firstReset = resets[resets.length - 1];
+    intervals.push(
+      Math.floor(
+        (new Date(firstReset.resetAt).getTime() - eventDate.getTime()) /
+          (1000 * 3600 * 24)
+      )
+    );
+
+    // Calculate intervals between consecutive resets
+    for (let i = resets.length - 1; i > 0; i--) {
+      const current = new Date(resets[i].resetAt);
+      const previous = new Date(resets[i - 1].resetAt);
+      intervals.push(
+        Math.floor(
+          (previous.getTime() - current.getTime()) / (1000 * 3600 * 24)
+        )
+      );
+    }
+
+    longestPeriod = Math.max(...intervals, currentDaysSince);
+  }
+
+  // Get recent resets (last 10)
+  const recentResets = resets.slice(0, 10);
+
+  return {
+    event,
+    totalResets,
+    currentStreak: currentDaysSince,
+    longestStreak: longestPeriod,
+    averageDaysBetweenResets: Math.round(averageDaysBetweenResets),
+    recentResets,
+    allResets: resets
+  };
 }
