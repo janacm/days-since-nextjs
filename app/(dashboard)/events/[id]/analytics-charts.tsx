@@ -41,7 +41,8 @@ export function AnalyticsCharts({
       chartData.push({
         date: eventDate.toLocaleDateString('en-US', {
           month: 'short',
-          day: 'numeric'
+          day: 'numeric',
+          timeZone: 'UTC'
         }),
         fullDate: eventDate.toISOString(),
         daysCount: 0,
@@ -50,7 +51,8 @@ export function AnalyticsCharts({
       chartData.push({
         date: new Date().toLocaleDateString('en-US', {
           month: 'short',
-          day: 'numeric'
+          day: 'numeric',
+          timeZone: 'UTC'
         }),
         fullDate: new Date().toISOString(),
         daysCount: currentStreak,
@@ -65,7 +67,8 @@ export function AnalyticsCharts({
       chartData.push({
         date: currentDate.toLocaleDateString('en-US', {
           month: 'short',
-          day: 'numeric'
+          day: 'numeric',
+          timeZone: 'UTC'
         }),
         fullDate: currentDate.toISOString(),
         daysCount: 0,
@@ -84,7 +87,8 @@ export function AnalyticsCharts({
         chartData.push({
           date: resetDate.toLocaleDateString('en-US', {
             month: 'short',
-            day: 'numeric'
+            day: 'numeric',
+            timeZone: 'UTC'
           }),
           fullDate: resetDate.toISOString(),
           daysCount: periodLength,
@@ -95,7 +99,8 @@ export function AnalyticsCharts({
         chartData.push({
           date: resetDate.toLocaleDateString('en-US', {
             month: 'short',
-            day: 'numeric'
+            day: 'numeric',
+            timeZone: 'UTC'
           }),
           fullDate: resetDate.toISOString(),
           daysCount: 0,
@@ -113,7 +118,8 @@ export function AnalyticsCharts({
       chartData.push({
         date: now.toLocaleDateString('en-US', {
           month: 'short',
-          day: 'numeric'
+          day: 'numeric',
+          timeZone: 'UTC'
         }),
         fullDate: now.toISOString(),
         daysCount: currentDays,
@@ -134,7 +140,8 @@ export function AnalyticsCharts({
       const date = new Date(reset.resetAt);
       const monthKey = date.toLocaleDateString('en-US', {
         year: 'numeric',
-        month: 'short'
+        month: 'short',
+        timeZone: 'UTC'
       });
       monthlyData[monthKey] = (monthlyData[monthKey] || 0) + 1;
     });

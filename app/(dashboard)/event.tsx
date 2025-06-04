@@ -29,7 +29,8 @@ export function EventItem({ event }: { event: Event }) {
   const formattedDate = new Date(event.date).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
-    day: 'numeric'
+    day: 'numeric',
+    timeZone: 'UTC'
   });
 
   // Get relative time (e.g., "2 months ago")

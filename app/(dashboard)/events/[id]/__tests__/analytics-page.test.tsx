@@ -245,7 +245,7 @@ describe('EventAnalyticsPage', () => {
 
     // Use getAllByText since the date appears in multiple elements
     const dateElements = screen.getAllByText((content, element) => {
-      return element?.textContent?.includes('December 31, 2023') || false;
+      return element?.textContent?.includes('January 1, 2024') || false;
     });
     expect(dateElements.length).toBeGreaterThan(0);
   });
