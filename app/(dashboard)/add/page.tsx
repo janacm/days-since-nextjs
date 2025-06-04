@@ -13,6 +13,10 @@ import { addEvent } from '../actions';
 import Link from 'next/link';
 
 export default function AddEventPage() {
+  // Get today's date in YYYY-MM-DD format using local timezone
+  const now = new Date();
+  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
   return (
     <div className="max-w-md mx-auto">
       <Card>
@@ -32,7 +36,13 @@ export default function AddEventPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="date">When did it happen?</Label>
-              <Input id="date" name="date" type="date" required />
+              <Input
+                id="date"
+                name="date"
+                type="date"
+                defaultValue={today}
+                required
+              />
             </div>
             <div className="flex items-center space-x-2">
               <Switch id="reminder" name="reminder" />
