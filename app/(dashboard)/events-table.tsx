@@ -16,8 +16,48 @@ import {
 } from '@/components/ui/card';
 import { EventItem } from './event';
 import { Event } from '@/lib/db';
+import { deleteEvent, resetEvent, resetEventWithDate } from './actions';
+import { useOptimistic, useTransition } from 'react';
 
 export function EventsTable({ events }: { events: Event[] }) {
+  const [optimisticEvents, updateOptimisticEvents] = useOptimistic<Event[]>(events);
+  const [, startTransition] = useTransition();
+
+  const handleDelete = (id: number) => {
+    updateOptimisticEvents((current) => current.filter((e) => e.id !== id));
+    startTransition(async () => {
+      const fd = new FormData();
+      fd.append('id', id.toString());
+      await deleteEvent(fd);
+    });
+  };
+
+  const handleReset = (id: number, dateStr: string) => {
+    updateOptimisticEvents((current) =>
+      current.map((e) => (e.id === id ? { ...e, date: dateStr } : e))
+    );
+    startTransition(async () => {
+      const fd = new FormData();
+      fd.append('id', id.toString());
+      fd.append('resetDate', dateStr);
+      await resetEventWithDate(fd);
+    });
+  };
+
+  const handleQuickReset = (id: number) => {
+    const dateStr = new Date().toISOString();
+    updateOptimisticEvents((current) =>
+      current.map((e) => (e.id === id ? { ...e, date: dateStr } : e))
+    );
+    startTransition(async () => {
+      const fd = new FormData();
+      fd.append('id', id.toString());
+      await resetEvent(fd);
+    });
+  };
+
+  const renderedEvents = optimisticEvents;
+
   return (
     <Card>
       <CardHeader>
@@ -28,7 +68,7 @@ export function EventsTable({ events }: { events: Event[] }) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {events.length === 0 ? (
+        {renderedEvents.length === 0 ? (
           <div className="text-center py-6 text-muted-foreground">
             No events yet. Add your first event to get started!
           </div>
@@ -44,8 +84,14 @@ export function EventsTable({ events }: { events: Event[] }) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {events.map((event) => (
-                <EventItem key={event.id} event={event} />
+              {renderedEvents.map((event) => (
+                <EventItem
+                  key={event.id}
+                  event={event}
+                  onDelete={handleDelete}
+                  onReset={handleReset}
+                  onQuickReset={handleQuickReset}
+                />
               ))}
             </TableBody>
           </Table>
