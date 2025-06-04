@@ -191,6 +191,23 @@ describe('Event Navigation', () => {
 
     jest.useRealTimers();
   });
+
+  it('formats event date in UTC', () => {
+    const originalTZ = process.env.TZ;
+    process.env.TZ = 'America/New_York';
+
+    render(
+      <table>
+        <tbody>
+          <EventItem event={mockEvent} />
+        </tbody>
+      </table>
+    );
+
+    expect(screen.getByText('January 1, 2024')).toBeInTheDocument();
+
+    process.env.TZ = originalTZ;
+  });
 });
 
 describe('Event Navigation Integration', () => {
