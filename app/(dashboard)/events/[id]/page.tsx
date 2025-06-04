@@ -52,7 +52,8 @@ export default async function EventAnalyticsPage({
     const formattedDate = new Date(event.date).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
+      timeZone: 'UTC'
     });
 
     return (
@@ -180,13 +181,15 @@ export default async function EventAnalyticsPage({
                           {new Date(reset.resetAt).toLocaleDateString('en-US', {
                             year: 'numeric',
                             month: 'short',
-                            day: 'numeric'
+                            day: 'numeric',
+                            timeZone: 'UTC'
                           })}
                         </div>
                         <div className="text-sm text-muted-foreground">
                           {new Date(reset.resetAt).toLocaleTimeString('en-US', {
                             hour: '2-digit',
-                            minute: '2-digit'
+                            minute: '2-digit',
+                            timeZone: 'UTC'
                           })}
                         </div>
                       </div>

@@ -3,17 +3,21 @@ import { render, screen } from '@testing-library/react';
 import { AnalyticsCharts } from '../analytics-charts';
 import { EventReset } from '@/lib/db';
 
+// Capture chart data passed to mocked components
+const areaChartMock = jest.fn(({ children }) => (
+  <div data-testid="area-chart">{children}</div>
+));
+const barChartMock = jest.fn(({ children }) => (
+  <div data-testid="bar-chart">{children}</div>
+));
+
 // Mock Recharts components
 jest.mock('recharts', () => ({
   ResponsiveContainer: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="responsive-container">{children}</div>
   ),
-  AreaChart: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="area-chart">{children}</div>
-  ),
-  BarChart: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="bar-chart">{children}</div>
-  ),
+  AreaChart: (props: any) => areaChartMock(props),
+  BarChart: (props: any) => barChartMock(props),
   Area: () => <div data-testid="area" />,
   Bar: () => <div data-testid="bar" />,
   XAxis: () => <div data-testid="x-axis" />,
@@ -189,6 +193,28 @@ describe('AnalyticsCharts', () => {
 
 // Test the chart data preparation logic separately
 describe('AnalyticsCharts - Data Preparation', () => {
+  const mockEvent = {
+    id: 1,
+    name: 'Test Event',
+    date: '2024-01-01T00:00:00.000Z'
+  };
+  const mockResets: EventReset[] = [
+    {
+      id: 1,
+      eventId: 1,
+      resetAt: new Date('2024-01-15T10:00:00.000Z')
+    },
+    {
+      id: 2,
+      eventId: 1,
+      resetAt: new Date('2024-02-01T10:00:00.000Z')
+    },
+    {
+      id: 3,
+      eventId: 1,
+      resetAt: new Date('2024-02-15T10:00:00.000Z')
+    }
+  ];
   beforeEach(() => {
     jest.useFakeTimers();
     jest.setSystemTime(new Date('2024-02-25T10:00:00.000Z'));
@@ -257,5 +283,27 @@ describe('AnalyticsCharts - Data Preparation', () => {
     // Should render the monthly chart since we have resets
     expect(screen.getByText('Reset Frequency by Month')).toBeInTheDocument();
     expect(screen.getByTestId('bar-chart')).toBeInTheDocument();
+  });
+
+  it('generates chart data with UTC-formatted dates', () => {
+    const originalTZ = process.env.TZ;
+    process.env.TZ = 'America/New_York';
+
+    render(
+      <AnalyticsCharts
+        event={mockEvent}
+        allResets={mockResets}
+        currentStreak={10}
+        totalResets={3}
+      />
+    );
+
+    const areaProps = areaChartMock.mock.calls[0][0];
+    const barProps = barChartMock.mock.calls[0][0];
+
+    expect(areaProps.data[0].date).toBe('Jan 1');
+    expect(barProps.data[0].month).toBe('Jan 2024');
+
+    process.env.TZ = originalTZ;
   });
 });

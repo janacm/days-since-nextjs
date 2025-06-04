@@ -245,9 +245,31 @@ describe('EventAnalyticsPage', () => {
 
     // Use getAllByText since the date appears in multiple elements
     const dateElements = screen.getAllByText((content, element) => {
-      return element?.textContent?.includes('December 31, 2023') || false;
+      return element?.textContent?.includes('January 1, 2024') || false;
     });
     expect(dateElements.length).toBeGreaterThan(0);
+  });
+
+  it('formats reset timestamps in UTC', async () => {
+    const originalTZ = process.env.TZ;
+    process.env.TZ = 'America/New_York';
+
+    mockAuth.mockResolvedValue({
+      user: { email: 'test@example.com' }
+    } as any);
+    mockGetEventAnalytics.mockResolvedValue(mockAnalyticsData as any);
+
+    const result = await EventAnalyticsPage({
+      params: Promise.resolve({ id: '1' })
+    });
+
+    render(result as React.ReactElement);
+
+    expect(screen.getByText('Feb 15, 2024')).toBeInTheDocument();
+    const timeElements = screen.getAllByText('10:00 AM');
+    expect(timeElements.length).toBeGreaterThan(0);
+
+    process.env.TZ = originalTZ;
   });
 
   it('shows correct metric descriptions', async () => {
