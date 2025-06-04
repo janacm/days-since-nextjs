@@ -18,9 +18,15 @@ import { resetEvent, resetEventWithDate } from './actions';
 
 interface ResetButtonProps {
   eventId: number;
+  onOptimisticReset?: (date: string) => void;
+  onOptimisticQuickReset?: () => void;
 }
 
-export function ResetButton({ eventId }: ResetButtonProps) {
+export function ResetButton({
+  eventId,
+  onOptimisticReset,
+  onOptimisticQuickReset
+}: ResetButtonProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [resetDate, setResetDate] = useState('');
   const [progress, setProgress] = useState(0);
@@ -29,6 +35,7 @@ export function ResetButton({ eventId }: ResetButtonProps) {
     const formData = new FormData();
     formData.append('id', eventId.toString());
     resetEvent(formData);
+    onOptimisticQuickReset?.();
   };
 
   const handleLongPress = () => {
@@ -45,6 +52,7 @@ export function ResetButton({ eventId }: ResetButtonProps) {
     formData.append('id', eventId.toString());
     formData.append('resetDate', resetDate);
     resetEventWithDate(formData);
+    onOptimisticReset?.(resetDate);
     setIsModalOpen(false);
   };
 
