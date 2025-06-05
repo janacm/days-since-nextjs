@@ -15,15 +15,25 @@ import {
   CardDescription
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
+import Fuse from 'fuse.js';
 import { EventItem } from './event';
 import { Event } from '@/lib/db';
 
 export function EventsTable({ events }: { events: Event[] }) {
   const [query, setQuery] = useState('');
-  const filtered = events.filter((event) =>
-    event.name.toLowerCase().includes(query.toLowerCase())
-  );
+
+  const fuse = useMemo(() => {
+    return new Fuse(events, {
+      keys: ['name'],
+      threshold: 0.3
+    });
+  }, [events]);
+
+  const filtered =
+    query.trim() === ''
+      ? events
+      : fuse.search(query).map((result) => result.item);
 
   return (
     <Card>
