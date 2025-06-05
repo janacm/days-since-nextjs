@@ -16,9 +16,11 @@ import { formatDistanceToNow } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { ResetButton } from './reset-button';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 export function EventItem({ event }: { event: Event }) {
   const router = useRouter();
+  const [isResetModalOpen, setIsResetModalOpen] = useState(false);
 
   // Calculate days since
   const daysSince = Math.floor(
@@ -52,6 +54,9 @@ export function EventItem({ event }: { event: Event }) {
     ) {
       return;
     }
+    if (isResetModalOpen) {
+      return;
+    }
     router.push(`/events/${event.id}`);
   };
 
@@ -81,7 +86,7 @@ export function EventItem({ event }: { event: Event }) {
         {relativeTime}
       </TableCell>
       <TableCell className="flex items-center gap-2">
-        <ResetButton eventId={event.id} />
+        <ResetButton eventId={event.id} onOpenChange={setIsResetModalOpen} />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button aria-haspopup="true" size="icon" variant="ghost">

@@ -18,9 +18,10 @@ import { resetEvent, resetEventWithDate } from './actions';
 
 interface ResetButtonProps {
   eventId: number;
+  onOpenChange?: (open: boolean) => void;
 }
 
-export function ResetButton({ eventId }: ResetButtonProps) {
+export function ResetButton({ eventId, onOpenChange }: ResetButtonProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [resetDate, setResetDate] = useState('');
   const [progress, setProgress] = useState(0);
@@ -117,8 +118,17 @@ export function ResetButton({ eventId }: ResetButtonProps) {
         </span>
       </Button>
 
-      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+      <Dialog
+        open={isModalOpen}
+        onOpenChange={(open) => {
+          setIsModalOpen(open);
+          onOpenChange?.(open);
+        }}
+      >
+        <DialogContent
+          className="sm:max-w-[425px]"
+          onClick={(e) => e.stopPropagation()}
+        >
           <DialogHeader>
             <DialogTitle>Reset Event</DialogTitle>
             <DialogDescription>
