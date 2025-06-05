@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import { useRouter } from 'next/navigation';
 import { EventItem } from '../event';
 import { Event } from '@/lib/db';
@@ -107,6 +107,44 @@ describe('Event Navigation', () => {
       fireEvent.click(dropdownButton);
       expect(mockPush).not.toHaveBeenCalled();
     }
+  });
+
+  it('does not navigate when reset modal is open and clicked', () => {
+    const { useLongPress } = require('../../../lib/hooks/use-long-press');
+
+    let longPressCallback: () => void = () => {};
+    (useLongPress as jest.Mock).mockImplementationOnce(
+      ({ onLongPress, onClick }) => {
+        longPressCallback = onLongPress;
+        return {
+          onMouseDown: jest.fn(),
+          onMouseUp: jest.fn(),
+          onMouseLeave: jest.fn(),
+          onTouchStart: jest.fn(),
+          onTouchEnd: jest.fn(),
+          onClick: onClick || jest.fn(),
+          isPressed: false
+        };
+      }
+    );
+
+    render(
+      <table>
+        <tbody>
+          <EventItem event={mockEvent} />
+        </tbody>
+      </table>
+    );
+
+    // open the modal
+    act(() => {
+      longPressCallback();
+    });
+
+    const dateInput = screen.getByLabelText('Reset Date');
+    fireEvent.click(dateInput);
+
+    expect(mockPush).not.toHaveBeenCalled();
   });
 
   it('applies correct hover styles to table row', () => {
