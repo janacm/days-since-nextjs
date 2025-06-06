@@ -97,28 +97,28 @@ export function EventsTable({ events }: { events: Event[] }) {
                   Event
                   <div
                     onMouseDown={startResize(0)}
-                    className="absolute right-0 top-0 hidden h-full w-1 cursor-col-resize md:block"
+                    className="absolute right-0 top-0 hidden h-full w-1 bg-border cursor-col-resize md:block"
                   />
                 </TableHead>
                 <TableHead className="relative">
                   Date
                   <div
                     onMouseDown={startResize(1)}
-                    className="absolute right-0 top-0 hidden h-full w-1 cursor-col-resize md:block"
+                    className="absolute right-0 top-0 hidden h-full w-1 bg-border cursor-col-resize md:block"
                   />
                 </TableHead>
                 <TableHead className="relative text-center">
                   Days Since
                   <div
                     onMouseDown={startResize(2)}
-                    className="absolute right-0 top-0 hidden h-full w-1 cursor-col-resize md:block"
+                    className="absolute right-0 top-0 hidden h-full w-1 bg-border cursor-col-resize md:block"
                   />
                 </TableHead>
                 <TableHead className="relative hidden md:table-cell">
                   Relative
                   <div
                     onMouseDown={startResize(3)}
-                    className="absolute right-0 top-0 hidden h-full w-1 cursor-col-resize md:block"
+                    className="absolute right-0 top-0 hidden h-full w-1 bg-border cursor-col-resize md:block"
                   />
                 </TableHead>
                 <TableHead className="w-[70px]"></TableHead>
