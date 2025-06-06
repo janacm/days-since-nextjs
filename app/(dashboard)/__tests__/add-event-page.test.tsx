@@ -2,6 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import AddEventPage from '../add/page';
+import { EventsProvider } from '@/components/events-context';
 
 // Mock the addEvent action
 jest.mock('../actions', () => ({
@@ -33,7 +34,11 @@ describe('Add Event Page', () => {
       jest.useFakeTimers();
       jest.setSystemTime(mockDate);
 
-      render(<AddEventPage />);
+      render(
+        <EventsProvider initialEvents={[]}>
+          <AddEventPage />
+        </EventsProvider>
+      );
 
       const dateInput = screen.getByLabelText(
         'When did it happen?'
@@ -49,7 +54,11 @@ describe('Add Event Page', () => {
       jest.useFakeTimers();
       jest.setSystemTime(mockDate);
 
-      render(<AddEventPage />);
+      render(
+        <EventsProvider initialEvents={[]}>
+          <AddEventPage />
+        </EventsProvider>
+      );
 
       const dateInput = screen.getByLabelText(
         'When did it happen?'
@@ -66,7 +75,7 @@ describe('Add Event Page', () => {
       jest.useFakeTimers();
       jest.setSystemTime(mockDate);
 
-      render(<AddEventPage />);
+      render(<EventsProvider initialEvents={[]}><AddEventPage /></EventsProvider>);
 
       const dateInput = screen.getByLabelText(
         'When did it happen?'
@@ -81,7 +90,7 @@ describe('Add Event Page', () => {
 
   describe('Form Rendering', () => {
     it('renders all required form elements', () => {
-      render(<AddEventPage />);
+      render(<EventsProvider initialEvents={[]}><AddEventPage /></EventsProvider>);
 
       // Check for form elements
       expect(screen.getByText('Add New Event')).toBeInTheDocument();
@@ -98,7 +107,7 @@ describe('Add Event Page', () => {
     });
 
     it('has correct input types and attributes', () => {
-      render(<AddEventPage />);
+      render(<EventsProvider initialEvents={[]}><AddEventPage /></EventsProvider>);
 
       const nameInput = screen.getByLabelText('Event Name');
       const dateInput = screen.getByLabelText('When did it happen?');
@@ -117,7 +126,7 @@ describe('Add Event Page', () => {
     });
 
     it('has correct form action', () => {
-      render(<AddEventPage />);
+      render(<EventsProvider initialEvents={[]}><AddEventPage /></EventsProvider>);
 
       const form = document.querySelector('form');
       expect(form).toBeInTheDocument();
@@ -127,7 +136,7 @@ describe('Add Event Page', () => {
   describe('User Interactions', () => {
     it('allows user to input event name', async () => {
       const user = userEvent.setup();
-      render(<AddEventPage />);
+      render(<EventsProvider initialEvents={[]}><AddEventPage /></EventsProvider>);
 
       const nameInput = screen.getByLabelText('Event Name');
       await user.type(nameInput, 'Test Event');
@@ -137,7 +146,7 @@ describe('Add Event Page', () => {
 
     it('allows user to change the date', async () => {
       const user = userEvent.setup();
-      render(<AddEventPage />);
+      render(<EventsProvider initialEvents={[]}><AddEventPage /></EventsProvider>);
 
       const dateInput = screen.getByLabelText('When did it happen?');
       await user.clear(dateInput);
@@ -148,7 +157,7 @@ describe('Add Event Page', () => {
 
     it('allows user to toggle reminder switch', async () => {
       const user = userEvent.setup();
-      render(<AddEventPage />);
+      render(<EventsProvider initialEvents={[]}><AddEventPage /></EventsProvider>);
 
       const reminderSwitch = screen.getByRole('switch');
       expect(reminderSwitch).not.toBeChecked();
@@ -159,7 +168,7 @@ describe('Add Event Page', () => {
 
     it('allows user to input reminder days', async () => {
       const user = userEvent.setup();
-      render(<AddEventPage />);
+      render(<EventsProvider initialEvents={[]}><AddEventPage /></EventsProvider>);
 
       const reminderDaysInput = screen.getByLabelText('Remind me after (days)');
       await user.type(reminderDaysInput, '30');
@@ -170,7 +179,7 @@ describe('Add Event Page', () => {
 
   describe('Navigation', () => {
     it('has cancel button that links to home page', () => {
-      render(<AddEventPage />);
+      render(<EventsProvider initialEvents={[]}><AddEventPage /></EventsProvider>);
 
       const cancelButton = screen.getByText('Cancel');
       expect(cancelButton.closest('a')).toHaveAttribute('href', '/');
@@ -179,7 +188,7 @@ describe('Add Event Page', () => {
 
   describe('Form Validation', () => {
     it('marks required fields as required', () => {
-      render(<AddEventPage />);
+      render(<EventsProvider initialEvents={[]}><AddEventPage /></EventsProvider>);
 
       const nameInput = screen.getByLabelText('Event Name');
       const dateInput = screen.getByLabelText('When did it happen?');
@@ -189,7 +198,7 @@ describe('Add Event Page', () => {
     });
 
     it('has proper form structure for server action', () => {
-      render(<AddEventPage />);
+      render(<EventsProvider initialEvents={[]}><AddEventPage /></EventsProvider>);
 
       const form = document.querySelector('form');
       const submitButton = screen.getByText('Add Event');
@@ -201,7 +210,7 @@ describe('Add Event Page', () => {
 
   describe('Accessibility', () => {
     it('has proper labels for all form controls', () => {
-      render(<AddEventPage />);
+      render(<EventsProvider initialEvents={[]}><AddEventPage /></EventsProvider>);
 
       // All inputs should have associated labels
       expect(screen.getByLabelText('Event Name')).toBeInTheDocument();
@@ -213,7 +222,7 @@ describe('Add Event Page', () => {
     });
 
     it('has proper semantic structure', () => {
-      render(<AddEventPage />);
+      render(<EventsProvider initialEvents={[]}><AddEventPage /></EventsProvider>);
 
       // Should have a proper heading
       expect(

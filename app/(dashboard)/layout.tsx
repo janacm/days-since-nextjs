@@ -28,17 +28,26 @@ import { User } from './user';
 import Providers from './providers';
 import { NavItem } from './nav-item';
 import { SearchInput } from './search';
+import { EventsProvider } from '@/components/events-context';
+import { getEvents } from '@/lib/db';
+import { auth } from '@/lib/auth';
 
-export default function DashboardLayout({
+export default async function DashboardLayout({
   children
 }: {
   children: React.ReactNode;
 }) {
+  const session = await auth();
+  const events = session?.user?.email
+    ? await getEvents(session.user.email)
+    : [];
+
   return (
     <Providers>
-      <main className="flex min-h-screen w-full flex-col bg-muted/40">
-        <DesktopNav />
-        <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
+      <EventsProvider initialEvents={events}>
+        <main className="flex min-h-screen w-full flex-col bg-muted/40">
+          <DesktopNav />
+          <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
           <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
             <MobileNav />
             <DashboardBreadcrumb />
@@ -49,7 +58,8 @@ export default function DashboardLayout({
           </main>
         </div>
         <Analytics />
-      </main>
+        </main>
+      </EventsProvider>
     </Providers>
   );
 }

@@ -17,14 +17,16 @@ import {
 import { EventItem } from './event';
 import { Event } from '@/lib/db';
 import { deleteEvent, resetEvent, resetEventWithDate } from './actions';
-import { useOptimistic, useTransition } from 'react';
+import { useTransition } from 'react';
+import { useEvents } from '@/components/events-context';
 
-export function EventsTable({ events }: { events: Event[] }) {
-  const [optimisticEvents, updateOptimisticEvents] = useOptimistic<Event[]>(events);
+export function EventsTable({ events: initialEvents }: { events?: Event[] }) {
+  const { events: contextEvents, removeEvent, updateEvent } = useEvents();
+  const events = initialEvents ?? contextEvents;
   const [, startTransition] = useTransition();
 
   const handleDelete = (id: number) => {
-    updateOptimisticEvents((current) => current.filter((e) => e.id !== id));
+    removeEvent(id);
     startTransition(async () => {
       const fd = new FormData();
       fd.append('id', id.toString());
@@ -33,9 +35,7 @@ export function EventsTable({ events }: { events: Event[] }) {
   };
 
   const handleReset = (id: number, dateStr: string) => {
-    updateOptimisticEvents((current) =>
-      current.map((e) => (e.id === id ? { ...e, date: dateStr } : e))
-    );
+    updateEvent({ id, date: dateStr } as Event);
     startTransition(async () => {
       const fd = new FormData();
       fd.append('id', id.toString());
@@ -46,9 +46,7 @@ export function EventsTable({ events }: { events: Event[] }) {
 
   const handleQuickReset = (id: number) => {
     const dateStr = new Date().toISOString();
-    updateOptimisticEvents((current) =>
-      current.map((e) => (e.id === id ? { ...e, date: dateStr } : e))
-    );
+    updateEvent({ id, date: dateStr } as Event);
     startTransition(async () => {
       const fd = new FormData();
       fd.append('id', id.toString());
@@ -56,7 +54,7 @@ export function EventsTable({ events }: { events: Event[] }) {
     });
   };
 
-  const renderedEvents = optimisticEvents;
+  const renderedEvents = events;
 
   return (
     <Card>
