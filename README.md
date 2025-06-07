@@ -46,7 +46,7 @@ CREATE TABLE products (
 
 Then, uncomment `app/api/seed.ts` and hit `http://localhost:3000/api/seed` to seed the database with products.
 
-Next, copy the `.env.example` file to `.env` and update the values. Follow the instructions in the `.env.example` file to set up your GitHub OAuth application.
+Next, copy the `.env.example` file to `.env` and update the values. In addition to your database and GitHub credentials, make sure to provide the SMTP settings used for sending reminder emails as well as a `CRON_SECRET_KEY` for securing the scheduled job.
 
 ```bash
 npm i -g vercel
