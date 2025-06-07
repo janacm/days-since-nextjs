@@ -4,6 +4,9 @@ import { redirect } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import {
   ArrowLeft,
   Calendar,
@@ -14,6 +17,7 @@ import {
 import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns';
 import { AnalyticsCharts } from './analytics-charts';
+import { updateEventReminder } from '../../actions';
 
 interface EventAnalyticsPageProps {
   params: Promise<{
@@ -84,6 +88,34 @@ export default async function EventAnalyticsPage({
               )}
             </div>
           </CardHeader>
+        </Card>
+
+        {/* Reminder Settings */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Reminder Settings</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form action={updateEventReminder} className="space-y-4">
+              <input type="hidden" name="id" value={event.id} />
+              <div className="flex items-center space-x-2">
+                <Switch id="reminder" name="reminder" defaultChecked={!!event.reminderDays} />
+                <Label htmlFor="reminder">Set a reminder</Label>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="reminderDays">Remind me after (days)</Label>
+                <Input
+                  id="reminderDays"
+                  name="reminderDays"
+                  type="number"
+                  min="1"
+                  placeholder="e.g. 30"
+                  defaultValue={event.reminderDays ?? ''}
+                />
+              </div>
+              <Button type="submit">Save Reminder</Button>
+            </form>
+          </CardContent>
         </Card>
 
         {/* Analytics Cards */}
