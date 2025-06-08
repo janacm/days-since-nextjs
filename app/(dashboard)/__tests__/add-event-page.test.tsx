@@ -2,10 +2,21 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import AddEventPage from '../add/page';
+import { auth } from '@/lib/auth';
+import { getEvents } from '@/lib/db';
+import { redirect } from 'next/navigation';
 
 // Mock the addEvent action
 jest.mock('../actions', () => ({
   addEvent: jest.fn()
+}));
+
+jest.mock('@/lib/auth', () => ({
+  auth: jest.fn()
+}));
+
+jest.mock('@/lib/db', () => ({
+  getEvents: jest.fn()
 }));
 
 // Mock next/link
@@ -22,18 +33,96 @@ jest.mock('next/link', () => {
 });
 
 describe('Add Event Page', () => {
+  const mockAuth = auth as jest.MockedFunction<typeof auth>;
+  const mockGetEvents = getEvents as jest.MockedFunction<typeof getEvents>;
+  const mockRedirect = redirect as jest.MockedFunction<typeof redirect>;
+
   beforeEach(() => {
     jest.clearAllMocks();
+    mockAuth.mockResolvedValue({ user: { email: 'test@example.com' } } as any);
+    mockGetEvents.mockResolvedValue([
+      {
+        id: 1,
+        userId: 'test@example.com',
+        name: 'Existing Event',
+        date: '2024-01-01T00:00:00.000Z',
+        resetCount: 0,
+        createdAt: new Date('2024-01-01T00:00:00.000Z'),
+        reminderDays: null,
+        reminderSent: false
+      }
+    ] as any);
+    mockRedirect.mockClear();
+  });
+
+  describe('Authentication and Data Fetching', () => {
+    it('redirects to login when user is not authenticated', async () => {
+      mockAuth.mockResolvedValueOnce(null as any);
+      mockRedirect.mockImplementationOnce(() => {
+        throw new Error('redirect');
+      });
+
+      await expect(AddEventPage()).rejects.toThrow('redirect');
+
+      expect(mockRedirect).toHaveBeenCalledWith('/login');
+      expect(mockGetEvents).not.toHaveBeenCalled();
+    });
+
+    it('fetches events and displays unique suggestions', async () => {
+      mockGetEvents.mockResolvedValueOnce([
+        {
+          id: 1,
+          userId: 'test@example.com',
+          name: 'Event A',
+          date: '2024-01-01T00:00:00.000Z',
+          resetCount: 0,
+          createdAt: new Date('2024-01-01T00:00:00.000Z'),
+          reminderDays: null,
+          reminderSent: false
+        },
+        {
+          id: 2,
+          userId: 'test@example.com',
+          name: 'Event B',
+          date: '2024-02-01T00:00:00.000Z',
+          resetCount: 0,
+          createdAt: new Date('2024-02-01T00:00:00.000Z'),
+          reminderDays: null,
+          reminderSent: false
+        },
+        {
+          id: 3,
+          userId: 'test@example.com',
+          name: 'Event A',
+          date: '2024-03-01T00:00:00.000Z',
+          resetCount: 0,
+          createdAt: new Date('2024-03-01T00:00:00.000Z'),
+          reminderDays: null,
+          reminderSent: false
+        }
+      ] as any);
+
+      const result = await AddEventPage();
+      render(result as React.ReactElement);
+
+      expect(mockGetEvents).toHaveBeenCalledWith('test@example.com');
+
+      const dataList = screen.getByTestId('event-suggestions');
+      const values = Array.from(dataList.querySelectorAll('option')).map((opt) =>
+        opt.getAttribute('value')
+      );
+      expect(values.sort()).toEqual(['Event A', 'Event B']);
+    });
   });
 
   describe('Default Date Functionality', () => {
-    it("sets today's date as default value in local timezone", () => {
+    it("sets today's date as default value in local timezone", async () => {
       // Mock the current date
       const mockDate = new Date('2025-06-03T15:30:00.000Z');
       jest.useFakeTimers();
       jest.setSystemTime(mockDate);
 
-      render(<AddEventPage />);
+      render(await AddEventPage());
 
       const dateInput = screen.getByLabelText(
         'When did it happen?'
@@ -43,13 +132,13 @@ describe('Add Event Page', () => {
       jest.useRealTimers();
     });
 
-    it('formats date correctly with leading zeros for single digit months and days', () => {
+    it('formats date correctly with leading zeros for single digit months and days', async () => {
       // Test with single-digit month and day
       const mockDate = new Date('2025-03-05T10:00:00.000Z');
       jest.useFakeTimers();
       jest.setSystemTime(mockDate);
 
-      render(<AddEventPage />);
+      render(await AddEventPage());
 
       const dateInput = screen.getByLabelText(
         'When did it happen?'
@@ -59,14 +148,14 @@ describe('Add Event Page', () => {
       jest.useRealTimers();
     });
 
-    it('handles timezone correctly (does not use UTC)', () => {
+    it('handles timezone correctly (does not use UTC)', async () => {
       // Create a date that would be different in UTC vs local time
       // Assuming local timezone is behind UTC (like PST/PDT)
       const mockDate = new Date('2025-06-03T23:00:00'); // 11 PM local time
       jest.useFakeTimers();
       jest.setSystemTime(mockDate);
 
-      render(<AddEventPage />);
+      render(await AddEventPage());
 
       const dateInput = screen.getByLabelText(
         'When did it happen?'
@@ -80,8 +169,8 @@ describe('Add Event Page', () => {
   });
 
   describe('Form Rendering', () => {
-    it('renders all required form elements', () => {
-      render(<AddEventPage />);
+    it('renders all required form elements', async () => {
+      render(await AddEventPage());
 
       // Check for form elements
       expect(screen.getByText('Add New Event')).toBeInTheDocument();
@@ -97,8 +186,8 @@ describe('Add Event Page', () => {
       expect(screen.getByText('Add Event')).toBeInTheDocument();
     });
 
-    it('has correct input types and attributes', () => {
-      render(<AddEventPage />);
+    it('has correct input types and attributes', async () => {
+      render(await AddEventPage());
 
       const nameInput = screen.getByLabelText('Event Name');
       const dateInput = screen.getByLabelText('When did it happen?');
@@ -107,6 +196,7 @@ describe('Add Event Page', () => {
       // Text inputs don't explicitly have type="text" in HTML
       expect(nameInput).toHaveAttribute('required');
       expect(nameInput).toHaveAttribute('placeholder', 'What happened?');
+      expect(nameInput).toHaveAttribute('list', 'eventSuggestions');
 
       expect(dateInput).toHaveAttribute('type', 'date');
       expect(dateInput).toHaveAttribute('required');
@@ -116,8 +206,16 @@ describe('Add Event Page', () => {
       expect(reminderDaysInput).toHaveAttribute('placeholder', 'e.g. 30');
     });
 
-    it('has correct form action', () => {
-      render(<AddEventPage />);
+    it('renders autocomplete options', async () => {
+      render(await AddEventPage());
+
+      const dataList = screen.getByTestId('event-suggestions');
+      expect(dataList).toBeInTheDocument();
+      expect(dataList.querySelectorAll('option').length).toBeGreaterThan(0);
+    });
+
+    it('has correct form action', async () => {
+      render(await AddEventPage());
 
       const form = document.querySelector('form');
       expect(form).toBeInTheDocument();
@@ -127,7 +225,7 @@ describe('Add Event Page', () => {
   describe('User Interactions', () => {
     it('allows user to input event name', async () => {
       const user = userEvent.setup();
-      render(<AddEventPage />);
+      render(await AddEventPage());
 
       const nameInput = screen.getByLabelText('Event Name');
       await user.type(nameInput, 'Test Event');
@@ -137,7 +235,7 @@ describe('Add Event Page', () => {
 
     it('allows user to change the date', async () => {
       const user = userEvent.setup();
-      render(<AddEventPage />);
+      render(await AddEventPage());
 
       const dateInput = screen.getByLabelText('When did it happen?');
       await user.clear(dateInput);
@@ -148,7 +246,7 @@ describe('Add Event Page', () => {
 
     it('allows user to toggle reminder switch', async () => {
       const user = userEvent.setup();
-      render(<AddEventPage />);
+      render(await AddEventPage());
 
       const reminderSwitch = screen.getByRole('switch');
       expect(reminderSwitch).not.toBeChecked();
@@ -159,7 +257,7 @@ describe('Add Event Page', () => {
 
     it('allows user to input reminder days', async () => {
       const user = userEvent.setup();
-      render(<AddEventPage />);
+      render(await AddEventPage());
 
       const reminderDaysInput = screen.getByLabelText('Remind me after (days)');
       await user.type(reminderDaysInput, '30');
@@ -169,8 +267,8 @@ describe('Add Event Page', () => {
   });
 
   describe('Navigation', () => {
-    it('has cancel button that links to home page', () => {
-      render(<AddEventPage />);
+    it('has cancel button that links to home page', async () => {
+      render(await AddEventPage());
 
       const cancelButton = screen.getByText('Cancel');
       expect(cancelButton.closest('a')).toHaveAttribute('href', '/');
@@ -178,8 +276,8 @@ describe('Add Event Page', () => {
   });
 
   describe('Form Validation', () => {
-    it('marks required fields as required', () => {
-      render(<AddEventPage />);
+    it('marks required fields as required', async () => {
+      render(await AddEventPage());
 
       const nameInput = screen.getByLabelText('Event Name');
       const dateInput = screen.getByLabelText('When did it happen?');
@@ -188,8 +286,8 @@ describe('Add Event Page', () => {
       expect(dateInput).toBeRequired();
     });
 
-    it('has proper form structure for server action', () => {
-      render(<AddEventPage />);
+    it('has proper form structure for server action', async () => {
+      render(await AddEventPage());
 
       const form = document.querySelector('form');
       const submitButton = screen.getByText('Add Event');
@@ -200,8 +298,8 @@ describe('Add Event Page', () => {
   });
 
   describe('Accessibility', () => {
-    it('has proper labels for all form controls', () => {
-      render(<AddEventPage />);
+    it('has proper labels for all form controls', async () => {
+      render(await AddEventPage());
 
       // All inputs should have associated labels
       expect(screen.getByLabelText('Event Name')).toBeInTheDocument();
@@ -212,8 +310,8 @@ describe('Add Event Page', () => {
       ).toBeInTheDocument();
     });
 
-    it('has proper semantic structure', () => {
-      render(<AddEventPage />);
+    it('has proper semantic structure', async () => {
+      render(await AddEventPage());
 
       // Should have a proper heading
       expect(

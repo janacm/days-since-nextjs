@@ -11,8 +11,19 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { addEvent } from '../actions';
 import Link from 'next/link';
+import { auth } from '@/lib/auth';
+import { getEvents } from '@/lib/db';
+import { redirect } from 'next/navigation';
 
-export default function AddEventPage() {
+export default async function AddEventPage() {
+  const session = await auth();
+  if (!session?.user?.email) {
+    redirect('/login');
+  }
+
+  const events = await getEvents(session.user.email);
+  const eventNames = Array.from(new Set(events.map((e) => e.name)));
+
   // Get today's date in YYYY-MM-DD format using local timezone
   const now = new Date();
   const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
@@ -30,9 +41,15 @@ export default function AddEventPage() {
               <Input
                 id="name"
                 name="name"
+                list="eventSuggestions"
                 placeholder="What happened?"
                 required
               />
+              <datalist id="eventSuggestions" data-testid="event-suggestions">
+                {eventNames.map((name) => (
+                  <option key={name} value={name} />
+                ))}
+              </datalist>
             </div>
             <div className="space-y-2">
               <Label htmlFor="date">When did it happen?</Label>
