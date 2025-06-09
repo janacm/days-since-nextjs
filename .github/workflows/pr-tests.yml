@@ -23,7 +23,9 @@ jobs:
           run_install: true
 
       - name: Setup environment
-        run: cp .env.example .env
+        run: |
+          cp .env.example .env
+          echo 'POSTGRES_URL=postgres://neondb_owner:npg_aDqIA9HMU7BK@ep-steep-hat-a51y9p76-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require' >> .env
 
       - name: Lint
         run: pnpm lint
