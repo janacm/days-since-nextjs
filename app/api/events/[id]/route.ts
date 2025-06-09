@@ -6,14 +6,16 @@ import { NextResponse } from 'next/server';
 
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
+  const { params } = context;
+  const resolvedParams = await params;
   const session = await auth();
   if (!session?.user?.email) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const id = Number(params.id);
+  const id = Number(resolvedParams.id);
   const event = (
     await db.select().from(events).where(eq(events.id, id)).limit(1)
   )[0];
@@ -27,14 +29,16 @@ export async function GET(
 
 export async function PUT(
   req: Request,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
+  const { params } = context;
+  const resolvedParams = await params;
   const session = await auth();
   if (!session?.user?.email) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const id = Number(params.id);
+  const id = Number(resolvedParams.id);
   const body = await req.json();
   const { name, date, reminderDays } = body;
   const updated = await updateEvent(id, name, new Date(date), reminderDays);

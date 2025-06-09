@@ -176,17 +176,20 @@ export async function deleteProductById(id: number) {
   await db.delete(products).where(eq(products.id, id));
 }
 
-export async function getEvents(userId: string): Promise<Event[]> {
+export async function getEvents(
+  userId: string
+): Promise<import('@/shared/types').Event[]> {
   const result = await db
     .select()
     .from(events)
     .where(eq(events.userId, userId))
     .orderBy(sql`${events.date} DESC`);
 
-  // Add default value for resetCount if it's missing
+  // Add default value for resetCount if it's missing and convert createdAt to string
   return result.map((event) => ({
     ...event,
-    resetCount: 'resetCount' in event ? event.resetCount : 0
+    resetCount: 'resetCount' in event ? event.resetCount : 0,
+    createdAt: event.createdAt.toISOString()
   }));
 }
 
