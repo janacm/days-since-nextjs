@@ -1,35 +1,103 @@
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
-import LoginScreen from './src/screens/LoginScreen';
-import SignupScreen from './src/screens/SignupScreen';
-import DashboardScreen from './src/screens/DashboardScreen';
-import AddEventScreen from './src/screens/AddEventScreen';
-import EditEventScreen from './src/screens/EditEventScreen';
-import AdminScreen from './src/screens/AdminScreen';
+import { View, Text, StyleSheet } from 'react-native';
+import {
+  logInfo,
+  logError,
+  logDebug,
+  startTimer,
+  endTimer,
+  logMemoryUsage
+} from './src/utils/debug';
 
-export type RootStackParamList = {
-  Login: undefined;
-  Signup: undefined;
-  Dashboard: undefined;
-  AddEvent: undefined;
-  EditEvent: { id: number };
-  Admin: undefined;
-};
+function App() {
+  logInfo('App', 'Component mounting');
+  startTimer('App-Render');
 
-const Stack = createStackNavigator<RootStackParamList>();
+  React.useEffect(() => {
+    logInfo('App', 'Component mounted successfully');
+    logMemoryUsage('App');
 
-export default function App() {
-  return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="Signup" component={SignupScreen} />
-        <Stack.Screen name="Dashboard" component={DashboardScreen} />
-        <Stack.Screen name="AddEvent" component={AddEventScreen} />
-        <Stack.Screen name="EditEvent" component={EditEventScreen} />
-        <Stack.Screen name="Admin" component={AdminScreen} />
-      </Stack.Navigator>
-    </NavigationContainer>
-  );
+    return () => {
+      logInfo('App', 'Component unmounting');
+    };
+  }, []);
+
+  try {
+    logDebug('App', 'Rendering App component');
+
+    const result = (
+      <View style={styles.container}>
+        <Text style={styles.title}>Days Since Mobile</Text>
+        <Text style={styles.subtitle}>React Native app is running!</Text>
+        <Text style={styles.debug}>Debug mode: {__DEV__ ? 'ON' : 'OFF'}</Text>
+        <Text style={styles.version}>SDK: Expo 53</Text>
+      </View>
+    );
+
+    endTimer('App-Render');
+    logDebug('App', 'App component rendered successfully');
+
+    return result;
+  } catch (error) {
+    logError('App', 'Error in App component', error);
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>Error loading app</Text>
+        <Text style={styles.errorDetails}>{String(error)}</Text>
+      </View>
+    );
+  }
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f5f5f5',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#2e7d32',
+    marginBottom: 10,
+    textAlign: 'center'
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#555',
+    marginBottom: 10,
+    textAlign: 'center'
+  },
+  debug: {
+    fontSize: 14,
+    color: '#888',
+    marginTop: 20
+  },
+  version: {
+    fontSize: 12,
+    color: '#aaa',
+    marginTop: 5
+  },
+  errorContainer: {
+    flex: 1,
+    backgroundColor: '#ffebee',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20
+  },
+  errorText: {
+    fontSize: 18,
+    color: '#d32f2f',
+    marginBottom: 10,
+    textAlign: 'center'
+  },
+  errorDetails: {
+    fontSize: 12,
+    color: '#666',
+    textAlign: 'center'
+  }
+});
+
+export default App;

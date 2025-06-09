@@ -10,7 +10,10 @@
     "resolveJsonModule": true,
     "baseUrl": "./",
     "paths": {
-      "@/shared/*": ["../shared/*"]
+      "@/shared/*": [
+        "../shared/*"
+      ]
     }
-  }
+  },
+  "extends": "expo/tsconfig.base"
 }

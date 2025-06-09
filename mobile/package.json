@@ -1,23 +1,44 @@
 {
-  "name": "days-since-mobile",
+  "name": "dayssincemobile",
   "version": "1.0.0",
-  "main": "App.tsx",
+  "main": "index.js",
   "private": true,
   "scripts": {
     "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
-    "web": "expo start --web"
+    "android": "expo run:android",
+    "ios": "expo run:ios",
+    "web": "expo start --web",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:e2e": "detox test",
+    "test:e2e:build": "detox build",
+    "test:e2e:ios": "detox test --configuration ios.sim.debug",
+    "test:e2e:android": "detox test --configuration android.emu.debug"
   },
   "dependencies": {
-    "expo": "~50.0.5",
-    "expo-status-bar": "~1.7.3",
-    "react": "18.2.0",
-    "react-native": "0.72.4",
+    "@expo/metro-runtime": "~5.0.4",
     "@react-navigation/native": "^6.1.7",
-    "@react-navigation/stack": "^6.3.17"
+    "@react-navigation/stack": "^6.3.17",
+    "expo": "~53.0.0",
+    "expo-status-bar": "~2.2.0",
+    "react": "19.1.0",
+    "react-native": "0.79.2",
+    "react-native-safe-area-context": "5.4.0",
+    "react-native-screens": "~4.11.1",
+    "react-native-web": "^0.20.0"
   },
   "devDependencies": {
+    "@babel/preset-typescript": "^7.27.1",
+    "@testing-library/jest-native": "^5.4.3",
+    "@testing-library/react-native": "^13.2.0",
+    "@types/jest": "^29.5.14",
+    "@types/react-test-renderer": "^19.1.0",
+    "babel-preset-expo": "^13.0.0",
+    "detox": "^20.39.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "30.0.0-beta.3",
+    "react-test-renderer": "^19.1.0",
     "typescript": "^5.0.0"
   }
 }
