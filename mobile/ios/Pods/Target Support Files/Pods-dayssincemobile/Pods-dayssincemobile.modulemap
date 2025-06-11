@@ -1,0 +1,6 @@
+module Pods_dayssincemobile {
+  umbrella header "Pods-dayssincemobile-umbrella.h"
+
+  export *
+  module * { export * }
+}

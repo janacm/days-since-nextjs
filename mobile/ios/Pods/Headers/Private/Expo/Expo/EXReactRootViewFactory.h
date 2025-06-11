@@ -1,0 +1,1 @@
+../../../../../../node_modules/.pnpm/expo@53.0.9_@babel+core@7.27.4_@expo+metro-runtime@5.0.4_react-native@0.79.2_@babel+core@7.27_zrgyge5muyc2walbuy4eoufvdu/node_modules/expo/ios/AppDelegates/EXReactRootViewFactory.h

@@ -1,0 +1,1 @@
+../../../../../node_modules/.pnpm/expo-file-system@18.1.10_expo@53.0.9_@babel+core@7.27.4_@expo+metro-runtime@5.0.4_react-nativ_z6kwvuohesf3mmjbll5fcjjuoa/node_modules/expo-file-system/ios/EXSessionTasks/EXSessionUploadTaskDelegate.h
