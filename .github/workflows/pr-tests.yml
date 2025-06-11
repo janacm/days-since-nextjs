@@ -23,14 +23,15 @@ jobs:
           cache: 'pnpm'
 
       - name: Setup environment
-        run: cp .env.example .env
+        run: |
+          cp .env.example .env
+          echo "POSTGRES_URL=${{ secrets.POSTGRES_URL }}" >> .env
 
       - name: Lint
         run: pnpm lint
 
       - name: Test
-        run: pnpm test
+        run: pnpm test --runInBand
 
       - name: Build
         run: pnpm build
-
