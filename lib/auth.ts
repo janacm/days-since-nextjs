@@ -5,6 +5,7 @@ import { getUserByEmail } from './db';
 import { comparePasswords } from './auth-helpers';
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  trustHost: true,
   pages: {
     signIn: '/login'
   },
