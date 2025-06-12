@@ -126,6 +126,31 @@ export async function editEvent(formData: FormData) {
   redirect('/');
 }
 
+export async function updateEventReminder(formData: FormData) {
+  const session = await auth();
+  if (!session?.user?.email) {
+    throw new Error('You must be logged in to update a reminder');
+  }
+
+  const id = Number(formData.get('id'));
+  const reminderEnabled = formData.get('reminder') === 'on';
+  const reminderDays = reminderEnabled
+    ? Number(formData.get('reminderDays'))
+    : null;
+
+  if (reminderEnabled && (!reminderDays || reminderDays < 1)) {
+    throw new Error('Please specify a valid number of days for the reminder');
+  }
+
+  await db
+    .update(events)
+    .set({ reminderDays, reminderSent: false })
+    .where(eq(events.id, id));
+
+  revalidatePath(`/events/${id}`);
+  revalidatePath('/');
+}
+
 export async function resetEvent(formData: FormData) {
   'use server';
   const id = formData.get('id') as string;

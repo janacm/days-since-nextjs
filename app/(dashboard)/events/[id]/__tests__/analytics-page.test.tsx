@@ -20,6 +20,11 @@ jest.mock('@/lib/db', () => ({
   getEventAnalytics: jest.fn()
 }));
 
+// Mock the action used for updating reminders
+jest.mock('../../../actions', () => ({
+  updateEventReminder: jest.fn()
+}));
+
 // Mock the analytics charts component
 jest.mock('../analytics-charts', () => ({
   AnalyticsCharts: ({ event, currentStreak, totalResets }: any) => (
@@ -142,6 +147,24 @@ describe('EventAnalyticsPage', () => {
     render(result as React.ReactElement);
 
     expect(screen.getByText('Reminder every 14 days')).toBeInTheDocument();
+  });
+
+  it('includes reminder settings form', async () => {
+    mockAuth.mockResolvedValue({
+      user: { email: 'test@example.com' }
+    } as any);
+    mockGetEventAnalytics.mockResolvedValue(mockAnalyticsData as any);
+
+    const result = await EventAnalyticsPage({
+      params: Promise.resolve({ id: '1' })
+    });
+
+    render(result as React.ReactElement);
+
+    expect(screen.getByLabelText('Set a reminder')).toBeInTheDocument();
+    expect(
+      screen.getByLabelText('Remind me after (days)')
+    ).toBeInTheDocument();
   });
 
   it('renders recent resets section when resets exist', async () => {
