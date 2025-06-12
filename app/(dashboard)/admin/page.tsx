@@ -7,6 +7,7 @@ import {
   CardTitle
 } from '@/components/ui/card';
 import { sendTestEmail } from '../actions';
+import { ImportExportEvents } from './import-export';
 import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 
@@ -33,6 +34,15 @@ export default async function AdminPage() {
               This will send a test email to {session.user.email}
             </p>
           </form>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Import / Export Events</CardTitle>
+          <CardDescription>Backup or restore all of your events</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ImportExportEvents />
         </CardContent>
       </Card>
     </div>
