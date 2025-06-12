@@ -14,7 +14,6 @@ import { createUser, getUserByEmail } from '@/lib/db';
 import { signIn } from '@/lib/auth';
 import { z } from 'zod';
 import { redirect } from 'next/navigation';
-import { hashPassword } from '@/lib/auth-helpers';
 
 const SignupSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -45,6 +44,7 @@ async function registerUser(formData: FormData) {
 
     // Hash the password
     console.log('Hashing password');
+    const { hashPassword } = await import('@/lib/auth-helpers');
     const hashedPassword = await hashPassword(validatedFields.password);
 
     // Create the user

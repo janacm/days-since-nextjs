@@ -2,7 +2,6 @@ import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import { z } from 'zod';
 import { getUserByEmail } from './db';
-import { comparePasswords } from './auth-helpers';
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   pages: {
@@ -84,6 +83,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
           console.log(`User found: ${user.id}, attempting password comparison`);
 
+          const { comparePasswords } = await import('./auth-helpers');
           const passwordsMatch = await comparePasswords(
             password,
             user.passwordHash
