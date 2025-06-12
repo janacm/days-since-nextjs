@@ -192,6 +192,38 @@ export async function resetEventWithDate(formData: FormData) {
   }
 }
 
+export async function undoResetEvent(formData: FormData) {
+  'use server';
+  const id = parseInt(formData.get('id') as string, 10);
+  const previousDate = formData.get('previousDate') as string;
+
+  try {
+    await db
+      .update(events)
+      .set({
+        date: previousDate,
+        resetCount: sql`GREATEST(COALESCE(reset_count,0) - 1, 0)`
+      })
+      .where(eq(events.id, id));
+
+    const last = await db
+      .select()
+      .from(eventResets)
+      .where(eq(eventResets.eventId, id))
+      .orderBy(sql`${eventResets.resetAt} DESC`)
+      .limit(1);
+
+    if (last.length) {
+      await db.delete(eventResets).where(eq(eventResets.id, last[0].id));
+    }
+
+    revalidatePath('/');
+  } catch (error) {
+    console.error('Error undoing reset:', error);
+    throw error;
+  }
+}
+
 export async function sendTestEmail() {
   console.log('🔍 sendTestEmail: Function called');
   const session = await auth();
