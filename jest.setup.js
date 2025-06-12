@@ -17,7 +17,8 @@ jest.mock('next/navigation', () => ({
   },
   usePathname() {
     return '';
-  }
+  },
+  redirect: jest.fn()
 }));
 
 // Server actions will be mocked in individual test files
