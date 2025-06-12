@@ -1,4 +1,9 @@
 #!/usr/bin/env sh
 
+export PATH="$PATH:/Users/janac/Library/Python/3.10/bin"
+
+echo "🔍 Scanning for secrets before push..."
+ggshield secret scan pre-push --exclude "node_modules/**" --exclude ".next/**" --exclude "*.lock" --exclude "pnpm-lock.yaml"
+
 echo "🔍 Running tests and build before pushing..."
 pnpm test && pnpm build

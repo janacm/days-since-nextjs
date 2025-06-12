@@ -1,0 +1,29 @@
+# GitGuardian configuration file
+# See https://docs.gitguardian.com/ggshield-docs/configuration for more options
+
+version: 2
+
+secret:
+  # Scan all files by default
+  show_secrets: false
+
+  # Files to ignore
+  ignore_paths:
+    - 'node_modules/**'
+    - '.next/**'
+    - 'build/**'
+    - 'dist/**'
+    - 'coverage/**'
+    - '*.lock'
+    - '*.log'
+    - '.env.example' # Example files are typically safe
+
+  # Patterns to ignore (you can add false positives here)
+  ignore_patterns:
+    - 'sk-test_*' # Stripe test keys
+    - 'pk_test_*' # Stripe test public keys
+
+  # Exit codes
+  exit_zero: false # Exit with error code if secrets found
+
+# Exclude patterns using the CLI --exclude option instead

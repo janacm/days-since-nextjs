@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { getUserByEmail } from './db';
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  trustHost: true,
   pages: {
     signIn: '/login'
   },
