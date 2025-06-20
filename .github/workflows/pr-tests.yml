@@ -8,6 +8,25 @@ jobs:
   build-test:
     runs-on: ubuntu-latest
 
+    # Set environment variables for all steps
+    env:
+      POSTGRES_URL: postgresql://postgres:postgres@localhost:5432/testdb
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: testdb
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
     steps:
       - uses: actions/checkout@v3
 
@@ -25,7 +44,7 @@ jobs:
       - name: Setup environment
         run: |
           cp .env.example .env
-          echo "POSTGRES_URL=${{ secrets.POSTGRES_URL }}" >> .env
+          echo "POSTGRES_URL=postgresql://postgres:postgres@localhost:5432/testdb" >> .env
 
       - name: Lint
         run: pnpm lint
@@ -35,3 +54,5 @@ jobs:
 
       - name: Build
         run: pnpm build
+        env:
+          POSTGRES_URL: postgresql://postgres:postgres@localhost:5432/testdb

@@ -62,3 +62,109 @@ pnpm dev
 ```
 
 You should now be able to access the application at http://localhost:3000.
+
+## Running GitHub Actions Locally
+
+This project uses [act](https://github.com/nektos/act) to run GitHub Actions locally in Docker containers, providing an identical environment to GitHub's runners.
+
+### Prerequisites
+
+1. **Install act:**
+
+   ```bash
+   # macOS
+   brew install act
+
+   # Or install manually
+   curl https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash
+   ```
+
+2. **Ensure Docker is running:**
+   ```bash
+   docker info
+   ```
+   If Docker isn't running, start Docker Desktop.
+
+### Configuration
+
+The project includes pre-configured files:
+
+- **`.actrc`** - Docker image configuration for Ubuntu runners
+- **`.secrets`** - Environment variables for local testing (GitHub secrets)
+
+### Usage
+
+**List available workflows:**
+
+```bash
+act --list
+```
+
+**Run the PR tests workflow (recommended):**
+
+```bash
+act pull_request --container-architecture linux/amd64 --job build-test
+```
+
+**Run with dry-run to see what would execute:**
+
+```bash
+act pull_request --container-architecture linux/amd64 --job build-test --dryrun
+```
+
+**Run specific workflow events:**
+
+```bash
+# Simulate pull request
+act pull_request
+
+# Simulate push to main
+act push
+```
+
+### What Gets Tested
+
+The local GitHub Actions workflow runs:
+
+1. **PostgreSQL Service** - Spins up a containerized Postgres database
+2. **Code Checkout** - Uses your local repository
+3. **pnpm Installation** - Installs dependencies with caching
+4. **Node.js Setup** - Configures Node.js 20 with package manager caching
+5. **Environment Setup** - Creates test environment with database connection
+6. **Linting** - Runs ESLint checks
+7. **Testing** - Executes all Jest tests (98 tests across 9 suites)
+8. **Building** - Creates optimized production build
+
+### Benefits
+
+- **🔄 Identical Environment** - Same containers and steps as GitHub Actions
+- **🚀 Fast Feedback** - Test changes before pushing to GitHub
+- **🔒 Isolated Database** - Uses containerized PostgreSQL instead of production
+- **💰 Cost Effective** - No GitHub Actions minutes consumed for testing
+- **🐛 Debug Locally** - Easier to troubleshoot CI issues
+
+### Troubleshooting
+
+**Docker socket issues on macOS:**
+
+```bash
+# Ensure Docker Desktop is running
+open -a Docker
+
+# Check Docker status
+docker info
+```
+
+**Permission issues:**
+
+```bash
+# Make sure your user is in the docker group
+sudo usermod -aG docker $USER
+```
+
+**Cache issues:**
+
+```bash
+# Clear act cache if needed
+act --rm
+```
