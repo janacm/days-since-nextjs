@@ -7,6 +7,11 @@ on:
 jobs:
   build-test:
     runs-on: ubuntu-latest
+
+    # Set environment variables for all steps
+    env:
+      POSTGRES_URL: postgresql://postgres:postgres@localhost:5432/testdb
+
     services:
       postgres:
         image: postgres:15
@@ -49,3 +54,5 @@ jobs:
 
       - name: Build
         run: pnpm build
+        env:
+          POSTGRES_URL: postgresql://postgres:postgres@localhost:5432/testdb
