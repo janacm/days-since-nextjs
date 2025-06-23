@@ -33,6 +33,8 @@ export async function addEvent(formData: FormData) {
 
   const name = formData.get('name') as string;
   const dateStr = formData.get('date') as string;
+  const tagsStr = formData.get('tags') as string | null;
+  const tags = tagsStr ? tagsStr.split(',').map(t => t.trim()).filter(Boolean) : [];
   const reminderEnabled = formData.get('reminder') === 'on';
   const reminderDays = reminderEnabled
     ? Number(formData.get('reminderDays'))
@@ -54,6 +56,7 @@ export async function addEvent(formData: FormData) {
       userId: session.user.email,
       name,
       date: date.toISOString(),
+      tags,
       reminderDays,
       reminderSent: false
     })
@@ -96,6 +99,8 @@ export async function editEvent(formData: FormData) {
   const id = Number(formData.get('id'));
   const name = formData.get('name') as string;
   const dateStr = formData.get('date') as string;
+  const tagsStr = formData.get('tags') as string | null;
+  const tags = tagsStr ? tagsStr.split(',').map(t => t.trim()).filter(Boolean) : [];
   const reminderEnabled = formData.get('reminder') === 'on';
   const reminderDays = reminderEnabled
     ? Number(formData.get('reminderDays'))
@@ -116,6 +121,7 @@ export async function editEvent(formData: FormData) {
     .set({
       name,
       date: date.toISOString(),
+      tags,
       reminderDays,
       reminderSent: false // Reset reminder status when updating reminder settings
     })

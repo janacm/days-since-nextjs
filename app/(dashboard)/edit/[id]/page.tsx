@@ -57,6 +57,15 @@ export default async function EditEventPage({
               <Input id="name" name="name" defaultValue={event.name} required />
             </div>
             <div className="space-y-2">
+              <Label htmlFor="tags">Tags</Label>
+              <Input
+                id="tags"
+                name="tags"
+                defaultValue={(event.tags || []).join(', ')}
+                placeholder="comma separated"
+              />
+            </div>
+            <div className="space-y-2">
               <Label htmlFor="date">When did it happen?</Label>
               <Input
                 id="date"

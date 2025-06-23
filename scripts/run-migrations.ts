@@ -6,9 +6,10 @@ async function main() {
 
   // Add reminder columns to events table
   await db.execute(sql`
-    ALTER TABLE events 
+    ALTER TABLE events
     ADD COLUMN IF NOT EXISTS reminder_days INTEGER,
-    ADD COLUMN IF NOT EXISTS reminder_sent BOOLEAN NOT NULL DEFAULT FALSE;
+    ADD COLUMN IF NOT EXISTS reminder_sent BOOLEAN NOT NULL DEFAULT FALSE,
+    ADD COLUMN IF NOT EXISTS tags VARCHAR(255)[] NOT NULL DEFAULT '{}';
   `);
 
   console.log('Migrations completed successfully');

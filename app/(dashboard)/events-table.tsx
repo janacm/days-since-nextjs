@@ -22,6 +22,7 @@ import { Event } from '@/lib/db';
 
 export function EventsTable({ events }: { events: Event[] }) {
   const [query, setQuery] = useState('');
+  const [tagFilter, setTagFilter] = useState('');
 
   const fuse = useMemo(() => {
     return new Fuse(events, {
@@ -30,10 +31,15 @@ export function EventsTable({ events }: { events: Event[] }) {
     });
   }, [events]);
 
-  const filtered =
-    query.trim() === ''
-      ? events
-      : fuse.search(query).map((result) => result.item);
+  const filtered = (query.trim() === ''
+    ? events
+    : fuse.search(query).map((result) => result.item)).filter((e) =>
+    tagFilter === '' ? true : e.tags?.includes(tagFilter)
+  );
+
+  const allTags = Array.from(
+    new Set(events.flatMap((e) => e.tags ?? []))
+  );
 
   return (
     <Card>
@@ -44,13 +50,29 @@ export function EventsTable({ events }: { events: Event[] }) {
           event to view detailed analytics.
         </CardDescription>
         {events.length > 0 && (
-          <Input
-            placeholder="Search events..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            type="search"
-            className="mt-4 w-full sm:max-w-xs"
-          />
+          <div className="flex gap-2 mt-4">
+            <Input
+              placeholder="Search events..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              type="search"
+              className="w-full sm:max-w-xs"
+            />
+            {allTags.length > 0 && (
+              <select
+                className="border rounded-md p-2 text-sm"
+                value={tagFilter}
+                onChange={(e) => setTagFilter(e.target.value)}
+              >
+                <option value="">All Tags</option>
+                {allTags.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
         )}
       </CardHeader>
       <CardContent>
