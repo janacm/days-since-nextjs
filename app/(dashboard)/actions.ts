@@ -33,16 +33,14 @@ export async function addEvent(formData: FormData) {
 
   const name = formData.get('name') as string;
   const dateStr = formData.get('date') as string;
-  const reminderEnabled = formData.get('reminder') === 'on';
-  const reminderDays = reminderEnabled
-    ? Number(formData.get('reminderDays'))
-    : null;
+  const reminderDaysStr = formData.get('reminderDays') as string | null;
+  const reminderDays = reminderDaysStr ? Number(reminderDaysStr) : null;
 
   if (!name || !dateStr) {
     throw new Error('Name and date are required');
   }
 
-  if (reminderEnabled && (!reminderDays || reminderDays < 1)) {
+  if (reminderDays !== null && reminderDays < 1) {
     throw new Error('Please specify a valid number of days for the reminder');
   }
 
@@ -96,16 +94,14 @@ export async function editEvent(formData: FormData) {
   const id = Number(formData.get('id'));
   const name = formData.get('name') as string;
   const dateStr = formData.get('date') as string;
-  const reminderEnabled = formData.get('reminder') === 'on';
-  const reminderDays = reminderEnabled
-    ? Number(formData.get('reminderDays'))
-    : null;
+  const reminderDaysStr = formData.get('reminderDays') as string | null;
+  const reminderDays = reminderDaysStr ? Number(reminderDaysStr) : null;
 
   if (!name || !dateStr) {
     throw new Error('Name and date are required');
   }
 
-  if (reminderEnabled && (!reminderDays || reminderDays < 1)) {
+  if (reminderDays !== null && reminderDays < 1) {
     throw new Error('Please specify a valid number of days for the reminder');
   }
 
