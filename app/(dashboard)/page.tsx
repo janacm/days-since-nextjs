@@ -24,9 +24,8 @@ export default async function DashboardPage() {
           <TabsTrigger value="recent" className="hidden sm:flex">
             Recent
           </TabsTrigger>
-          <TabsTrigger value="reminders">
-            Reminders
-          </TabsTrigger>
+          <TabsTrigger value="reminders">Has reminder</TabsTrigger>
+          <TabsTrigger value="overdue">Is overdue</TabsTrigger>
         </TabsList>
         <div className="ml-auto flex items-center gap-2">
           <Button size="sm" className="h-8 gap-1" asChild>
@@ -47,6 +46,17 @@ export default async function DashboardPage() {
       </TabsContent>
       <TabsContent value="reminders">
         <EventsTable events={events.filter(event => event.reminderDays !== null)} />
+      </TabsContent>
+      <TabsContent value="overdue">
+        <EventsTable
+          events={events.filter(event => {
+            if (event.reminderDays === null) return false;
+            const daysSince = Math.floor(
+              (Date.now() - new Date(event.date).getTime()) / (1000 * 3600 * 24)
+            );
+            return daysSince >= event.reminderDays;
+          })}
+        />
       </TabsContent>
     </Tabs>
   );
