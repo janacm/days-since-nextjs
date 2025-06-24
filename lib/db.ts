@@ -56,7 +56,14 @@ export const events = pgTable('events', {
   resetCount: integer('reset_count').notNull().default(0),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   reminderDays: integer('reminder_days'),
-  reminderSent: boolean('reminder_sent').notNull().default(false)
+  reminderSent: boolean('reminder_sent').notNull().default(false),
+  parentId: integer('parent_id').references(() => events.id, {
+    onDelete: 'cascade'
+  }),
+  resetParentOnSubReset: boolean('reset_parent_on_sub_reset').default(false),
+  resetChildrenOnParentReset: boolean('reset_children_on_parent_reset').default(
+    false
+  )
 });
 
 export const eventResets = pgTable('event_resets', {
@@ -210,6 +217,30 @@ export async function createEvent(
   return result[0];
 }
 
+export async function createSubEvent(
+  userId: string,
+  parentId: number,
+  name: string,
+  date: Date,
+  resetParentOnSubReset = false,
+  resetChildrenOnParentReset = false
+): Promise<Event> {
+  const dateStr = date.toISOString();
+  const result = await db
+    .insert(events)
+    .values({
+      userId,
+      name,
+      date: dateStr,
+      parentId,
+      resetParentOnSubReset,
+      resetChildrenOnParentReset
+    })
+    .returning();
+
+  return result[0];
+}
+
 export async function deleteEventById(id: number) {
   await db.delete(events).where(eq(events.id, id));
 }
@@ -256,6 +287,50 @@ export async function getEventById(
     .limit(1);
 
   return result[0];
+}
+
+export async function resetEventCascade(
+  eventId: number,
+  date: Date = new Date(),
+  visited: Set<number> = new Set()
+) {
+  if (visited.has(eventId)) return;
+  visited.add(eventId);
+
+  const eventList = await db
+    .select()
+    .from(events)
+    .where(eq(events.id, eventId));
+
+  const event = eventList[0];
+  if (!event) {
+    return;
+  }
+
+  const dateStr = date.toISOString();
+
+  await db
+    .update(events)
+    .set({ date: dateStr, resetCount: sql`COALESCE(reset_count, 0) + 1` })
+    .where(eq(events.id, eventId));
+
+  await db
+    .insert(eventResets)
+    .values({ eventId, resetAt: date });
+
+  if (event.parentId && event.resetParentOnSubReset) {
+    await resetEventCascade(event.parentId, date, visited);
+  }
+
+  if (event.resetChildrenOnParentReset) {
+    const children = await db
+      .select()
+      .from(events)
+      .where(eq(events.parentId, eventId));
+    for (const child of children) {
+      await resetEventCascade(child.id, date, visited);
+    }
+  }
 }
 
 export async function getEventAnalytics(eventId: number, userId: string) {
