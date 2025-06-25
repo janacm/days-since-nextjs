@@ -368,3 +368,31 @@ export async function getEventAnalytics(eventId: number, userId: string) {
     allResets: resets
   };
 }
+
+export async function getDatabaseInfo() {
+  const urlString = process.env.POSTGRES_URL ?? '';
+  let host = 'unknown';
+  let database = 'unknown';
+
+  try {
+    const url = new URL(urlString);
+    host = url.hostname;
+    database = url.pathname.replace('/', '');
+  } catch {
+    // ignore invalid URL
+  }
+
+  const [usersCount, eventsCount, productsCount] = await Promise.all([
+    db.select({ count: count() }).from(users),
+    db.select({ count: count() }).from(events),
+    db.select({ count: count() }).from(products)
+  ]);
+
+  return {
+    host,
+    database,
+    userCount: Number(usersCount[0]?.count ?? 0),
+    eventCount: Number(eventsCount[0]?.count ?? 0),
+    productCount: Number(productsCount[0]?.count ?? 0)
+  };
+}
