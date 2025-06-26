@@ -16,9 +16,24 @@ import { formatDistanceToNow } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { ResetButton } from './reset-button';
 import { useRouter } from 'next/navigation';
+import { useState, useTransition } from 'react';
 
-export function EventItem({ event }: { event: Event }) {
+interface EventItemProps {
+  event: Event;
+  onDelete?: (id: number) => void;
+  onReset?: (id: number, dateStr: string) => void;
+  onQuickReset?: (id: number) => void;
+}
+
+export function EventItem({
+  event,
+  onDelete,
+  onReset,
+  onQuickReset
+}: EventItemProps) {
   const router = useRouter();
+  const [, startTransition] = useTransition();
+  const [isResetModalOpen, setIsResetModalOpen] = useState(false);
 
   // Calculate days since
   const daysSince = Math.floor(
@@ -52,6 +67,9 @@ export function EventItem({ event }: { event: Event }) {
     ) {
       return;
     }
+    if (isResetModalOpen) {
+      return;
+    }
     router.push(`/events/${event.id}`);
   };
 
@@ -81,7 +99,12 @@ export function EventItem({ event }: { event: Event }) {
         {relativeTime}
       </TableCell>
       <TableCell className="flex items-center gap-2">
-        <ResetButton eventId={event.id} />
+        <ResetButton
+          eventId={event.id}
+          onOptimisticReset={(date) => onReset?.(event.id, date)}
+          onOptimisticQuickReset={() => onQuickReset?.(event.id)}
+          onOpenChange={setIsResetModalOpen}
+        />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button aria-haspopup="true" size="icon" variant="ghost">
@@ -98,7 +121,17 @@ export function EventItem({ event }: { event: Event }) {
               <a href={`/edit/${event.id}`}>Edit</a>
             </DropdownMenuItem>
             <DropdownMenuItem>
-              <form action={deleteEvent}>
+              <form
+                action={deleteEvent}
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  onDelete?.(event.id);
+                  const fd = new FormData(e.currentTarget);
+                  startTransition(async () => {
+                    await deleteEvent(fd);
+                  });
+                }}
+              >
                 <input type="hidden" name="id" value={event.id} />
                 <button type="submit" className="w-full text-left">
                   Delete

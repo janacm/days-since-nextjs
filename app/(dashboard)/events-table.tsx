@@ -14,10 +14,58 @@ import {
   CardTitle,
   CardDescription
 } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { useState, useMemo, useTransition } from 'react';
+import Fuse from 'fuse.js';
 import { EventItem } from './event';
 import { Event } from '@/lib/db';
+import { deleteEvent, resetEvent, resetEventWithDate } from './actions';
+import { useEvents } from '@/components/events-context';
 
-export function EventsTable({ events }: { events: Event[] }) {
+export function EventsTable({ events: initialEvents }: { events?: Event[] }) {
+  const { events: contextEvents, removeEvent, updateEvent } = useEvents();
+  const events = initialEvents ?? contextEvents;
+  const [query, setQuery] = useState('');
+  const fuse = useMemo(() => {
+    return new Fuse(events, {
+      keys: ['name'],
+      threshold: 0.3
+    });
+  }, [events]);
+  const filtered =
+    query.trim() === '' ? events : fuse.search(query).map((r) => r.item);
+
+  const [, startTransition] = useTransition();
+
+  const handleDelete = (id: number) => {
+    removeEvent(id);
+    startTransition(async () => {
+      const fd = new FormData();
+      fd.append('id', id.toString());
+      await deleteEvent(fd);
+    });
+  };
+
+  const handleReset = (id: number, dateStr: string) => {
+    updateEvent({ id, date: dateStr } as Event);
+    startTransition(async () => {
+      const fd = new FormData();
+      fd.append('id', id.toString());
+      fd.append('resetDate', dateStr);
+      await resetEventWithDate(fd);
+    });
+  };
+
+  const handleQuickReset = (id: number) => {
+    const dateStr = new Date().toISOString();
+    updateEvent({ id, date: dateStr } as Event);
+    startTransition(async () => {
+      const fd = new FormData();
+      fd.append('id', id.toString());
+      await resetEvent(fd);
+    });
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -26,11 +74,24 @@ export function EventsTable({ events }: { events: Event[] }) {
           Track how many days have passed since important events. Click on any
           event to view detailed analytics.
         </CardDescription>
+        {events.length > 0 && (
+          <Input
+            placeholder="Search events..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            type="search"
+            className="mt-4 w-full sm:max-w-xs"
+          />
+        )}
       </CardHeader>
       <CardContent>
         {events.length === 0 ? (
           <div className="text-center py-6 text-muted-foreground">
             No events yet. Add your first event to get started!
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="text-center py-6 text-muted-foreground">
+            No events match your search.
           </div>
         ) : (
           <Table>
@@ -44,8 +105,14 @@ export function EventsTable({ events }: { events: Event[] }) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {events.map((event) => (
-                <EventItem key={event.id} event={event} />
+              {filtered.map((event) => (
+                <EventItem
+                  key={event.id}
+                  event={event}
+                  onDelete={handleDelete}
+                  onReset={handleReset}
+                  onQuickReset={handleQuickReset}
+                />
               ))}
             </TableBody>
           </Table>

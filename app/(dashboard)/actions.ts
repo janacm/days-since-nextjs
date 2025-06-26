@@ -63,6 +63,34 @@ export async function addEvent(formData: FormData) {
   redirect('/');
 }
 
+export async function addEventWithoutRedirect(formData: FormData) {
+  const session = await auth();
+  if (!session?.user?.email) {
+    throw new Error('You must be logged in to add an event');
+  }
+
+  const name = formData.get('name') as string;
+  const dateStr = formData.get('date') as string;
+  const reminderEnabled = formData.get('reminder') === 'on';
+  const reminderDays = reminderEnabled ? Number(formData.get('reminderDays')) : null;
+
+  const date = new Date(dateStr);
+
+  const result = await db
+    .insert(events)
+    .values({
+      userId: session.user.email,
+      name,
+      date: date.toISOString(),
+      reminderDays,
+      reminderSent: false
+    })
+    .returning();
+
+  revalidatePath('/');
+  return result[0];
+}
+
 export async function deleteEvent(formData: FormData) {
   const session = await auth();
   if (!session?.user?.email) {
