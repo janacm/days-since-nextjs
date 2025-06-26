@@ -7,12 +7,12 @@ import {
   deleteProductById,
   db,
   events,
-  eventResets
+  resetEventCascade
 } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
 import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
-import { eq, sql } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import nodemailer from 'nodemailer';
 
 // Initialize Nodemailer transporter
@@ -131,24 +131,9 @@ export async function resetEvent(formData: FormData) {
   const id = formData.get('id') as string;
   const numericId = parseInt(id, 10);
   const now = new Date();
-  const dateStr = now.toISOString();
 
   try {
-    // 1. Update the event's date and increment reset count
-    await db
-      .update(events)
-      .set({
-        date: dateStr,
-        resetCount: sql`COALESCE(reset_count, 0) + 1`
-      })
-      .where(eq(events.id, numericId));
-
-    // 2. Add a record to the event_resets table
-    await db.insert(eventResets).values({
-      eventId: numericId,
-      resetAt: now
-    });
-
+    await resetEventCascade(numericId, now);
     revalidatePath('/');
   } catch (error) {
     console.error('Error resetting event:', error);
@@ -167,24 +152,9 @@ export async function resetEventWithDate(formData: FormData) {
   }
 
   const resetDate = new Date(customDate);
-  const dateStr = resetDate.toISOString();
 
   try {
-    // 1. Update the event's date and increment reset count
-    await db
-      .update(events)
-      .set({
-        date: dateStr,
-        resetCount: sql`COALESCE(reset_count, 0) + 1`
-      })
-      .where(eq(events.id, numericId));
-
-    // 2. Add a record to the event_resets table
-    await db.insert(eventResets).values({
-      eventId: numericId,
-      resetAt: resetDate
-    });
-
+    await resetEventCascade(numericId, resetDate);
     revalidatePath('/');
   } catch (error) {
     console.error('Error resetting event with custom date:', error);

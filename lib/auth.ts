@@ -83,7 +83,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
           console.log(`User found: ${user.id}, attempting password comparison`);
 
-          const { comparePasswords } = await import('./auth-helpers');
+          const { comparePasswords, needsPasswordMigration, hashPassword } =
+            await import('./auth-helpers');
           const passwordsMatch = await comparePasswords(
             password,
             user.passwordHash
@@ -95,6 +96,28 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           }
 
           console.log('Authentication successful');
+
+          // Optionally migrate old passwords to new format
+          if (needsPasswordMigration(user.passwordHash)) {
+            try {
+              console.log('Migrating user password to new format...');
+              const newHashedPassword = await hashPassword(password);
+
+              // Update the user's password in the database
+              const { db, users } = await import('./db');
+              const { eq } = await import('drizzle-orm');
+
+              await db
+                .update(users)
+                .set({ passwordHash: newHashedPassword })
+                .where(eq(users.id, user.id));
+
+              console.log('Password migration completed successfully');
+            } catch (migrationError) {
+              console.error('Password migration failed:', migrationError);
+              // Don't fail the login if migration fails
+            }
+          }
 
           return {
             id: user.id.toString(),
