@@ -20,6 +20,11 @@ jest.mock('@/lib/db', () => ({
   getEventAnalytics: jest.fn()
 }));
 
+// Mock server actions
+jest.mock('../../../actions', () => ({
+  updateEventTags: jest.fn()
+}));
+
 // Mock the analytics charts component
 jest.mock('../analytics-charts', () => ({
   AnalyticsCharts: ({ event, currentStreak, totalResets }: any) => (

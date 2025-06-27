@@ -50,13 +50,14 @@ describe('addEvent', () => {
     const formData = new FormData();
     formData.append('name', 'Event');
     formData.append('date', '2025-06-01');
+    formData.append('tags', 'foo');
     formData.append('reminderDays', '10');
 
     await addEvent(formData);
 
     expect((global as any).dbTestMocks.mockInsert).toHaveBeenCalledWith(events);
     expect((global as any).dbTestMocks.mockValues).toHaveBeenCalledWith(
-      expect.objectContaining({ reminderDays: 10 })
+      expect.objectContaining({ reminderDays: 10, tags: 'foo' })
     );
     expect(redirect).toHaveBeenCalledWith('/');
     expect(revalidatePath).toHaveBeenCalledWith('/');
@@ -66,11 +67,12 @@ describe('addEvent', () => {
     const formData = new FormData();
     formData.append('name', 'Event');
     formData.append('date', '2025-06-01');
+    formData.append('tags', '');
 
     await addEvent(formData);
 
     expect((global as any).dbTestMocks.mockValues).toHaveBeenCalledWith(
-      expect.objectContaining({ reminderDays: null })
+      expect.objectContaining({ reminderDays: null, tags: '' })
     );
   });
 
@@ -93,13 +95,14 @@ describe('editEvent', () => {
     formData.append('id', '1');
     formData.append('name', 'Event');
     formData.append('date', '2025-06-01');
+    formData.append('tags', 'foo');
     formData.append('reminderDays', '5');
 
     await editEvent(formData);
 
     expect((global as any).dbTestMocks.mockUpdate).toHaveBeenCalledWith(events);
     expect((global as any).dbTestMocks.mockSet).toHaveBeenCalledWith(
-      expect.objectContaining({ reminderDays: 5 })
+      expect.objectContaining({ reminderDays: 5, tags: 'foo' })
     );
     expect(redirect).toHaveBeenCalledWith('/');
     expect(revalidatePath).toHaveBeenCalledWith('/');
@@ -110,11 +113,12 @@ describe('editEvent', () => {
     formData.append('id', '1');
     formData.append('name', 'Event');
     formData.append('date', '2025-06-01');
+    formData.append('tags', '');
 
     await editEvent(formData);
 
     expect((global as any).dbTestMocks.mockSet).toHaveBeenCalledWith(
-      expect.objectContaining({ reminderDays: null })
+      expect.objectContaining({ reminderDays: null, tags: '' })
     );
   });
 });

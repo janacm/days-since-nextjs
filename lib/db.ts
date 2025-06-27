@@ -53,6 +53,7 @@ export const events = pgTable('events', {
   userId: varchar('user_id', { length: 255 }).notNull(),
   name: varchar('name', { length: 255 }).notNull(),
   date: varchar('date', { length: 255 }).notNull(),
+  tags: text('tags').notNull().default(''),
   resetCount: integer('reset_count').notNull().default(0),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   reminderDays: integer('reminder_days'),
@@ -193,7 +194,8 @@ export async function getEvents(userId: string): Promise<Event[]> {
 export async function createEvent(
   userId: string,
   name: string,
-  date: Date
+  date: Date,
+  tags: string = ''
 ): Promise<Event> {
   // Convert Date to ISO string for Drizzle
   const dateStr = date.toISOString();
@@ -203,7 +205,8 @@ export async function createEvent(
     .values({
       userId,
       name,
-      date: dateStr
+      date: dateStr,
+      tags
     })
     .returning();
 
@@ -218,7 +221,8 @@ export async function updateEvent(
   id: number,
   name: string,
   date: Date,
-  reminderDays?: number | null
+  reminderDays?: number | null,
+  tags: string = ''
 ): Promise<Event> {
   // Convert Date to ISO string for Drizzle
   const dateStr = date.toISOString();
@@ -228,6 +232,7 @@ export async function updateEvent(
     .set({
       name,
       date: dateStr,
+      tags,
       reminderDays,
       reminderSent: false // Reset reminder status when updating reminder settings
     })

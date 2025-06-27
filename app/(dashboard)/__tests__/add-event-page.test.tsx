@@ -87,6 +87,7 @@ describe('Add Event Page', () => {
       expect(screen.getByText('Add New Event')).toBeInTheDocument();
       expect(screen.getByLabelText('Event Name')).toBeInTheDocument();
       expect(screen.getByLabelText('When did it happen?')).toBeInTheDocument();
+      expect(screen.getByLabelText('Tags')).toBeInTheDocument();
       expect(
         screen.getByLabelText('Remind me after (days)')
       ).toBeInTheDocument();
@@ -102,6 +103,7 @@ describe('Add Event Page', () => {
 
       const nameInput = screen.getByLabelText('Event Name');
       const dateInput = screen.getByLabelText('When did it happen?');
+      const tagsInput = screen.getByLabelText('Tags');
       const reminderDaysInput = screen.getByLabelText('Remind me after (days)');
 
       // Text inputs don't explicitly have type="text" in HTML
@@ -110,6 +112,8 @@ describe('Add Event Page', () => {
 
       expect(dateInput).toHaveAttribute('type', 'date');
       expect(dateInput).toHaveAttribute('required');
+
+      expect(tagsInput).toHaveAttribute('placeholder', 'comma separated');
 
       expect(reminderDaysInput).toHaveAttribute('type', 'number');
       expect(reminderDaysInput).toHaveAttribute('min', '1');
@@ -144,6 +148,16 @@ describe('Add Event Page', () => {
       await user.type(dateInput, '2025-05-15');
 
       expect(dateInput).toHaveValue('2025-05-15');
+    });
+
+    it('allows user to input tags', async () => {
+      const user = userEvent.setup();
+      render(<AddEventPage />);
+
+      const tagsInput = screen.getByLabelText('Tags');
+      await user.type(tagsInput, 'foo,bar');
+
+      expect(tagsInput).toHaveValue('foo,bar');
     });
 
 
@@ -196,6 +210,7 @@ describe('Add Event Page', () => {
       // All inputs should have associated labels
       expect(screen.getByLabelText('Event Name')).toBeInTheDocument();
       expect(screen.getByLabelText('When did it happen?')).toBeInTheDocument();
+      expect(screen.getByLabelText('Tags')).toBeInTheDocument();
       expect(
         screen.getByLabelText('Remind me after (days)')
       ).toBeInTheDocument();

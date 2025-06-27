@@ -20,6 +20,7 @@ export const events = pgTable('events', {
   userId: varchar('user_id', { length: 255 }).notNull(),
   name: varchar('name', { length: 255 }).notNull(),
   date: varchar('date', { length: 255 }).notNull(),
+  tags: varchar('tags', { length: 255 }).notNull().default(''),
   resetCount: integer('reset_count').notNull().default(0)
 });
 

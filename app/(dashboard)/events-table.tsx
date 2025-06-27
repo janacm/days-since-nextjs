@@ -22,6 +22,7 @@ import { Event } from '@/lib/db';
 
 export function EventsTable({ events }: { events: Event[] }) {
   const [query, setQuery] = useState('');
+  const [tag, setTag] = useState('');
 
   const fuse = useMemo(() => {
     return new Fuse(events, {
@@ -35,6 +36,17 @@ export function EventsTable({ events }: { events: Event[] }) {
       ? events
       : fuse.search(query).map((result) => result.item);
 
+  const tagFiltered =
+    tag.trim() === ''
+      ? filtered
+      : filtered.filter((e) =>
+          e.tags
+            ?.toLowerCase()
+            .split(',')
+            .map((t) => t.trim())
+            .includes(tag.toLowerCase())
+        );
+
   return (
     <Card>
       <CardHeader>
@@ -44,13 +56,22 @@ export function EventsTable({ events }: { events: Event[] }) {
           event to view detailed analytics.
         </CardDescription>
         {events.length > 0 && (
-          <Input
-            placeholder="Search events..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            type="search"
-            className="mt-4 w-full sm:max-w-xs"
-          />
+          <div className="flex flex-col sm:flex-row gap-2 mt-4">
+            <Input
+              placeholder="Search events..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              type="search"
+              className="w-full sm:max-w-xs"
+            />
+            <Input
+              placeholder="Filter by tag"
+              value={tag}
+              onChange={(e) => setTag(e.target.value)}
+              type="search"
+              className="w-full sm:max-w-xs"
+            />
+          </div>
         )}
       </CardHeader>
       <CardContent>
@@ -58,9 +79,9 @@ export function EventsTable({ events }: { events: Event[] }) {
           <div className="text-center py-6 text-muted-foreground">
             No events yet. Add your first event to get started!
           </div>
-        ) : filtered.length === 0 ? (
+        ) : tagFiltered.length === 0 ? (
           <div className="text-center py-6 text-muted-foreground">
-            No events match your search.
+            No events match your filters.
           </div>
         ) : (
           <Table>
@@ -74,7 +95,7 @@ export function EventsTable({ events }: { events: Event[] }) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filtered.map((event) => (
+              {tagFiltered.map((event) => (
                 <EventItem key={event.id} event={event} />
               ))}
             </TableBody>

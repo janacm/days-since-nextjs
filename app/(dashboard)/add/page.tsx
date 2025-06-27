@@ -44,6 +44,14 @@ export default function AddEventPage() {
               />
             </div>
             <div className="space-y-2">
+              <Label htmlFor="tags">Tags</Label>
+              <Input
+                id="tags"
+                name="tags"
+                placeholder="comma separated"
+              />
+            </div>
+            <div className="space-y-2">
               <Label htmlFor="reminderDays">Remind me after (days)</Label>
               <Input
                 id="reminderDays"

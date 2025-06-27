@@ -33,6 +33,7 @@ export async function addEvent(formData: FormData) {
 
   const name = formData.get('name') as string;
   const dateStr = formData.get('date') as string;
+  const tags = (formData.get('tags') as string | null) ?? '';
   const reminderDaysStr = formData.get('reminderDays') as string | null;
   const reminderDays = reminderDaysStr ? Number(reminderDaysStr) : null;
 
@@ -52,6 +53,7 @@ export async function addEvent(formData: FormData) {
       userId: session.user.email,
       name,
       date: date.toISOString(),
+      tags,
       reminderDays,
       reminderSent: false
     })
@@ -94,6 +96,7 @@ export async function editEvent(formData: FormData) {
   const id = Number(formData.get('id'));
   const name = formData.get('name') as string;
   const dateStr = formData.get('date') as string;
+  const tags = (formData.get('tags') as string | null) ?? '';
   const reminderDaysStr = formData.get('reminderDays') as string | null;
   const reminderDays = reminderDaysStr ? Number(reminderDaysStr) : null;
 
@@ -112,6 +115,7 @@ export async function editEvent(formData: FormData) {
     .set({
       name,
       date: date.toISOString(),
+      tags,
       reminderDays,
       reminderSent: false // Reset reminder status when updating reminder settings
     })
@@ -186,6 +190,19 @@ export async function resetEventWithDate(formData: FormData) {
     console.error('Error resetting event with custom date:', error);
     throw error;
   }
+}
+
+export async function updateEventTags(formData: FormData) {
+  const session = await auth();
+  if (!session?.user?.email) {
+    throw new Error('You must be logged in to update tags');
+  }
+
+  const id = Number(formData.get('id'));
+  const tags = (formData.get('tags') as string | null) ?? '';
+
+  await db.update(events).set({ tags }).where(eq(events.id, id));
+  revalidatePath('/');
 }
 
 export async function sendTestEmail() {

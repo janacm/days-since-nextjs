@@ -4,6 +4,8 @@ import { redirect } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { updateEventTags } from '../../actions';
 import {
   ArrowLeft,
   Calendar,
@@ -82,8 +84,27 @@ export default async function EventAnalyticsPage({
                   Reminder every {event.reminderDays} days
                 </Badge>
               )}
+              {event.tags &&
+                event.tags.split(',').map((tag) => (
+                  <Badge key={tag} variant="outline">
+                    {tag.trim()}
+                  </Badge>
+                ))}
             </div>
           </CardHeader>
+          <CardContent>
+            <form action={updateEventTags} className="flex gap-2">
+              <input type="hidden" name="id" value={event.id} />
+              <Input
+                name="tags"
+                defaultValue={event.tags || ''}
+                placeholder="comma separated"
+              />
+              <Button type="submit" size="sm">
+                Save Tags
+              </Button>
+            </form>
+          </CardContent>
         </Card>
 
         {/* Analytics Cards */}

@@ -35,3 +35,13 @@ global.IntersectionObserver = jest.fn().mockImplementation(() => ({
   unobserve: jest.fn(),
   disconnect: jest.fn()
 }));
+
+// Polyfill TextEncoder/Decoder for Next.js
+const util = require('util');
+global.TextEncoder = util.TextEncoder;
+global.TextDecoder = util.TextDecoder;
+
+// Polyfill fetch Request/Response for Next.js server components
+global.Request = globalThis.Request;
+global.Response = globalThis.Response;
+global.Headers = globalThis.Headers;
