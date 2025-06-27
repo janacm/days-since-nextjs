@@ -6,7 +6,8 @@ import {
   pgTable,
   varchar,
   integer,
-  timestamp
+  timestamp,
+  boolean
 } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
 import * as dotenv from 'dotenv';
@@ -29,7 +30,10 @@ export const events = pgTable('events', {
   userId: varchar('user_id', { length: 255 }).notNull(),
   name: varchar('name', { length: 255 }).notNull(),
   date: varchar('date', { length: 255 }).notNull(),
-  resetCount: integer('reset_count').notNull().default(0)
+  resetCount: integer('reset_count').notNull().default(0),
+  reminderDays: integer('reminder_days'),
+  reminderSent: boolean('reminder_sent').notNull().default(false),
+  tags: varchar('tags', { length: 255 }).array().notNull().default(sql`'{}'`)
 });
 
 export const eventResets = pgTable('event_resets', {

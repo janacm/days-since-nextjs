@@ -246,6 +246,24 @@ describe('Event Navigation', () => {
 
     process.env.TZ = originalTZ;
   });
+
+  it('renders tags as badges', () => {
+    const taggedEvent: Event = {
+      ...mockEvent,
+      tags: ['work', 'fun']
+    };
+
+    render(
+      <table>
+        <tbody>
+          <EventItem event={taggedEvent} />
+        </tbody>
+      </table>
+    );
+
+    expect(screen.getByText('work')).toBeInTheDocument();
+    expect(screen.getByText('fun')).toBeInTheDocument();
+  });
 });
 
 describe('Event Navigation Integration', () => {

@@ -15,7 +15,7 @@ import {
   varchar,
   boolean
 } from 'drizzle-orm/pg-core';
-import { count, eq, ilike, desc, sql, and } from 'drizzle-orm';
+import { count, eq, ilike, desc, sql, and, arrayContains } from 'drizzle-orm';
 import { createInsertSchema } from 'drizzle-zod';
 
 // Define the schema
@@ -56,7 +56,8 @@ export const events = pgTable('events', {
   resetCount: integer('reset_count').notNull().default(0),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   reminderDays: integer('reminder_days'),
-  reminderSent: boolean('reminder_sent').notNull().default(false)
+  reminderSent: boolean('reminder_sent').notNull().default(false),
+  tags: varchar('tags', { length: 255 }).array().notNull().default(sql`'{}'`)
 });
 
 export const eventResets = pgTable('event_resets', {
@@ -176,11 +177,15 @@ export async function deleteProductById(id: number) {
   await db.delete(products).where(eq(products.id, id));
 }
 
-export async function getEvents(userId: string): Promise<Event[]> {
+export async function getEvents(userId: string, tag?: string): Promise<Event[]> {
+  const conditions = [eq(events.userId, userId)];
+  if (tag) {
+    conditions.push(arrayContains(events.tags, [tag]));
+  }
   const result = await db
     .select()
     .from(events)
-    .where(eq(events.userId, userId))
+    .where(and(...conditions))
     .orderBy(sql`${events.date} DESC`);
 
   // Add default value for resetCount if it's missing
@@ -193,7 +198,8 @@ export async function getEvents(userId: string): Promise<Event[]> {
 export async function createEvent(
   userId: string,
   name: string,
-  date: Date
+  date: Date,
+  tags: string[] = []
 ): Promise<Event> {
   // Convert Date to ISO string for Drizzle
   const dateStr = date.toISOString();
@@ -203,7 +209,8 @@ export async function createEvent(
     .values({
       userId,
       name,
-      date: dateStr
+      date: dateStr,
+      tags
     })
     .returning();
 
@@ -218,7 +225,8 @@ export async function updateEvent(
   id: number,
   name: string,
   date: Date,
-  reminderDays?: number | null
+  reminderDays?: number | null,
+  tags: string[] = []
 ): Promise<Event> {
   // Convert Date to ISO string for Drizzle
   const dateStr = date.toISOString();
@@ -229,7 +237,8 @@ export async function updateEvent(
       name,
       date: dateStr,
       reminderDays,
-      reminderSent: false // Reset reminder status when updating reminder settings
+      reminderSent: false, // Reset reminder status when updating reminder settings
+      tags
     })
     .where(eq(events.id, id))
     .returning();
@@ -366,5 +375,33 @@ export async function getEventAnalytics(eventId: number, userId: string) {
     averageDaysBetweenResets: Math.round(averageDaysBetweenResets),
     recentResets,
     allResets: resets
+  };
+}
+
+export async function getDatabaseInfo() {
+  const urlString = process.env.POSTGRES_URL ?? '';
+  let host = 'unknown';
+  let database = 'unknown';
+
+  try {
+    const url = new URL(urlString);
+    host = url.hostname;
+    database = url.pathname.replace('/', '');
+  } catch {
+    // ignore invalid URL
+  }
+
+  const [usersCount, eventsCount, productsCount] = await Promise.all([
+    db.select({ count: count() }).from(users),
+    db.select({ count: count() }).from(events),
+    db.select({ count: count() }).from(products)
+  ]);
+
+  return {
+    host,
+    database,
+    userCount: Number(usersCount[0]?.count ?? 0),
+    eventCount: Number(eventsCount[0]?.count ?? 0),
+    productCount: Number(productsCount[0]?.count ?? 0)
   };
 }

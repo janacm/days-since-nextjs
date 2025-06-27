@@ -86,6 +86,7 @@ describe('Add Event Page', () => {
       // Check for form elements
       expect(screen.getByText('Add New Event')).toBeInTheDocument();
       expect(screen.getByLabelText('Event Name')).toBeInTheDocument();
+      expect(screen.getByLabelText('Tags')).toBeInTheDocument();
       expect(screen.getByLabelText('When did it happen?')).toBeInTheDocument();
       expect(screen.getByLabelText('Set a reminder')).toBeInTheDocument();
       expect(
@@ -101,12 +102,15 @@ describe('Add Event Page', () => {
       render(<AddEventPage />);
 
       const nameInput = screen.getByLabelText('Event Name');
+      const tagsInput = screen.getByLabelText('Tags');
       const dateInput = screen.getByLabelText('When did it happen?');
       const reminderDaysInput = screen.getByLabelText('Remind me after (days)');
 
       // Text inputs don't explicitly have type="text" in HTML
       expect(nameInput).toHaveAttribute('required');
       expect(nameInput).toHaveAttribute('placeholder', 'What happened?');
+
+      expect(tagsInput).toHaveAttribute('placeholder', 'comma separated');
 
       expect(dateInput).toHaveAttribute('type', 'date');
       expect(dateInput).toHaveAttribute('required');
@@ -133,6 +137,16 @@ describe('Add Event Page', () => {
       await user.type(nameInput, 'Test Event');
 
       expect(nameInput).toHaveValue('Test Event');
+    });
+
+    it('allows user to input tags', async () => {
+      const user = userEvent.setup();
+      render(<AddEventPage />);
+
+      const tagsInput = screen.getByLabelText('Tags');
+      await user.type(tagsInput, 'work, urgent');
+
+      expect(tagsInput).toHaveValue('work, urgent');
     });
 
     it('allows user to change the date', async () => {

@@ -68,6 +68,11 @@ export function EventItem({ event }: { event: Event }) {
       <TableCell className="font-medium">
         <div className="flex items-center gap-2">
           {event.name}
+          {event.tags?.map((tag) => (
+            <Badge key={tag} variant="secondary">
+              {tag}
+            </Badge>
+          ))}
           {event.reminderDays && (
             <Badge variant={isReminderDue ? 'destructive' : 'secondary'}>
               <Bell className="h-3 w-3 mr-1" />
