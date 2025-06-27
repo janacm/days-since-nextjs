@@ -87,10 +87,10 @@ describe('Add Event Page', () => {
       expect(screen.getByText('Add New Event')).toBeInTheDocument();
       expect(screen.getByLabelText('Event Name')).toBeInTheDocument();
       expect(screen.getByLabelText('When did it happen?')).toBeInTheDocument();
-      expect(screen.getByLabelText('Set a reminder')).toBeInTheDocument();
       expect(
         screen.getByLabelText('Remind me after (days)')
       ).toBeInTheDocument();
+      expect(screen.getByText('Optional')).toBeInTheDocument();
 
       // Check for buttons
       expect(screen.getByText('Cancel')).toBeInTheDocument();
@@ -146,16 +146,6 @@ describe('Add Event Page', () => {
       expect(dateInput).toHaveValue('2025-05-15');
     });
 
-    it('allows user to toggle reminder switch', async () => {
-      const user = userEvent.setup();
-      render(<AddEventPage />);
-
-      const reminderSwitch = screen.getByRole('switch');
-      expect(reminderSwitch).not.toBeChecked();
-
-      await user.click(reminderSwitch);
-      expect(reminderSwitch).toBeChecked();
-    });
 
     it('allows user to input reminder days', async () => {
       const user = userEvent.setup();
@@ -206,7 +196,6 @@ describe('Add Event Page', () => {
       // All inputs should have associated labels
       expect(screen.getByLabelText('Event Name')).toBeInTheDocument();
       expect(screen.getByLabelText('When did it happen?')).toBeInTheDocument();
-      expect(screen.getByLabelText('Set a reminder')).toBeInTheDocument();
       expect(
         screen.getByLabelText('Remind me after (days)')
       ).toBeInTheDocument();
