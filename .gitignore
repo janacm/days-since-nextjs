@@ -124,3 +124,7 @@ ios/Pods/Flipper-Folly
 # Temporary files created by React Native CLI
 *.tmp
 *.temp
+
+# lost-pixel
+.lostpixel/current
+.lostpixel/difference
