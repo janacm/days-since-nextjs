@@ -46,16 +46,27 @@ export async function addEvent(formData: FormData) {
 
   const date = new Date(dateStr);
 
-  const result = await db
-    .insert(events)
-    .values({
-      userId: session.user.email,
-      name,
-      date: date.toISOString(),
-      reminderDays,
-      reminderSent: false
-    })
-    .returning();
+  // Use the createEvent function which now includes duplicate checking
+  try {
+    const result = await createEvent(session.user.email, name, date);
+    
+    // Update reminder settings if provided
+    if (reminderDays !== null) {
+      await db
+        .update(events)
+        .set({
+          reminderDays,
+          reminderSent: false
+        })
+        .where(eq(events.id, result.id));
+    }
+  } catch (error) {
+    // Re-throw with a user-friendly message if it's a duplicate error
+    if (error instanceof Error && error.message.includes('already exists')) {
+      throw new Error('An event with this name already exists. Please choose a different name.');
+    }
+    throw error;
+  }
 
   revalidatePath('/');
   redirect('/');
@@ -107,16 +118,16 @@ export async function editEvent(formData: FormData) {
 
   const date = new Date(dateStr);
 
-  const result = await db
-    .update(events)
-    .set({
-      name,
-      date: date.toISOString(),
-      reminderDays,
-      reminderSent: false // Reset reminder status when updating reminder settings
-    })
-    .where(eq(events.id, id))
-    .returning();
+  // Use the updateEvent function which now includes duplicate checking
+  try {
+    const result = await updateEvent(id, session.user.email, name, date, reminderDays);
+  } catch (error) {
+    // Re-throw with a user-friendly message if it's a duplicate error
+    if (error instanceof Error && error.message.includes('already exists')) {
+      throw new Error('An event with this name already exists. Please choose a different name.');
+    }
+    throw error;
+  }
 
   revalidatePath('/');
   redirect('/');

@@ -190,11 +190,41 @@ export async function getEvents(userId: string): Promise<Event[]> {
   }));
 }
 
+export async function checkEventNameExists(
+  userId: string,
+  name: string,
+  excludeId?: number
+): Promise<boolean> {
+  let conditions = [
+    eq(events.userId, userId),
+    eq(events.name, name)
+  ];
+
+  // If we're checking for updates, exclude the current event
+  if (excludeId) {
+    conditions.push(sql`${events.id} != ${excludeId}`);
+  }
+
+  const result = await db
+    .select()
+    .from(events)
+    .where(and(...conditions))
+    .limit(1);
+
+  return result.length > 0;
+}
+
 export async function createEvent(
   userId: string,
   name: string,
   date: Date
 ): Promise<Event> {
+  // Check if an event with this name already exists for this user
+  const nameExists = await checkEventNameExists(userId, name);
+  if (nameExists) {
+    throw new Error('An event with this name already exists');
+  }
+
   // Convert Date to ISO string for Drizzle
   const dateStr = date.toISOString();
 
@@ -216,10 +246,17 @@ export async function deleteEventById(id: number) {
 
 export async function updateEvent(
   id: number,
+  userId: string,
   name: string,
   date: Date,
   reminderDays?: number | null
 ): Promise<Event> {
+  // Check if an event with this name already exists for this user (excluding current event)
+  const nameExists = await checkEventNameExists(userId, name, id);
+  if (nameExists) {
+    throw new Error('An event with this name already exists');
+  }
+
   // Convert Date to ISO string for Drizzle
   const dateStr = date.toISOString();
 
