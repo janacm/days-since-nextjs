@@ -144,16 +144,29 @@ export async function getProducts(
   newOffset: number | null;
   totalProducts: number;
 }> {
-  // Always search the full table, not per page
+  const PRODUCTS_PER_PAGE = 20;
+  
+  // Handle search with pagination
   if (search) {
+    const searchProducts = await db
+      .select()
+      .from(products)
+      .where(ilike(products.name, `%${search}%`))
+      .limit(PRODUCTS_PER_PAGE)
+      .offset(offset || 0);
+      
+    // Get total count for search results
+    const totalSearchResults = await db
+      .select({ count: count() })
+      .from(products)
+      .where(ilike(products.name, `%${search}%`));
+      
+    const newOffset = searchProducts.length >= PRODUCTS_PER_PAGE ? (offset || 0) + PRODUCTS_PER_PAGE : null;
+    
     return {
-      products: await db
-        .select()
-        .from(products)
-        .where(ilike(products.name, `%${search}%`))
-        .limit(1000),
-      newOffset: null,
-      totalProducts: 0
+      products: searchProducts,
+      newOffset,
+      totalProducts: totalSearchResults[0].count
     };
   }
 

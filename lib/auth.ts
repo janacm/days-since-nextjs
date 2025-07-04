@@ -11,15 +11,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     strategy: 'jwt',
     maxAge: 30 * 24 * 60 * 60 // 30 days
   },
-  debug: true,
+  debug: false, // Disable debug mode in production for security
   callbacks: {
     async signIn({ user, account, profile, email, credentials }) {
-      console.log('Sign-in callback:', {
-        user,
-        account,
-        profile,
-        email,
-        credentials
+      // Log only non-sensitive information
+      console.log('Sign-in callback - User authenticated:', {
+        userId: user?.id,
+        userEmail: user?.email,
+        accountProvider: account?.provider
       });
       return true;
     },

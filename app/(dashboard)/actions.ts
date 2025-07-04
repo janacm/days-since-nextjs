@@ -12,7 +12,7 @@ import {
 import { revalidatePath } from 'next/cache';
 import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
-import { eq, sql } from 'drizzle-orm';
+import { eq, sql, and } from 'drizzle-orm';
 import nodemailer from 'nodemailer';
 
 // Initialize Nodemailer transporter
@@ -69,6 +69,17 @@ export async function deleteEvent(formData: FormData) {
 
   const id = Number(formData.get('id'));
 
+  // Verify the event belongs to the current user
+  const event = await db
+    .select()
+    .from(events)
+    .where(and(eq(events.id, id), eq(events.userId, session.user.email)))
+    .limit(1);
+
+  if (!event.length) {
+    throw new Error('Event not found or you do not have permission to delete it');
+  }
+
   await deleteEventById(id);
   revalidatePath('/');
 }
@@ -105,6 +116,17 @@ export async function editEvent(formData: FormData) {
     throw new Error('Please specify a valid number of days for the reminder');
   }
 
+  // Verify the event belongs to the current user
+  const existingEvent = await db
+    .select()
+    .from(events)
+    .where(and(eq(events.id, id), eq(events.userId, session.user.email)))
+    .limit(1);
+
+  if (!existingEvent.length) {
+    throw new Error('Event not found or you do not have permission to edit it');
+  }
+
   const date = new Date(dateStr);
 
   const result = await db
@@ -115,7 +137,7 @@ export async function editEvent(formData: FormData) {
       reminderDays,
       reminderSent: false // Reset reminder status when updating reminder settings
     })
-    .where(eq(events.id, id))
+    .where(and(eq(events.id, id), eq(events.userId, session.user.email)))
     .returning();
 
   revalidatePath('/');
@@ -124,12 +146,28 @@ export async function editEvent(formData: FormData) {
 
 export async function resetEvent(formData: FormData) {
   'use server';
+  const session = await auth();
+  if (!session?.user?.email) {
+    throw new Error('You must be logged in to reset an event');
+  }
+
   const id = formData.get('id') as string;
   const numericId = parseInt(id, 10);
   const now = new Date();
   const dateStr = now.toISOString();
 
   try {
+    // Verify the event belongs to the current user
+    const existingEvent = await db
+      .select()
+      .from(events)
+      .where(and(eq(events.id, numericId), eq(events.userId, session.user.email)))
+      .limit(1);
+
+    if (!existingEvent.length) {
+      throw new Error('Event not found or you do not have permission to reset it');
+    }
+
     // 1. Update the event's date and increment reset count
     await db
       .update(events)
@@ -137,7 +175,7 @@ export async function resetEvent(formData: FormData) {
         date: dateStr,
         resetCount: sql`COALESCE(reset_count, 0) + 1`
       })
-      .where(eq(events.id, numericId));
+      .where(and(eq(events.id, numericId), eq(events.userId, session.user.email)));
 
     // 2. Add a record to the event_resets table
     await db.insert(eventResets).values({
@@ -154,6 +192,11 @@ export async function resetEvent(formData: FormData) {
 
 export async function resetEventWithDate(formData: FormData) {
   'use server';
+  const session = await auth();
+  if (!session?.user?.email) {
+    throw new Error('You must be logged in to reset an event');
+  }
+
   const id = formData.get('id') as string;
   const customDate = formData.get('resetDate') as string;
   const numericId = parseInt(id, 10);
@@ -166,6 +209,17 @@ export async function resetEventWithDate(formData: FormData) {
   const dateStr = resetDate.toISOString();
 
   try {
+    // Verify the event belongs to the current user
+    const existingEvent = await db
+      .select()
+      .from(events)
+      .where(and(eq(events.id, numericId), eq(events.userId, session.user.email)))
+      .limit(1);
+
+    if (!existingEvent.length) {
+      throw new Error('Event not found or you do not have permission to reset it');
+    }
+
     // 1. Update the event's date and increment reset count
     await db
       .update(events)
@@ -173,7 +227,7 @@ export async function resetEventWithDate(formData: FormData) {
         date: dateStr,
         resetCount: sql`COALESCE(reset_count, 0) + 1`
       })
-      .where(eq(events.id, numericId));
+      .where(and(eq(events.id, numericId), eq(events.userId, session.user.email)));
 
     // 2. Add a record to the event_resets table
     await db.insert(eventResets).values({
