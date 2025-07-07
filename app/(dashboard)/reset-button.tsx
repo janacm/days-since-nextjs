@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -21,9 +21,33 @@ interface ResetButtonProps {
   onOpenChange?: (open: boolean) => void;
 }
 
+// Helper function to format date from YYYY-MM-DD to "MMM DD, YYYY"
+function formatDateDisplay(dateString: string): string {
+  if (!dateString) return '';
+  const date = new Date(dateString + 'T00:00:00');
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: '2-digit'
+  });
+}
+
+// Helper function to parse date from "MMM DD, YYYY" format to YYYY-MM-DD
+function parseDateFromDisplay(displayDate: string): string {
+  if (!displayDate) return '';
+  try {
+    const date = new Date(displayDate);
+    if (isNaN(date.getTime())) return '';
+    return date.toISOString().split('T')[0];
+  } catch {
+    return '';
+  }
+}
+
 export function ResetButton({ eventId, onOpenChange }: ResetButtonProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [resetDate, setResetDate] = useState('');
+  const [displayDate, setDisplayDate] = useState('');
   const [progress, setProgress] = useState(0);
 
   const handleQuickReset = () => {
@@ -37,6 +61,7 @@ export function ResetButton({ eventId, onOpenChange }: ResetButtonProps) {
     // Set default date to today
     const today = new Date().toISOString().split('T')[0];
     setResetDate(today);
+    setDisplayDate(formatDateDisplay(today));
   };
 
   const handleCustomReset = () => {
@@ -47,6 +72,15 @@ export function ResetButton({ eventId, onOpenChange }: ResetButtonProps) {
     formData.append('resetDate', resetDate);
     resetEventWithDate(formData);
     setIsModalOpen(false);
+  };
+
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = e.target.value;
+    setDisplayDate(inputValue);
+    
+    // Try to parse the date and convert to YYYY-MM-DD format
+    const parsedDate = parseDateFromDisplay(inputValue);
+    setResetDate(parsedDate);
   };
 
   const longPressResult = useLongPress({
@@ -143,9 +177,10 @@ export function ResetButton({ eventId, onOpenChange }: ResetButtonProps) {
               </Label>
               <Input
                 id="reset-date"
-                type="date"
-                value={resetDate}
-                onChange={(e) => setResetDate(e.target.value)}
+                type="text"
+                value={displayDate}
+                onChange={handleDateChange}
+                placeholder="Jul 07, 2025"
                 className="col-span-3"
               />
             </div>
