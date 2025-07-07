@@ -15,13 +15,14 @@ import {
   CardDescription
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import Fuse from 'fuse.js';
 import { EventItem } from './event';
 import { Event } from '@/lib/db';
 
 export function EventsTable({ events }: { events: Event[] }) {
   const [query, setQuery] = useState('');
+  const searchRef = useRef<HTMLInputElement>(null);
 
   const fuse = useMemo(() => {
     return new Fuse(events, {
@@ -45,9 +46,13 @@ export function EventsTable({ events }: { events: Event[] }) {
         </CardDescription>
         {events.length > 0 && (
           <Input
+            ref={searchRef}
             placeholder="Search events..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
+            onFocus={() =>
+              searchRef.current?.scrollIntoView({ block: 'start', behavior: 'smooth' })
+            }
             type="search"
             className="mt-4 w-full sm:max-w-xs"
           />
