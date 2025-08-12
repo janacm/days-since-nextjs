@@ -124,6 +124,25 @@ describe('Add Event Page', () => {
     });
   });
 
+  describe('Quick Add', () => {
+    it('creates event from natural language input', async () => {
+      const user = userEvent.setup();
+      const { addEvent } = require('../actions');
+      render(<AddEventPage />);
+
+      const quickInput = screen.getByLabelText('Quick Add');
+      await user.type(quickInput, 'purchased macbook on Dec 3rd 2024');
+      await user.click(screen.getByRole('button', { name: 'Create' }));
+
+      await waitFor(() => {
+        expect(addEvent).toHaveBeenCalled();
+      });
+      const formData = (addEvent as jest.Mock).mock.calls[0][0] as FormData;
+      expect(formData.get('name')).toBe('purchased macbook');
+      expect(formData.get('date')).toBe('2024-12-03');
+    });
+  });
+
   describe('User Interactions', () => {
     it('allows user to input event name', async () => {
       const user = userEvent.setup();
