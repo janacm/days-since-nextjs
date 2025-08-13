@@ -241,6 +241,13 @@ export async function createSubEvent(
   return result[0];
 }
 
+export async function getSubEvents(parentId: number): Promise<Event[]> {
+  return await db
+    .select()
+    .from(events)
+    .where(eq(events.parentId, parentId));
+}
+
 export async function deleteEventById(id: number) {
   await db.delete(events).where(eq(events.id, id));
 }

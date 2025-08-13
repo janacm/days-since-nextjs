@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { editEvent } from '../../actions';
 import Link from 'next/link';
-import { db, events } from '@/lib/db';
+import { db, events, getSubEvents } from '@/lib/db';
 import { eq } from 'drizzle-orm';
 import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
@@ -35,6 +35,8 @@ export default async function EditEventPage({
     .from(events)
     .where(eq(events.id, numericId))
     .limit(1);
+
+  const subEvents = await getSubEvents(numericId);
 
   if (!event || event.userId !== session.user.email) {
     redirect('/');
@@ -85,6 +87,30 @@ export default async function EditEventPage({
                 defaultValue={event.reminderDays || ''}
               />
             </div>
+            {event.parentId && (
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="resetParentOnSubReset"
+                  name="resetParentOnSubReset"
+                  defaultChecked={event.resetParentOnSubReset}
+                />
+                <Label htmlFor="resetParentOnSubReset">
+                  Reset parent when this event is reset
+                </Label>
+              </div>
+            )}
+            {!event.parentId && subEvents.length > 0 && (
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="resetChildrenOnParentReset"
+                  name="resetChildrenOnParentReset"
+                  defaultChecked={event.resetChildrenOnParentReset}
+                />
+                <Label htmlFor="resetChildrenOnParentReset">
+                  Reset sub-events when this event is reset
+                </Label>
+              </div>
+            )}
           </CardContent>
           <CardFooter className="flex justify-between">
             <Button variant="outline" asChild>

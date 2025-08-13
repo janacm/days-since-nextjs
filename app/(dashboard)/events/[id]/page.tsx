@@ -1,9 +1,13 @@
 import { auth } from '@/lib/auth';
-import { getEventAnalytics } from '@/lib/db';
+import { getEventAnalytics, getSubEvents } from '@/lib/db';
+import { addSubEvent, deleteEvent } from '../../actions';
 import { redirect } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import {
   ArrowLeft,
   Calendar,
@@ -38,6 +42,7 @@ export default async function EventAnalyticsPage({
 
   try {
     const analytics = await getEventAnalytics(eventId, session.user.email);
+    const subEvents = await getSubEvents(eventId);
     const {
       event,
       totalResets,
@@ -158,6 +163,59 @@ export default async function EventAnalyticsPage({
           currentStreak={currentStreak}
           totalResets={totalResets}
         />
+
+        {/* Sub Events */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Sub Events</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {subEvents.length > 0 ? (
+              <div className="space-y-2">
+                {subEvents.map((sub) => (
+                  <div
+                    key={sub.id}
+                    className="flex items-center justify-between border-b pb-2 last:border-b-0"
+                  >
+                    <span>{sub.name}</span>
+                    <form action={deleteEvent}>
+                      <input type="hidden" name="id" value={sub.id} />
+                      <button type="submit" className="text-sm text-red-600">
+                        Delete
+                      </button>
+                    </form>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">No sub-events</p>
+            )}
+
+            <form action={addSubEvent} className="mt-4 space-y-2">
+              <input type="hidden" name="parentId" value={event.id} />
+              <div className="space-y-1">
+                <Label htmlFor="subName">Name</Label>
+                <Input id="subName" name="name" required />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="subDate">Date</Label>
+                <Input id="subDate" name="date" type="date" required />
+              </div>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="resetParentOnSubReset"
+                  name="resetParentOnSubReset"
+                />
+                <Label htmlFor="resetParentOnSubReset">
+                  Reset parent when this sub-event is reset
+                </Label>
+              </div>
+              <Button type="submit" size="sm">
+                Add Sub Event
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
 
         {/* Recent Resets */}
         {recentResets.length > 0 && (

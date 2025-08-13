@@ -1,4 +1,4 @@
-import { createSubEvent, resetEventCascade, events, eventResets, db } from '../db';
+import { createSubEvent, resetEventCascade, getSubEvents, events, eventResets, db } from '../db';
 import { SQL } from 'drizzle-orm';
 
 // Helper to extract column and value from Drizzle eq() condition
@@ -105,6 +105,16 @@ describe('sub-event utilities', () => {
       expect(ev.resetCount).toBe(1);
     }
     expect(resetsData).toHaveLength(3);
+  });
+
+  it('retrieves sub-events for a parent', async () => {
+    const { eventsData } = setupDbMocks();
+    eventsData.push({ id: 1, userId: 'u1', name: 'Parent', date: '2024-01-01T00:00:00.000Z' });
+    eventsData.push({ id: 2, userId: 'u1', name: 'Child', date: '2024-02-01T00:00:00.000Z', parentId: 1 });
+
+    const subs = await getSubEvents(1);
+    expect(subs).toHaveLength(1);
+    expect(subs[0].id).toBe(2);
   });
 });
 

@@ -2,6 +2,7 @@
 
 import {
   createEvent,
+  createSubEvent,
   deleteEventById,
   updateEvent,
   deleteProductById,
@@ -37,6 +38,9 @@ export async function addEvent(formData: FormData) {
   const reminderDays = reminderEnabled
     ? Number(formData.get('reminderDays'))
     : null;
+  const resetParentOnSubReset = formData.get('resetParentOnSubReset') === 'on';
+  const resetChildrenOnParentReset =
+    formData.get('resetChildrenOnParentReset') === 'on';
 
   if (!name || !dateStr) {
     throw new Error('Name and date are required');
@@ -61,6 +65,33 @@ export async function addEvent(formData: FormData) {
 
   revalidatePath('/');
   redirect('/');
+}
+
+export async function addSubEvent(formData: FormData) {
+  const session = await auth();
+  if (!session?.user?.email) {
+    throw new Error('You must be logged in to add a sub-event');
+  }
+
+  const parentId = Number(formData.get('parentId'));
+  const name = formData.get('name') as string;
+  const dateStr = formData.get('date') as string;
+  const resetParent = formData.get('resetParentOnSubReset') === 'on';
+
+  if (!parentId || !name || !dateStr) {
+    throw new Error('Parent ID, name and date are required');
+  }
+
+  const date = new Date(dateStr);
+  await createSubEvent(
+    session.user.email,
+    parentId,
+    name,
+    date,
+    resetParent
+  );
+
+  revalidatePath(`/events/${parentId}`);
 }
 
 export async function deleteEvent(formData: FormData) {
@@ -100,6 +131,8 @@ export async function editEvent(formData: FormData) {
   const reminderDays = reminderEnabled
     ? Number(formData.get('reminderDays'))
     : null;
+  const resetParentOnSubReset = formData.get("resetParentOnSubReset") === "on";
+  const resetChildrenOnParentReset = formData.get("resetChildrenOnParentReset") === "on";
 
   if (!name || !dateStr) {
     throw new Error('Name and date are required');
@@ -117,7 +150,13 @@ export async function editEvent(formData: FormData) {
       name,
       date: date.toISOString(),
       reminderDays,
-      reminderSent: false // Reset reminder status when updating reminder settings
+      reminderSent: false,
+      ...(formData.has('resetParentOnSubReset') && {
+        resetParentOnSubReset
+      }),
+      ...(formData.has('resetChildrenOnParentReset') && {
+        resetChildrenOnParentReset
+      })
     })
     .where(eq(events.id, id))
     .returning();

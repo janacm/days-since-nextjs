@@ -2,8 +2,11 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
-import { getEventAnalytics } from '@/lib/db';
+import { getEventAnalytics, getSubEvents } from '@/lib/db';
 import EventAnalyticsPage from '../page';
+import { TextEncoder, TextDecoder } from 'util';
+(global as any).TextEncoder = TextEncoder;
+(global as any).TextDecoder = TextDecoder;
 
 // Mock Next.js functions
 jest.mock('next/navigation', () => ({
@@ -17,7 +20,13 @@ jest.mock('@/lib/auth', () => ({
 
 // Mock database function
 jest.mock('@/lib/db', () => ({
-  getEventAnalytics: jest.fn()
+  getEventAnalytics: jest.fn(),
+  getSubEvents: jest.fn()
+}));
+
+jest.mock('../../../actions', () => ({
+  addSubEvent: jest.fn(),
+  deleteEvent: jest.fn()
 }));
 
 // Mock the analytics charts component
@@ -35,6 +44,7 @@ const mockAuth = auth as jest.MockedFunction<typeof auth>;
 const mockGetEventAnalytics = getEventAnalytics as jest.MockedFunction<
   typeof getEventAnalytics
 >;
+const mockGetSubEvents = getSubEvents as jest.MockedFunction<typeof getSubEvents>;
 const mockRedirect = redirect as jest.MockedFunction<typeof redirect>;
 
 describe('EventAnalyticsPage', () => {
@@ -81,6 +91,7 @@ describe('EventAnalyticsPage', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockGetSubEvents.mockResolvedValue([]);
   });
 
   it('redirects to login when user is not authenticated', async () => {
