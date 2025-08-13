@@ -15,13 +15,35 @@ import {
   CardDescription
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import Fuse from 'fuse.js';
 import { EventItem } from './event';
 import { Event } from '@/lib/db';
 
 export function EventsTable({ events }: { events: Event[] }) {
   const [query, setQuery] = useState('');
+  const [colWidths, setColWidths] = useState<number[]>([220, 150, 110, 180, 70]);
+  const startX = useRef(0);
+  const startWidths = useRef<number[]>(colWidths);
+
+  const startResize = (index: number) => (e: React.MouseEvent) => {
+    startX.current = e.clientX;
+    startWidths.current = [...colWidths];
+    const onMouseMove = (ev: MouseEvent) => {
+      const delta = ev.clientX - startX.current;
+      setColWidths((prev) => {
+        const next = [...prev];
+        next[index] = Math.max(60, startWidths.current[index] + delta);
+        return next;
+      });
+    };
+    const onMouseUp = () => {
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+    };
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  };
 
   const fuse = useMemo(() => {
     return new Fuse(events, {
@@ -63,13 +85,42 @@ export function EventsTable({ events }: { events: Event[] }) {
             No events match your search.
           </div>
         ) : (
-          <Table>
+          <Table className="table-fixed">
+            <colgroup>
+              {colWidths.map((w, i) => (
+                <col key={i} style={{ width: w }} />
+              ))}
+            </colgroup>
             <TableHeader>
               <TableRow>
-                <TableHead>Event</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead className="text-center">Days Since</TableHead>
-                <TableHead className="hidden md:table-cell">Relative</TableHead>
+                <TableHead className="relative">
+                  Event
+                  <div
+                    onMouseDown={startResize(0)}
+                    className="absolute right-0 top-0 hidden h-full w-1 bg-border cursor-col-resize md:block"
+                  />
+                </TableHead>
+                <TableHead className="relative">
+                  Date
+                  <div
+                    onMouseDown={startResize(1)}
+                    className="absolute right-0 top-0 hidden h-full w-1 bg-border cursor-col-resize md:block"
+                  />
+                </TableHead>
+                <TableHead className="relative text-center">
+                  Days Since
+                  <div
+                    onMouseDown={startResize(2)}
+                    className="absolute right-0 top-0 hidden h-full w-1 bg-border cursor-col-resize md:block"
+                  />
+                </TableHead>
+                <TableHead className="relative hidden md:table-cell">
+                  Relative
+                  <div
+                    onMouseDown={startResize(3)}
+                    className="absolute right-0 top-0 hidden h-full w-1 bg-border cursor-col-resize md:block"
+                  />
+                </TableHead>
                 <TableHead className="w-[70px]"></TableHead>
               </TableRow>
             </TableHeader>
