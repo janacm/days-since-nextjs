@@ -38,11 +38,11 @@ jest.mock('@/lib/db', () => {
 
 import { addEvent, editEvent } from '../actions';
 import { events } from '@/lib/db';
-const mockAuth = auth as jest.MockedFunction<typeof auth>;
+const mockAuth = auth as unknown as jest.Mock;
 
 beforeEach(() => {
   jest.clearAllMocks();
-  mockAuth.mockResolvedValue({ user: { email: 'user@example.com' } } as any);
+  mockAuth.mockResolvedValue({ user: { email: 'user@example.com' } });
 });
 
 describe('addEvent', () => {
@@ -85,6 +85,31 @@ describe('addEvent', () => {
     );
     expect((global as any).dbTestMocks.mockInsert).not.toHaveBeenCalled();
   });
+
+  it('creates event with isPrivate=true when checkbox is set', async () => {
+    const formData = new FormData();
+    formData.append('name', 'Private Event');
+    formData.append('date', '2025-06-01');
+    formData.append('isPrivate', 'on');
+
+    await addEvent(formData);
+
+    expect((global as any).dbTestMocks.mockValues).toHaveBeenCalledWith(
+      expect.objectContaining({ isPrivate: true })
+    );
+  });
+
+  it('creates event with isPrivate=false when checkbox is not set', async () => {
+    const formData = new FormData();
+    formData.append('name', 'Public Event');
+    formData.append('date', '2025-06-01');
+
+    await addEvent(formData);
+
+    expect((global as any).dbTestMocks.mockValues).toHaveBeenCalledWith(
+      expect.objectContaining({ isPrivate: false })
+    );
+  });
 });
 
 describe('editEvent', () => {
@@ -115,6 +140,33 @@ describe('editEvent', () => {
 
     expect((global as any).dbTestMocks.mockSet).toHaveBeenCalledWith(
       expect.objectContaining({ reminderDays: null })
+    );
+  });
+
+  it('updates event with isPrivate=true when provided', async () => {
+    const formData = new FormData();
+    formData.append('id', '1');
+    formData.append('name', 'Event');
+    formData.append('date', '2025-06-01');
+    formData.append('isPrivate', 'on');
+
+    await editEvent(formData);
+
+    expect((global as any).dbTestMocks.mockSet).toHaveBeenCalledWith(
+      expect.objectContaining({ isPrivate: true })
+    );
+  });
+
+  it('updates event with isPrivate=false when not provided', async () => {
+    const formData = new FormData();
+    formData.append('id', '1');
+    formData.append('name', 'Event');
+    formData.append('date', '2025-06-01');
+
+    await editEvent(formData);
+
+    expect((global as any).dbTestMocks.mockSet).toHaveBeenCalledWith(
+      expect.objectContaining({ isPrivate: false })
     );
   });
 });

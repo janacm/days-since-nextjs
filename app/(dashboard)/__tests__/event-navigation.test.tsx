@@ -41,7 +41,8 @@ describe('Event Navigation', () => {
     resetCount: 2,
     createdAt: new Date('2024-01-01'),
     reminderDays: null,
-    reminderSent: false
+    reminderSent: false,
+    isPrivate: false
   };
 
   beforeEach(() => {
@@ -168,7 +169,8 @@ describe('Event Navigation', () => {
     const eventWithReminder: Event = {
       ...mockEvent,
       reminderDays: 5,
-      reminderSent: false
+      reminderSent: false,
+      isPrivate: false
     };
 
     // Mock current date to make reminder due
@@ -192,7 +194,8 @@ describe('Event Navigation', () => {
     const eventWithReminder: Event = {
       ...mockEvent,
       reminderDays: 10,
-      reminderSent: false
+      reminderSent: false,
+      isPrivate: false
     };
 
     // Mock current date - 5 days after event start
@@ -258,7 +261,8 @@ describe('Event Navigation Integration', () => {
       resetCount: 2,
       createdAt: new Date('2024-01-01'),
       reminderDays: null,
-      reminderSent: false
+      reminderSent: false,
+      isPrivate: false
     };
 
     render(

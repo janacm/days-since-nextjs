@@ -34,6 +34,9 @@ export async function addEvent(formData: FormData) {
   const name = formData.get('name') as string;
   const dateStr = formData.get('date') as string;
   const reminderDaysStr = formData.get('reminderDays') as string | null;
+  const isPrivateRaw = formData.get('isPrivate');
+  const isPrivate =
+    isPrivateRaw === 'on' || isPrivateRaw === 'true' || isPrivateRaw === '1';
   const reminderDays = reminderDaysStr ? Number(reminderDaysStr) : null;
 
   if (!name || !dateStr) {
@@ -53,7 +56,8 @@ export async function addEvent(formData: FormData) {
       name,
       date: date.toISOString(),
       reminderDays,
-      reminderSent: false
+      reminderSent: false,
+      isPrivate
     })
     .returning();
 
@@ -95,6 +99,9 @@ export async function editEvent(formData: FormData) {
   const name = formData.get('name') as string;
   const dateStr = formData.get('date') as string;
   const reminderDaysStr = formData.get('reminderDays') as string | null;
+  const isPrivateRaw = formData.get('isPrivate');
+  const isPrivate =
+    isPrivateRaw === 'on' || isPrivateRaw === 'true' || isPrivateRaw === '1';
   const reminderDays = reminderDaysStr ? Number(reminderDaysStr) : null;
 
   if (!name || !dateStr) {
@@ -113,7 +120,8 @@ export async function editEvent(formData: FormData) {
       name,
       date: date.toISOString(),
       reminderDays,
-      reminderSent: false // Reset reminder status when updating reminder settings
+      reminderSent: false, // Reset reminder status when updating reminder settings
+      isPrivate
     })
     .where(eq(events.id, id))
     .returning();

@@ -15,6 +15,7 @@ import { eq } from 'drizzle-orm';
 import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { format } from 'date-fns';
+import { Checkbox } from '@/components/ui/checkbox';
 
 export default async function EditEventPage({
   params
@@ -76,6 +77,20 @@ export default async function EditEventPage({
                 defaultValue={event.reminderDays || ''}
               />
               <p className="text-xs text-muted-foreground">Optional</p>
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="isPrivate"
+                  name="isPrivate"
+                  defaultChecked={!!event.isPrivate}
+                />
+                <Label htmlFor="isPrivate">Private</Label>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Private events are only visible to you and appear only under the
+                Private tab.
+              </p>
             </div>
           </CardContent>
           <CardFooter className="flex justify-between">
