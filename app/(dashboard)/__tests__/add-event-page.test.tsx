@@ -90,6 +90,7 @@ describe('Add Event Page', () => {
       expect(
         screen.getByLabelText('Remind me after (days)')
       ).toBeInTheDocument();
+      expect(screen.getByLabelText('Private')).toBeInTheDocument();
       expect(screen.getByText('Optional')).toBeInTheDocument();
 
       // Check for buttons
@@ -103,6 +104,7 @@ describe('Add Event Page', () => {
       const nameInput = screen.getByLabelText('Event Name');
       const dateInput = screen.getByLabelText('When did it happen?');
       const reminderDaysInput = screen.getByLabelText('Remind me after (days)');
+      const privateCheckbox = screen.getByLabelText('Private');
 
       // Text inputs don't explicitly have type="text" in HTML
       expect(nameInput).toHaveAttribute('required');
@@ -114,6 +116,15 @@ describe('Add Event Page', () => {
       expect(reminderDaysInput).toHaveAttribute('type', 'number');
       expect(reminderDaysInput).toHaveAttribute('min', '1');
       expect(reminderDaysInput).toHaveAttribute('placeholder', 'e.g. 30');
+      expect(privateCheckbox).toHaveAttribute('type', 'checkbox');
+    });
+
+    it('has Private unchecked by default', () => {
+      render(<AddEventPage />);
+      const privateCheckbox = screen.getByLabelText(
+        'Private'
+      ) as HTMLInputElement;
+      expect(privateCheckbox.checked).toBe(false);
     });
 
     it('has correct form action', () => {
@@ -145,7 +156,6 @@ describe('Add Event Page', () => {
 
       expect(dateInput).toHaveValue('2025-05-15');
     });
-
 
     it('allows user to input reminder days', async () => {
       const user = userEvent.setup();

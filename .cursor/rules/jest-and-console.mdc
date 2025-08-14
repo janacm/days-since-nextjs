@@ -1,0 +1,18 @@
+---
+globs: lib/__tests__/**/*.ts,app/**/__tests__/**/*.ts,lib/**/*.ts
+---
+
+### Jest environment and console spying
+
+- Do not import `@jest/globals` directly in tests unless necessary; rely on the global `jest` in this project setup.
+- When asserting console output in tests:
+
+  - Create spies in `beforeEach()` using `jest.spyOn(console, 'log'|'warn'|'error'|'info').mockImplementation(() => {})`.
+  - Restore with `jest.restoreAllMocks()` in `afterEach()`.
+  - This avoids interference between tests and ensures expectations pass reliably.
+
+- If a test needs to modify `process.env.NODE_ENV`, cast env to `any` to avoid TS readonly complaints:
+
+  - `(process.env as any).NODE_ENV = 'test' | 'development' | 'production'`.
+
+- Logging expectations should match exact strings used in code. For migration health warnings, there is no leading newline prefix.

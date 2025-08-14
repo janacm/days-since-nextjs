@@ -1,0 +1,20 @@
+---
+globs: lib/**/*.ts
+---
+
+### Database access and test-friendly module design
+
+- Always structure modules that touch the database so they can be safely imported in tests without side effects.
+
+  - Avoid top-level creation of clients that require platform APIs (like `fetch`).
+  - Prefer lazily requiring DB and FS modules inside the function that uses them so Jest mocks can take effect.
+
+- When using Neon + Drizzle in library code:
+
+  - Import or require `@neondatabase/serverless` and `drizzle-orm/neon-http` inside the function that needs them.
+  - In test mode (`process.env.NODE_ENV === 'test'`), pass a dummy client to `drizzle()` so calls resolve to the mocked DB.
+
+- Reference implementation: see `checkMigrationStatus()` in [lib/migration-checker.ts](mdc:lib/migration-checker.ts).
+
+- File system access in functions called by tests should also be lazily required.
+  - Guard `fs.readdirSync` and `fs.readFileSync` behind local variables so they can be mocked safely.

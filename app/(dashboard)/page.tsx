@@ -26,6 +26,7 @@ export default async function DashboardPage() {
           </TabsTrigger>
           <TabsTrigger value="reminders">Has reminder</TabsTrigger>
           <TabsTrigger value="overdue">Is overdue</TabsTrigger>
+          <TabsTrigger value="private">Private</TabsTrigger>
         </TabsList>
         <div className="ml-auto flex items-center gap-2">
           <Button size="sm" className="h-8 gap-1" asChild>
@@ -39,17 +40,20 @@ export default async function DashboardPage() {
         </div>
       </div>
       <TabsContent value="all">
-        <EventsTable events={events} />
+        <EventsTable events={events.filter((event) => !event.isPrivate)} />
       </TabsContent>
       <TabsContent value="recent">
-        <EventsTable events={events.slice(0, 5)} />
+        <EventsTable events={events.filter((event) => !event.isPrivate).slice(0, 5)} />
       </TabsContent>
       <TabsContent value="reminders">
-        <EventsTable events={events.filter(event => event.reminderDays !== null)} />
+        <EventsTable
+          events={events.filter((event) => !event.isPrivate && event.reminderDays !== null)}
+        />
       </TabsContent>
       <TabsContent value="overdue">
         <EventsTable
-          events={events.filter(event => {
+          events={events.filter((event) => {
+            if (event.isPrivate) return false;
             if (event.reminderDays === null) return false;
             const daysSince = Math.floor(
               (Date.now() - new Date(event.date).getTime()) / (1000 * 3600 * 24)
@@ -57,6 +61,9 @@ export default async function DashboardPage() {
             return daysSince >= event.reminderDays;
           })}
         />
+      </TabsContent>
+      <TabsContent value="private">
+        <EventsTable events={events.filter((event) => event.isPrivate)} />
       </TabsContent>
     </Tabs>
   );

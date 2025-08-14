@@ -1,0 +1,28 @@
+---
+globs: lib/migration-*.ts
+---
+
+### Migration health checks and logging
+
+- Error ordering in `ensureMigrationsUpToDate()`:
+
+  - If `result.errors.length > 0`, throw `Migration check failed with errors: ...`.
+  - Else if `!result.isUpToDate`, throw `Database migrations are not up to date. Pending migrations: ...`.
+
+- Warnings in `checkMigrationHealthWithWarning()`:
+
+  - `🚨 Migration health check failed!`
+  - `Issues found: <N>`
+  - Each issue line: `  - <issue>`
+  - If there are pending migrations, log exactly: `💡 Run migrations to resolve: npm run db:migrate` (no leading newline).
+
+- `printMigrationStatus()` logging order and formatting:
+  1. `\n=== Database Migration Status ===`
+  2. `Total migrations: <n>`
+  3. `Applied migrations: <n>`
+  4. `Pending migrations: <n>`
+  5. `Database is up to date: ✅` or `❌`
+  6. Optional `\nErrors:` then `  ❌ <error>` lines
+  7. Optional `\nPending migrations:` then `  ⏳ <filename>` lines
+  8. `\nDetailed status:` then `  ✅|❌ <filename>( Error: <msg>)`
+  9. `\n================================\n`
