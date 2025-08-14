@@ -1,4 +1,3 @@
-import { jest } from '@jest/globals';
 import {
   checkMigrationStatus,
   printMigrationStatus,
@@ -19,20 +18,27 @@ jest.mock('drizzle-orm/neon-http');
 jest.mock('fs');
 jest.mock('path');
 
-// Mock console methods
-const consoleSpy = {
-  log: jest.spyOn(console, 'log').mockImplementation(),
-  warn: jest.spyOn(console, 'warn').mockImplementation(),
-  error: jest.spyOn(console, 'error').mockImplementation(),
-  info: jest.spyOn(console, 'info').mockImplementation()
+// Mock console methods - recreate spies for each test to avoid being undone by restoreAllMocks
+let consoleSpy: {
+  log: jest.SpyInstance;
+  warn: jest.SpyInstance;
+  error: jest.SpyInstance;
+  info: jest.SpyInstance;
 };
 
 describe('Migration Checker', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    consoleSpy = {
+      log: jest.spyOn(console, 'log').mockImplementation(() => {}),
+      warn: jest.spyOn(console, 'warn').mockImplementation(() => {}),
+      error: jest.spyOn(console, 'error').mockImplementation(() => {}),
+      info: jest.spyOn(console, 'info').mockImplementation(() => {})
+    };
     // Reset environment variables
     process.env.POSTGRES_URL = 'postgresql://test:test@localhost:5432/test';
-    process.env.NODE_ENV = 'test';
+    // Jest's NODE_ENV typings are readonly; cast to any for test mutation
+    (process.env as any).NODE_ENV = 'test';
   });
 
   afterEach(() => {
@@ -403,7 +409,7 @@ describe('Migration Checker', () => {
 
     describe('checkMigrationInDevelopment', () => {
       it('should check migrations in development environment', async () => {
-        process.env.NODE_ENV = 'development';
+        (process.env as any).NODE_ENV = 'development';
 
         // Mock successful migration check
         const fs = require('fs');
@@ -432,7 +438,7 @@ describe('Migration Checker', () => {
       });
 
       it('should return null in production environment', async () => {
-        process.env.NODE_ENV = 'production';
+        (process.env as any).NODE_ENV = 'production';
 
         const result = await checkMigrationInDevelopment();
 

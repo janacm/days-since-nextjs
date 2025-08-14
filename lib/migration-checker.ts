@@ -1,8 +1,6 @@
-import { neon } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-http';
-import { sql } from 'drizzle-orm';
-import * as fs from 'fs';
-import * as path from 'path';
+// NOTE: To make tests reliable in ESM Jest, avoid top-level imports that
+// would bind real modules before mocks are applied. Lazily require inside
+// functions instead so test-time mocks take effect.
 
 // Type definitions for migration status
 export interface MigrationStatus {
@@ -29,6 +27,24 @@ export async function checkMigrationStatus(): Promise<MigrationCheckResult> {
   const migrationStatuses: MigrationStatus[] = [];
 
   try {
+    // Lazy requires so Jest can mock these modules even with ESM-style tests
+    const { neon } = require('@neondatabase/serverless');
+    const { drizzle } = require('drizzle-orm/neon-http');
+    const pathModule = require('path');
+    const fsModule = require('fs');
+    const joinPath: (...parts: string[]) => string =
+      pathModule && typeof pathModule.join === 'function'
+        ? pathModule.join.bind(pathModule)
+        : (...parts: string[]) => parts.filter(Boolean).join('/');
+    const readdirSync: (p: string) => string[] =
+      fsModule && typeof fsModule.readdirSync === 'function'
+        ? fsModule.readdirSync.bind(fsModule)
+        : () => [];
+    const readFileSync: (p: string, enc: string) => string =
+      fsModule && typeof fsModule.readFileSync === 'function'
+        ? fsModule.readFileSync.bind(fsModule)
+        : () => '';
+
     // Initialize database connection
     const connectionString =
       process.env.POSTGRES_URL || process.env.DATABASE_URL;
@@ -40,24 +56,23 @@ export async function checkMigrationStatus(): Promise<MigrationCheckResult> {
 
     // During tests, avoid creating a real Neon client (which requires fetch).
     // Tests mock drizzle() to return a fake DB, so we can pass a dummy client.
-    let db: ReturnType<typeof drizzle>;
+    let db: any;
     if (process.env.NODE_ENV === 'test') {
-      db = drizzle({} as any) as ReturnType<typeof drizzle>;
+      db = drizzle({} as any) as any;
     } else {
       db = drizzle(neon(connectionString));
     }
 
     // Get all migration files
-    const migrationsDir = path.join(process.cwd(), 'drizzle', 'migrations');
-    const migrationFiles = fs
-      .readdirSync(migrationsDir)
+    const migrationsDir = joinPath(process.cwd(), 'drizzle', 'migrations');
+    const migrationFiles = readdirSync(migrationsDir)
       .filter((file) => file.endsWith('.sql'))
       .sort(); // Sort to ensure order
 
     // Check each migration
     for (const fileName of migrationFiles) {
-      const filePath = path.join(migrationsDir, fileName);
-      const content = fs.readFileSync(filePath, 'utf-8');
+      const filePath = joinPath(migrationsDir, fileName);
+      const content = readFileSync(filePath, 'utf-8');
 
       try {
         const isApplied = await checkMigrationApplied(db, fileName, content);
@@ -113,7 +128,7 @@ export async function checkMigrationStatus(): Promise<MigrationCheckResult> {
  * Check if a specific migration has been applied by examining the database schema
  */
 async function checkMigrationApplied(
-  db: ReturnType<typeof drizzle>,
+  db: any,
   fileName: string,
   content: string
 ): Promise<boolean> {
@@ -232,11 +247,9 @@ function extractTableNameFromContext(
 /**
  * Execute a specific check against the database
  */
-async function executeCheck(
-  db: ReturnType<typeof drizzle>,
-  check: MigrationCheck
-): Promise<boolean> {
+async function executeCheck(db: any, check: MigrationCheck): Promise<boolean> {
   try {
+    const { sql } = require('drizzle-orm');
     switch (check.type) {
       case 'table_exists':
         const tableResult = await db.execute(sql`

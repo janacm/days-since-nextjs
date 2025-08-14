@@ -96,7 +96,7 @@ export async function checkMigrationHealthWithWarning(): Promise<MigrationHealth
     });
 
     if (health.pendingMigrations.length > 0) {
-      console.warn(`\n💡 Run migrations to resolve: npm run db:migrate`);
+      console.warn('💡 Run migrations to resolve: npm run db:migrate');
     }
   } else {
     console.info('✅ Migration health check passed');
@@ -124,16 +124,17 @@ export async function checkMigrationInDevelopment(): Promise<MigrationHealthInfo
 export async function ensureMigrationsUpToDate(): Promise<void> {
   const result = await checkMigrationStatus();
 
+  // Prioritize explicit errors over pending status so callers get better diagnostics
+  if (result.errors.length > 0) {
+    throw new Error(
+      `Migration check failed with errors: ${result.errors.join('; ')}`
+    );
+  }
+
   if (!result.isUpToDate) {
     const pendingList = result.pendingMigrations.join(', ');
     throw new Error(
       `Database migrations are not up to date. Pending migrations: ${pendingList}`
-    );
-  }
-
-  if (result.errors.length > 0) {
-    throw new Error(
-      `Migration check failed with errors: ${result.errors.join('; ')}`
     );
   }
 }
