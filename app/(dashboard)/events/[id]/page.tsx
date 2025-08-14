@@ -67,12 +67,12 @@ export default async function EventAnalyticsPage({
             </Link>
           </Button>
           <div className="flex-1 min-w-0">
-            <h1 className="text-2xl font-bold truncate text-center sm:text-right">{event.name}</h1>
+            <h1 className="text-3xl font-bold truncate text-center sm:text-right">{event.name}</h1>
           </div>
         </div>
 
         {/* Event Info */}
-        <Card className="shadow-sm">
+        <Card className="shadow-sm bg-gradient-to-br from-background to-muted">
           <CardHeader className="pb-4">
             <div className="flex items-center gap-4">
               <div className="p-3 rounded-full bg-primary/10">
@@ -80,12 +80,12 @@ export default async function EventAnalyticsPage({
               </div>
               <div className="flex-1 min-w-0">
                 <CardTitle className="text-2xl truncate">{event.name}</CardTitle>
-                <div className="flex flex-wrap items-center gap-3 mt-2">
+                <div className="flex flex-wrap items-center gap-3 mt-3">
                   <span className="text-sm text-muted-foreground">
                     Started: {formattedDate}
                   </span>
                   {event.reminderDays && (
-                    <Badge variant="secondary" className="text-sm">
+                    <Badge variant="secondary" className="text-sm px-3 py-1">
                       Reminder every {event.reminderDays} days
                     </Badge>
                   )}
@@ -97,7 +97,7 @@ export default async function EventAnalyticsPage({
 
         {/* Analytics Cards */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Card className="transition-all hover:shadow-md border-primary/20">
+          <Card className="transition-all duration-300 hover:shadow-md border-primary/20">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
                 Days Since Reset
@@ -106,13 +106,13 @@ export default async function EventAnalyticsPage({
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-primary mt-2">{currentStreak}</div>
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="text-xs text-muted-foreground mt-2">
                 days since last reset
               </p>
             </CardContent>
           </Card>
 
-          <Card className="transition-all hover:shadow-md border-primary/20">
+          <Card className="transition-all duration-300 hover:shadow-md border-primary/20">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
                 Total Resets
@@ -121,13 +121,13 @@ export default async function EventAnalyticsPage({
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-primary mt-2">{totalResets}</div>
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="text-xs text-muted-foreground mt-2">
                 times reset since start
               </p>
             </CardContent>
           </Card>
 
-          <Card className="transition-all hover:shadow-md border-primary/20">
+          <Card className="transition-all duration-300 hover:shadow-md border-primary/20">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
                 Longest Period
@@ -136,11 +136,11 @@ export default async function EventAnalyticsPage({
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-primary mt-2">{longestStreak}</div>
-              <p className="text-xs text-muted-foreground mt-1">best performance</p>
+              <p className="text-xs text-muted-foreground mt-2">best performance</p>
             </CardContent>
           </Card>
 
-          <Card className="transition-all hover:shadow-md border-primary/20">
+          <Card className="transition-all duration-300 hover:shadow-md border-primary/20">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
                 Average Days
@@ -153,7 +153,7 @@ export default async function EventAnalyticsPage({
                   ? Math.round(averageDaysBetweenResets)
                   : currentStreak}
               </div>
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="text-xs text-muted-foreground mt-2">
                 {totalResets > 0 ? 'days on average' : 'days total so far'}
               </p>
             </CardContent>
@@ -161,7 +161,7 @@ export default async function EventAnalyticsPage({
         </div>
 
         {/* Charts Section */}
-        <div className="pt-4">
+        <div className="pt-6">
           <AnalyticsCharts
             event={event}
             allResets={allResets}
@@ -174,21 +174,21 @@ export default async function EventAnalyticsPage({
         {recentResets.length > 0 && (
           <Card className="shadow-sm">
             <CardHeader>
-              <CardTitle>Recent Resets</CardTitle>
+              <CardTitle className="text-xl">Recent Resets</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {recentResets.map((reset, index) => (
                   <div
                     key={reset.id}
-                    className="flex items-center justify-between py-3 px-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors border border-muted-foreground/10"
+                    className="flex items-center justify-between p-4 rounded-lg bg-muted/50 hover:bg-muted transition-all duration-300 border border-muted-foreground/10"
                   >
                     <div className="flex items-center gap-4">
-                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-sm font-medium text-primary">
-                        {index + 1}
+                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold text-primary">
+                        #{index + 1}
                       </div>
                       <div>
-                        <div className="font-medium">
+                        <div className="font-semibold text-lg">
                           {new Date(reset.resetAt).toLocaleDateString('en-US', {
                             year: 'numeric',
                             month: 'short',
@@ -220,12 +220,12 @@ export default async function EventAnalyticsPage({
         {/* No Resets Message */}
         {totalResets === 0 && (
           <Card className="shadow-sm">
-            <CardContent className="text-center py-12">
-              <div className="p-4 rounded-full bg-primary/10 w-fit mx-auto">
-                <RotateCcw className="h-8 w-8 text-primary" />
+            <CardContent className="text-center py-16">
+              <div className="p-5 rounded-full bg-primary/10 w-fit mx-auto">
+                <RotateCcw className="h-10 w-10 text-primary" />
               </div>
-              <h3 className="text-xl font-semibold mt-4 mb-2">No resets yet!</h3>
-              <p className="text-muted-foreground max-w-md mx-auto">
+              <h3 className="text-2xl font-bold mt-6 mb-3">No resets yet!</h3>
+              <p className="text-muted-foreground max-w-md mx-auto text-lg">
                 You&apos;ve been tracking for {currentStreak} days. Keep it up!
               </p>
             </CardContent>
