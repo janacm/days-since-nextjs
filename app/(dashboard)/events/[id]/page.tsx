@@ -66,22 +66,26 @@ export default async function EventAnalyticsPage({
               Back to Events
             </Link>
           </Button>
-          <h1 className="text-2xl font-bold truncate">{event.name}</h1>
+          <div className="flex-1 min-w-0">
+            <h1 className="text-2xl font-bold truncate text-center sm:text-right">{event.name}</h1>
+          </div>
         </div>
 
         {/* Event Info */}
         <Card className="shadow-sm">
-          <CardHeader className="pb-3">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-primary/10">
-                <Calendar className="h-5 w-5 text-primary" />
+          <CardHeader className="pb-4">
+            <div className="flex items-center gap-4">
+              <div className="p-3 rounded-full bg-primary/10">
+                <Calendar className="h-6 w-6 text-primary" />
               </div>
-              <div>
-                <CardTitle className="text-xl">{event.name}</CardTitle>
-                <div className="flex flex-wrap items-center gap-2 mt-2 text-sm text-muted-foreground">
-                  <span>Started: {formattedDate}</span>
+              <div className="flex-1 min-w-0">
+                <CardTitle className="text-2xl truncate">{event.name}</CardTitle>
+                <div className="flex flex-wrap items-center gap-3 mt-2">
+                  <span className="text-sm text-muted-foreground">
+                    Started: {formattedDate}
+                  </span>
                   {event.reminderDays && (
-                    <Badge variant="secondary">
+                    <Badge variant="secondary" className="text-sm">
                       Reminder every {event.reminderDays} days
                     </Badge>
                   )}
@@ -93,7 +97,7 @@ export default async function EventAnalyticsPage({
 
         {/* Analytics Cards */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Card className="transition-all hover:shadow-md">
+          <Card className="transition-all hover:shadow-md border-primary/20">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
                 Days Since Reset
@@ -101,14 +105,14 @@ export default async function EventAnalyticsPage({
               <Target className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-primary">{currentStreak}</div>
+              <div className="text-3xl font-bold text-primary mt-2">{currentStreak}</div>
               <p className="text-xs text-muted-foreground mt-1">
                 days since last reset
               </p>
             </CardContent>
           </Card>
 
-          <Card className="transition-all hover:shadow-md">
+          <Card className="transition-all hover:shadow-md border-primary/20">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
                 Total Resets
@@ -116,14 +120,14 @@ export default async function EventAnalyticsPage({
               <RotateCcw className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-primary">{totalResets}</div>
+              <div className="text-3xl font-bold text-primary mt-2">{totalResets}</div>
               <p className="text-xs text-muted-foreground mt-1">
                 times reset since start
               </p>
             </CardContent>
           </Card>
 
-          <Card className="transition-all hover:shadow-md">
+          <Card className="transition-all hover:shadow-md border-primary/20">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
                 Longest Period
@@ -131,12 +135,12 @@ export default async function EventAnalyticsPage({
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-primary">{longestStreak}</div>
+              <div className="text-3xl font-bold text-primary mt-2">{longestStreak}</div>
               <p className="text-xs text-muted-foreground mt-1">best performance</p>
             </CardContent>
           </Card>
 
-          <Card className="transition-all hover:shadow-md">
+          <Card className="transition-all hover:shadow-md border-primary/20">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
                 Average Days
@@ -144,7 +148,7 @@ export default async function EventAnalyticsPage({
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-primary">
+              <div className="text-3xl font-bold text-primary mt-2">
                 {totalResets > 0
                   ? Math.round(averageDaysBetweenResets)
                   : currentStreak}
@@ -157,12 +161,14 @@ export default async function EventAnalyticsPage({
         </div>
 
         {/* Charts Section */}
-        <AnalyticsCharts
-          event={event}
-          allResets={allResets}
-          currentStreak={currentStreak}
-          totalResets={totalResets}
-        />
+        <div className="pt-4">
+          <AnalyticsCharts
+            event={event}
+            allResets={allResets}
+            currentStreak={currentStreak}
+            totalResets={totalResets}
+          />
+        </div>
 
         {/* Recent Resets */}
         {recentResets.length > 0 && (
@@ -175,7 +181,7 @@ export default async function EventAnalyticsPage({
                 {recentResets.map((reset, index) => (
                   <div
                     key={reset.id}
-                    className="flex items-center justify-between py-3 px-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
+                    className="flex items-center justify-between py-3 px-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors border border-muted-foreground/10"
                   >
                     <div className="flex items-center gap-4">
                       <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-sm font-medium text-primary">
