@@ -8,7 +8,7 @@ import {
   ArrowLeft,
   Calendar,
   RotateCcw,
-  TrendioUp,
+  TrendingUp,
   Target
 } from 'lucide-react';
 import Link from 'next/link';
