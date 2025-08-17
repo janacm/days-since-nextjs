@@ -200,6 +200,23 @@ describe('EventAnalyticsPage', () => {
     expect(backLink).toHaveAttribute('href', '/');
   });
 
+  it('includes edit event link', async () => {
+    mockAuth.mockResolvedValue({
+      user: { email: 'test@example.com' }
+    } as any);
+    mockGetEventAnalytics.mockResolvedValue(mockAnalyticsData as any);
+
+    const result = await EventAnalyticsPage({
+      params: Promise.resolve({ id: '1' })
+    });
+
+    render(result as React.ReactElement);
+
+    const editLink = screen.getByRole('link', { name: /edit event/i });
+    expect(editLink).toBeInTheDocument();
+    expect(editLink).toHaveAttribute('href', '/edit/1');
+  });
+
   it('renders analytics charts component', async () => {
     mockAuth.mockResolvedValue({
       user: { email: 'test@example.com' }

@@ -66,6 +66,9 @@ export default async function EventAnalyticsPage({
               Back to Events
             </Link>
           </Button>
+          <Button variant="secondary" size="sm" asChild>
+            <Link href={`/edit/${event.id}`}>Edit Event</Link>
+          </Button>
         </div>
 
         {/* Event Info */}
