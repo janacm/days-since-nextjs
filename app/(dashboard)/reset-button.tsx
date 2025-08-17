@@ -14,22 +14,34 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RotateCcw } from 'lucide-react';
 import { useLongPress } from '@/lib/hooks/use-long-press';
-import { resetEvent, resetEventWithDate } from './actions';
+import { resetEvent, resetEventWithDate, undoResetEvent } from './actions';
+import { useToast } from '@/components/ui/toast';
 
 interface ResetButtonProps {
   eventId: number;
+  currentDate: string;
   onOpenChange?: (open: boolean) => void;
 }
-
-export function ResetButton({ eventId, onOpenChange }: ResetButtonProps) {
+export function ResetButton({ eventId, currentDate, onOpenChange }: ResetButtonProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [resetDate, setResetDate] = useState('');
   const [progress, setProgress] = useState(0);
+  const { showToast } = useToast();
+  const [prevDate] = useState(currentDate);
 
-  const handleQuickReset = () => {
+  const handleQuickReset = async () => {
     const formData = new FormData();
     formData.append('id', eventId.toString());
-    resetEvent(formData);
+    await resetEvent(formData);
+    showToast('Event reset', {
+      actionLabel: 'Undo',
+      onAction: async () => {
+        const undoData = new FormData();
+        undoData.append('id', eventId.toString());
+        undoData.append('previousDate', prevDate);
+        await undoResetEvent(undoData);
+      }
+    });
   };
 
   const handleLongPress = () => {
@@ -39,20 +51,29 @@ export function ResetButton({ eventId, onOpenChange }: ResetButtonProps) {
     setResetDate(today);
   };
 
-  const handleCustomReset = () => {
+  const handleCustomReset = async () => {
     if (!resetDate) return;
 
     const formData = new FormData();
     formData.append('id', eventId.toString());
     formData.append('resetDate', resetDate);
-    resetEventWithDate(formData);
+    await resetEventWithDate(formData);
+    showToast('Event reset', {
+      actionLabel: 'Undo',
+      onAction: async () => {
+        const undoData = new FormData();
+        undoData.append('id', eventId.toString());
+        undoData.append('previousDate', prevDate);
+        await undoResetEvent(undoData);
+      }
+    });
     setIsModalOpen(false);
   };
 
   const longPressResult = useLongPress({
     onLongPress: handleLongPress,
     onClick: handleQuickReset,
-    threshold: 800, // 800ms for long press
+    threshold: 1000, // 1s for long press
     onProgress: setProgress
   });
 

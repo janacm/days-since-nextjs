@@ -3,11 +3,13 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ResetButton } from '../reset-button';
 import { resetEvent, resetEventWithDate } from '../actions';
+import { ToastProvider } from '@/components/ui/toast';
 
 // Mock the actions
 jest.mock('../actions', () => ({
   resetEvent: jest.fn(),
-  resetEventWithDate: jest.fn()
+  resetEventWithDate: jest.fn(),
+  undoResetEvent: jest.fn()
 }));
 
 // Mock the long press hook
@@ -31,13 +33,17 @@ const mockResetEventWithDate = resetEventWithDate as jest.MockedFunction<
 
 describe('ResetButton', () => {
   const eventId = 123;
+  const currentDate = '2024-01-01T00:00:00.000Z';
+
+  const renderWithProvider = (ui: React.ReactElement) =>
+    render(<ToastProvider>{ui}</ToastProvider>);
 
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
   it('renders reset button with correct icon', () => {
-    render(<ResetButton eventId={eventId} />);
+    renderWithProvider(<ResetButton eventId={eventId} currentDate={currentDate} />);
 
     const button = screen.getByRole('button');
     expect(button).toBeInTheDocument();
@@ -49,7 +55,7 @@ describe('ResetButton', () => {
   });
 
   it('has correct accessibility attributes', () => {
-    render(<ResetButton eventId={eventId} />);
+    renderWithProvider(<ResetButton eventId={eventId} currentDate={currentDate} />);
 
     const button = screen.getByRole('button');
     expect(button).toHaveAttribute('type', 'button');
@@ -59,7 +65,7 @@ describe('ResetButton', () => {
   });
 
   it('applies correct CSS classes for iOS Safari prevention', () => {
-    render(<ResetButton eventId={eventId} />);
+    renderWithProvider(<ResetButton eventId={eventId} currentDate={currentDate} />);
 
     const button = screen.getByRole('button');
 
@@ -81,7 +87,7 @@ describe('ResetButton', () => {
       isPressed: false
     }));
 
-    render(<ResetButton eventId={eventId} />);
+    renderWithProvider(<ResetButton eventId={eventId} currentDate={currentDate} />);
 
     const button = screen.getByRole('button');
     await userEvent.click(button);
@@ -91,6 +97,26 @@ describe('ResetButton', () => {
     // Check that the FormData contains the correct event ID
     const formDataCall = mockResetEvent.mock.calls[0][0] as FormData;
     expect(formDataCall.get('id')).toBe(eventId.toString());
+  });
+
+  it('shows undo toast after quick reset', async () => {
+    const { useLongPress } = require('../../../lib/hooks/use-long-press');
+    useLongPress.mockImplementation(({ onClick }) => ({
+      onMouseDown: jest.fn(),
+      onMouseUp: jest.fn(),
+      onMouseLeave: jest.fn(),
+      onTouchStart: jest.fn(),
+      onTouchEnd: jest.fn(),
+      onClick,
+      isPressed: false
+    }));
+
+    renderWithProvider(<ResetButton eventId={eventId} currentDate={currentDate} />);
+
+    const button = screen.getByRole('button');
+    await userEvent.click(button);
+
+    expect(await screen.findByText('Undo')).toBeInTheDocument();
   });
 
   it('opens modal on long press', async () => {
@@ -112,7 +138,7 @@ describe('ResetButton', () => {
       };
     });
 
-    render(<ResetButton eventId={eventId} />);
+    renderWithProvider(<ResetButton eventId={eventId} currentDate={currentDate} />);
 
     // Simulate long press
     longPressCallback!();
@@ -150,7 +176,7 @@ describe('ResetButton', () => {
       };
     });
 
-    render(<ResetButton eventId={eventId} />);
+    renderWithProvider(<ResetButton eventId={eventId} currentDate={currentDate} />);
 
     // Simulate long press
     longPressCallback!();
@@ -180,7 +206,7 @@ describe('ResetButton', () => {
       };
     });
 
-    render(<ResetButton eventId={eventId} />);
+    renderWithProvider(<ResetButton eventId={eventId} currentDate={currentDate} />);
 
     // Open modal
     longPressCallback!();
@@ -217,7 +243,7 @@ describe('ResetButton', () => {
       };
     });
 
-    render(<ResetButton eventId={eventId} />);
+    renderWithProvider(<ResetButton eventId={eventId} currentDate={currentDate} />);
 
     // Open modal
     longPressCallback!();
@@ -266,7 +292,7 @@ describe('ResetButton', () => {
       };
     });
 
-    render(<ResetButton eventId={eventId} />);
+    renderWithProvider(<ResetButton eventId={eventId} currentDate={currentDate} />);
 
     // Open modal
     longPressCallback!();
@@ -302,7 +328,7 @@ describe('ResetButton', () => {
       };
     });
 
-    render(<ResetButton eventId={eventId} />);
+    renderWithProvider(<ResetButton eventId={eventId} currentDate={currentDate} />);
 
     // Open modal
     longPressCallback!();
@@ -341,7 +367,7 @@ describe('ResetButton', () => {
       };
     });
 
-    render(<ResetButton eventId={eventId} />);
+    renderWithProvider(<ResetButton eventId={eventId} currentDate={currentDate} />);
 
     // Open modal
     longPressCallback!();
@@ -372,7 +398,7 @@ describe('ResetButton', () => {
       isPressed: true
     }));
 
-    render(<ResetButton eventId={eventId} />);
+    renderWithProvider(<ResetButton eventId={eventId} currentDate={currentDate} />);
 
     // Should show the progress SVG when pressed
     const button = screen.getByRole('button');
@@ -395,7 +421,7 @@ describe('ResetButton', () => {
       isPressed: false
     }));
 
-    render(<ResetButton eventId={eventId} />);
+    renderWithProvider(<ResetButton eventId={eventId} currentDate={currentDate} />);
 
     // Should not show the progress SVG when not pressed
     const button = screen.getByRole('button');
@@ -406,13 +432,13 @@ describe('ResetButton', () => {
   it('passes onProgress callback to useLongPress hook', () => {
     const { useLongPress } = require('../../../lib/hooks/use-long-press');
 
-    render(<ResetButton eventId={eventId} />);
+    renderWithProvider(<ResetButton eventId={eventId} currentDate={currentDate} />);
 
     // Check that useLongPress was called with onProgress callback
     expect(useLongPress).toHaveBeenCalledWith(
       expect.objectContaining({
         onProgress: expect.any(Function),
-        threshold: 800
+        threshold: 1000
       })
     );
   });

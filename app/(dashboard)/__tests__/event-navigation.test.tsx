@@ -3,6 +3,7 @@ import { render, screen, fireEvent, act } from '@testing-library/react';
 import { useRouter } from 'next/navigation';
 import { EventItem } from '../event';
 import { Event } from '@/lib/db';
+import { ToastProvider } from '@/components/ui/toast';
 
 // Mock Next.js router
 jest.mock('next/navigation', () => ({
@@ -32,6 +33,9 @@ jest.mock('../../../lib/hooks/use-long-press', () => ({
 const mockPush = jest.fn();
 const mockUseRouter = useRouter as jest.MockedFunction<typeof useRouter>;
 
+const renderWithProvider = (ui: React.ReactElement) =>
+  render(<ToastProvider>{ui}</ToastProvider>);
+
 describe('Event Navigation', () => {
   const mockEvent: Event = {
     id: 123,
@@ -59,7 +63,7 @@ describe('Event Navigation', () => {
 
   it('navigates to analytics page when row is clicked', () => {
     // Wrap EventItem in a table to avoid HTML structure warnings
-    render(
+    renderWithProvider(
       <table>
         <tbody>
           <EventItem event={mockEvent} />
@@ -74,7 +78,7 @@ describe('Event Navigation', () => {
   });
 
   it('does not navigate when reset button area is clicked', () => {
-    render(
+    renderWithProvider(
       <table>
         <tbody>
           <EventItem event={mockEvent} />
@@ -94,7 +98,7 @@ describe('Event Navigation', () => {
   });
 
   it('does not navigate when dropdown menu is clicked', () => {
-    render(
+    renderWithProvider(
       <table>
         <tbody>
           <EventItem event={mockEvent} />
@@ -129,7 +133,7 @@ describe('Event Navigation', () => {
       }
     );
 
-    render(
+    renderWithProvider(
       <table>
         <tbody>
           <EventItem event={mockEvent} />
@@ -149,7 +153,7 @@ describe('Event Navigation', () => {
   });
 
   it('applies correct hover styles to table row', () => {
-    render(
+    renderWithProvider(
       <table>
         <tbody>
           <EventItem event={mockEvent} />
@@ -177,7 +181,7 @@ describe('Event Navigation', () => {
     jest.useFakeTimers();
     jest.setSystemTime(new Date('2024-01-10T00:00:00.000Z')); // 9 days after event
 
-    render(
+    renderWithProvider(
       <table>
         <tbody>
           <EventItem event={eventWithReminder} />
@@ -202,7 +206,7 @@ describe('Event Navigation', () => {
     jest.useFakeTimers();
     jest.setSystemTime(new Date('2024-01-06T00:00:00.000Z'));
 
-    render(
+    renderWithProvider(
       <table>
         <tbody>
           <EventItem event={eventWithReminder} />
@@ -220,7 +224,7 @@ describe('Event Navigation', () => {
     jest.useFakeTimers();
     jest.setSystemTime(new Date('2024-01-16T00:00:00.000Z'));
 
-    render(
+    renderWithProvider(
       <table>
         <tbody>
           <EventItem event={mockEvent} />
@@ -237,7 +241,7 @@ describe('Event Navigation', () => {
     const originalTZ = process.env.TZ;
     process.env.TZ = 'America/New_York';
 
-    render(
+    renderWithProvider(
       <table>
         <tbody>
           <EventItem event={mockEvent} />
@@ -265,7 +269,7 @@ describe('Event Navigation Integration', () => {
       isPrivate: false
     };
 
-    render(
+    renderWithProvider(
       <table>
         <tbody>
           <EventItem event={mockEvent} />
