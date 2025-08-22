@@ -37,6 +37,12 @@ export async function addEvent(formData: FormData) {
   const isPrivateRaw = formData.get('isPrivate');
   const isPrivate =
     isPrivateRaw === 'on' || isPrivateRaw === 'true' || isPrivateRaw === '1';
+  const disableResetsRaw = formData.get('disableResets');
+  const disableResets =
+    disableResetsRaw === 'on' ||
+    disableResetsRaw === 'true' ||
+    disableResetsRaw === '1';
+  const resettable = !disableResets;
   const reminderDays = reminderDaysStr ? Number(reminderDaysStr) : null;
 
   if (!name || !dateStr) {
@@ -57,7 +63,8 @@ export async function addEvent(formData: FormData) {
       date: date.toISOString(),
       reminderDays,
       reminderSent: false,
-      isPrivate
+      isPrivate,
+      resettable
     })
     .returning();
 
@@ -72,6 +79,8 @@ export async function deleteEvent(formData: FormData) {
   }
 
   const id = Number(formData.get('id'));
+
+  // Deletion is allowed regardless of reset settings
 
   await deleteEventById(id);
   revalidatePath('/');
@@ -102,6 +111,12 @@ export async function editEvent(formData: FormData) {
   const isPrivateRaw = formData.get('isPrivate');
   const isPrivate =
     isPrivateRaw === 'on' || isPrivateRaw === 'true' || isPrivateRaw === '1';
+  const disableResetsRaw = formData.get('disableResets');
+  const disableResets =
+    disableResetsRaw === 'on' ||
+    disableResetsRaw === 'true' ||
+    disableResetsRaw === '1';
+  const resettable = !disableResets;
   const reminderDays = reminderDaysStr ? Number(reminderDaysStr) : null;
 
   if (!name || !dateStr) {
@@ -121,7 +136,8 @@ export async function editEvent(formData: FormData) {
       date: date.toISOString(),
       reminderDays,
       reminderSent: false, // Reset reminder status when updating reminder settings
-      isPrivate
+      isPrivate,
+      resettable
     })
     .where(eq(events.id, id))
     .returning();
@@ -136,6 +152,18 @@ export async function resetEvent(formData: FormData) {
   const numericId = parseInt(id, 10);
   const now = new Date();
   const dateStr = now.toISOString();
+
+  // ---- RESET PROTECTION ----------------------------------------------------
+  // Ensure resets are allowed before mutating the event.
+  const ev = await db
+    .select()
+    .from(events)
+    .where(eq(events.id, numericId))
+    .limit(1);
+  if (ev[0] && ev[0].resettable === false) {
+    throw new Error('Resets are disabled for this event');
+  }
+  // --------------------------------------------------------------------------
 
   try {
     // 1. Update the event's date and increment reset count
@@ -172,6 +200,17 @@ export async function resetEventWithDate(formData: FormData) {
 
   const resetDate = new Date(customDate);
   const dateStr = resetDate.toISOString();
+
+  // ---- RESET PROTECTION ----------------------------------------------------
+  const ev = await db
+    .select()
+    .from(events)
+    .where(eq(events.id, numericId))
+    .limit(1);
+  if (ev[0] && ev[0].resettable === false) {
+    throw new Error('Resets are disabled for this event');
+  }
+  // --------------------------------------------------------------------------
 
   try {
     // 1. Update the event's date and increment reset count

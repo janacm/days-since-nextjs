@@ -46,12 +46,9 @@ export async function checkMigrationStatus(): Promise<MigrationCheckResult> {
         : () => '';
 
     // Initialize database connection
-    const connectionString =
-      process.env.POSTGRES_URL || process.env.DATABASE_URL;
+    const connectionString = process.env.POSTGRES_URL;
     if (!connectionString) {
-      throw new Error(
-        'Database connection string not found in environment variables'
-      );
+      throw new Error('POSTGRES_URL environment variable is not set');
     }
 
     // During tests, avoid creating a real Neon client (which requires fetch).
