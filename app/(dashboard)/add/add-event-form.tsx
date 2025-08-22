@@ -70,6 +70,16 @@ export function AddEventForm({ defaultDate }: AddEventFormProps) {
             Private tab.
           </p>
         </div>
+        {/* ---------- DISABLE RESETS CHECKBOX ---------- */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <Checkbox id="disableResets" name="disableResets" />
+            <Label htmlFor="disableResets">Disable Resets</Label>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            When enabled, this event cannot be reset. You can still delete it.
+          </p>
+        </div>
         {message && <p className="text-sm text-muted-foreground">{message}</p>}
       </CardContent>
       <CardFooter className="flex justify-between">

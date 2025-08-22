@@ -92,6 +92,21 @@ export default async function EditEventPage({
                 Private tab.
               </p>
             </div>
+            {/* ---------- DISABLE RESETS CHECKBOX ---------- */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="disableResets"
+                  name="disableResets"
+                  defaultChecked={event.resettable === false}
+                />
+                <Label htmlFor="disableResets">Disable Resets</Label>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                When enabled, this event cannot be reset. You can still delete
+                it.
+              </p>
+            </div>
           </CardContent>
           <CardFooter className="flex justify-between">
             <Button variant="outline" asChild>

@@ -114,13 +114,12 @@ describe('Migration Checker', () => {
     it('should handle database connection errors', async () => {
       // Mock missing environment variable
       delete process.env.POSTGRES_URL;
-      delete process.env.DATABASE_URL;
 
       const result = await checkMigrationStatus();
 
       expect(result.isUpToDate).toBe(false);
       expect(result.errors).toContain(
-        'Failed to check migration status: Database connection string not found in environment variables'
+        'Failed to check migration status: POSTGRES_URL environment variable is not set'
       );
     });
 
@@ -494,7 +493,6 @@ describe('Migration Checker', () => {
       it('should throw when there are errors', async () => {
         // Mock database connection error
         delete process.env.POSTGRES_URL;
-        delete process.env.DATABASE_URL;
 
         await expect(ensureMigrationsUpToDate()).rejects.toThrow(
           'Migration check failed with errors:'

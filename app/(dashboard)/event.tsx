@@ -86,7 +86,10 @@ export function EventItem({ event }: { event: Event }) {
         {relativeTime}
       </TableCell>
       <TableCell className="flex items-center gap-2">
-        <ResetButton eventId={event.id} onOpenChange={setIsResetModalOpen} />
+        {/* Hide reset UI when resets are disabled */}
+        {event.resettable !== false && (
+          <ResetButton eventId={event.id} onOpenChange={setIsResetModalOpen} />
+        )}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button aria-haspopup="true" size="icon" variant="ghost">

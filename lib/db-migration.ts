@@ -14,14 +14,15 @@ import * as dotenv from 'dotenv';
 // Load environment variables
 dotenv.config({ path: '.env.local' });
 
-if (!process.env.DATABASE_URL) {
-  throw new Error('DATABASE_URL environment variable is not set!');
+const connectionString = process.env.POSTGRES_URL;
+if (!connectionString) {
+  throw new Error('POSTGRES_URL environment variable is not set!');
 }
 
 // Configure neon to work in Node.js environment
 neonConfig.fetchConnectionCache = true;
 
-export const db = drizzle(neon(process.env.DATABASE_URL));
+export const db = drizzle(neon(connectionString));
 
 // Define tables
 export const events = pgTable('events', {
