@@ -60,14 +60,21 @@ export default async function EventAnalyticsPage({
       <div className="space-y-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
-          <Button variant="ghost" size="sm" asChild className="w-fit hover:bg-muted transition-colors">
+          <Button
+            variant="ghost"
+            size="sm"
+            asChild
+            className="w-fit hover:bg-muted transition-colors"
+          >
             <Link href="/">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Events
             </Link>
           </Button>
           <div className="flex-1 min-w-0">
-            <h1 className="text-3xl md:text-4xl font-bold truncate text-center sm:text-right">{event.name}</h1>
+            <h1 className="text-3xl md:text-4xl font-bold truncate text-center sm:text-right">
+              {event.name}
+            </h1>
           </div>
         </div>
 
@@ -79,13 +86,18 @@ export default async function EventAnalyticsPage({
                 <Calendar className="h-7 w-7 text-primary" />
               </div>
               <div className="flex-1 min-w-0">
-                <CardTitle className="text-2xl md:text-3xl truncate">{event.name}</CardTitle>
+                <CardTitle className="text-2xl md:text-3xl truncate">
+                  Overview
+                </CardTitle>
                 <div className="flex flex-wrap items-center gap-4 mt-3">
                   <span className="text-base text-muted-foreground">
                     Started: {formattedDate}
                   </span>
                   {event.reminderDays && (
-                    <Badge variant="secondary" className="text-base px-4 py-1.5 animate-pulse">
+                    <Badge
+                      variant="secondary"
+                      className="text-base px-4 py-1.5 animate-pulse"
+                    >
                       Reminder every {event.reminderDays} days
                     </Badge>
                   )}
@@ -105,7 +117,9 @@ export default async function EventAnalyticsPage({
               <Target className="h-5 w-5 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-4xl font-extrabold text-primary mt-3">{currentStreak}</div>
+              <div className="text-4xl font-extrabold text-primary mt-3">
+                {currentStreak}
+              </div>
               <p className="text-sm text-muted-foreground mt-2">
                 days since last reset
               </p>
@@ -120,7 +134,9 @@ export default async function EventAnalyticsPage({
               <RotateCcw className="h-5 w-5 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-4xl font-extrabold text-primary mt-3">{totalResets}</div>
+              <div className="text-4xl font-extrabold text-primary mt-3">
+                {totalResets}
+              </div>
               <p className="text-sm text-muted-foreground mt-2">
                 times reset since start
               </p>
@@ -135,8 +151,12 @@ export default async function EventAnalyticsPage({
               <TrendingUp className="h-5 w-5 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-4xl font-extrabold text-primary mt-3">{longestStreak}</div>
-              <p className="text-sm text-muted-foreground mt-2">best performance</p>
+              <div className="text-4xl font-extrabold text-primary mt-3">
+                {longestStreak}
+              </div>
+              <p className="text-sm text-muted-foreground mt-2">
+                best performance
+              </p>
             </CardContent>
           </Card>
 
@@ -224,7 +244,9 @@ export default async function EventAnalyticsPage({
               <div className="p-6 rounded-full bg-primary/15 w-fit mx-auto shadow-lg">
                 <RotateCcw className="h-12 w-12 text-primary" />
               </div>
-              <h3 className="text-3xl font-extrabold mt-8 mb-4">No resets yet!</h3>
+              <h3 className="text-3xl font-extrabold mt-8 mb-4">
+                No resets yet!
+              </h3>
               <p className="text-muted-foreground max-w-lg mx-auto text-xl">
                 You&apos;ve been tracking for {currentStreak} days. Keep it up!
               </p>
