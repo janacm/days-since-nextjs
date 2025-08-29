@@ -6,10 +6,14 @@ import { NextResponse } from 'next/server';
 // Initialize Nodemailer transporter
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST as string,
-  port: Number(process.env.SMTP_PORT),
+  port: Number(process.env.SMTP_PORT) || 587,
+  secure: Number(process.env.SMTP_PORT) === 465, // Use secure for port 465, otherwise false
   auth: {
     user: process.env.SMTP_USER as string,
     pass: process.env.SMTP_PASS as string
+  },
+  tls: {
+    rejectUnauthorized: false // Accept self-signed certificates
   }
 });
 
@@ -44,10 +48,8 @@ export async function POST() {
       .where(
         and(
           eq(events.reminderSent, false),
-          lt(
-            events.reminderDays,
-            sql`EXTRACT(DAY FROM (NOW() - ${events.date}::timestamp))`
-          )
+          sql`${events.reminderDays} IS NOT NULL`,
+          sql`EXTRACT(DAY FROM (NOW() - ${events.date}::timestamp)) >= ${events.reminderDays}`
         )
       );
 
@@ -69,14 +71,24 @@ export async function POST() {
           to: event.userId
         });
 
+        // Calculate actual days since
+        const eventDate = new Date(event.date);
+        const now = new Date();
+        const daysSince = Math.floor(
+          (now.getTime() - eventDate.getTime()) / (1000 * 60 * 60 * 24)
+        );
+
         const info = await transporter.sendMail({
-          from: 'Days Since <reminders@dayssince.app>',
+          from: process.env.SMTP_FROM || process.env.SMTP_USER,
           to: event.userId,
-          subject: `Reminder: ${event.name}`,
+          subject: `Reminder: ${event.name} - ${daysSince} days since`,
           html: `
-            <h1>Reminder: ${event.name}</h1>
-            <p>It's been ${event.reminderDays} days since ${event.name}.</p>
-            <p>You set this reminder to check in on this event.</p>
+            <h2>Days Since Reminder</h2>
+            <p>This is a reminder about your event: <strong>${event.name}</strong></p>
+            <p>It has been <strong>${daysSince} days</strong> since this event occurred.</p>
+            <p>You requested to be reminded after ${event.reminderDays} days.</p>
+            <br>
+            <p>Visit your dashboard to update or manage your events.</p>
           `
         });
 

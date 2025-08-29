@@ -7,10 +7,13 @@ import nodemailer from 'nodemailer';
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST as string,
   port: Number(process.env.SMTP_PORT) || 587,
-  secure: false,
+  secure: Number(process.env.SMTP_PORT) === 465, // Use secure for port 465, otherwise false
   auth: {
     user: process.env.SMTP_USER as string,
     pass: process.env.SMTP_PASS as string
+  },
+  tls: {
+    rejectUnauthorized: false // Accept self-signed certificates
   }
 });
 
@@ -24,6 +27,21 @@ export async function GET(request: NextRequest) {
 
     console.log('Running reminder check cron job...');
 
+    // Verify SMTP configuration
+    if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
+      console.error('SMTP configuration is incomplete');
+      return NextResponse.json(
+        { error: 'SMTP configuration is incomplete' },
+        { status: 500 }
+      );
+    }
+
+    console.log('SMTP configuration verified:', {
+      host: process.env.SMTP_HOST,
+      port: process.env.SMTP_PORT,
+      user: process.env.SMTP_USER ? '***configured***' : 'missing'
+    });
+
     // Get events that need reminders
     const eventsNeedingReminders = await db
       .select()
@@ -32,7 +50,7 @@ export async function GET(request: NextRequest) {
         and(
           eq(events.reminderSent, false),
           sql`${events.reminderDays} IS NOT NULL`,
-          sql`DATE_PART('day', NOW() - ${events.date}::timestamp) >= ${events.reminderDays}`
+          sql`EXTRACT(DAY FROM (NOW() - ${events.date}::timestamp)) >= ${events.reminderDays}`
         )
       );
 
@@ -66,7 +84,12 @@ export async function GET(request: NextRequest) {
           `
         };
 
-        await transporter.sendMail(mailOptions);
+        const emailResult = await transporter.sendMail(mailOptions);
+        console.log(`Email sent successfully for event ${event.id}:`, {
+          messageId: emailResult.messageId,
+          to: event.userId,
+          daysSince
+        });
 
         // Mark reminder as sent
         await db
@@ -77,7 +100,12 @@ export async function GET(request: NextRequest) {
         sentCount++;
         console.log(`Sent reminder for event: ${event.name}`);
       } catch (error) {
-        console.error(`Failed to send reminder for event ${event.id}:`, error);
+        console.error(`Failed to send reminder for event ${event.id}:`, {
+          error: error instanceof Error ? error.message : String(error),
+          stack: error instanceof Error ? error.stack : undefined,
+          eventName: event.name,
+          userId: event.userId
+        });
       }
     }
 
