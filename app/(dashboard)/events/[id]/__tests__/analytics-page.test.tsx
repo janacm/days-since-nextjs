@@ -47,7 +47,8 @@ describe('EventAnalyticsPage', () => {
       resetCount: 3,
       createdAt: new Date('2024-01-01'),
       reminderDays: 14,
-      reminderSent: false
+      reminderSent: false,
+      lastReminderSentAt: null
     },
     totalResets: 3,
     currentStreak: 10,

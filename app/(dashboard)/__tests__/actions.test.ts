@@ -3,6 +3,9 @@ import { auth } from '@/lib/auth';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
+process.env.POSTGRES_URL =
+  process.env.POSTGRES_URL || 'postgres://user:pass@localhost:5432/dummy';
+
 // Expose mocks via global to avoid hoisting issues
 
 jest.mock('@/lib/auth', () => ({
@@ -12,6 +15,8 @@ jest.mock('next/cache', () => ({ revalidatePath: jest.fn() }));
 jest.mock('next/navigation', () => ({ redirect: jest.fn() }));
 
 jest.mock('@/lib/db', () => {
+  process.env.POSTGRES_URL =
+    process.env.POSTGRES_URL || 'postgres://user:pass@localhost:5432/dummy';
   const actual = jest.requireActual('@/lib/db');
   const mockReturning = jest.fn().mockResolvedValue([{ id: 1 }]);
   const mockValues = jest.fn(() => ({ returning: mockReturning }));

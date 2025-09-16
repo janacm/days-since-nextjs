@@ -42,6 +42,7 @@ describe('Event Navigation', () => {
     createdAt: new Date('2024-01-01'),
     reminderDays: null,
     reminderSent: false,
+    lastReminderSentAt: null,
     isPrivate: false
   };
 
@@ -170,6 +171,7 @@ describe('Event Navigation', () => {
       ...mockEvent,
       reminderDays: 5,
       reminderSent: false,
+      lastReminderSentAt: null,
       isPrivate: false
     };
 
@@ -195,6 +197,7 @@ describe('Event Navigation', () => {
       ...mockEvent,
       reminderDays: 10,
       reminderSent: false,
+      lastReminderSentAt: null,
       isPrivate: false
     };
 
@@ -262,6 +265,7 @@ describe('Event Navigation Integration', () => {
       createdAt: new Date('2024-01-01'),
       reminderDays: null,
       reminderSent: false,
+      lastReminderSentAt: null,
       isPrivate: false
     };
 

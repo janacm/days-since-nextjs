@@ -57,6 +57,7 @@ export const events = pgTable('events', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
   reminderDays: integer('reminder_days'),
   reminderSent: boolean('reminder_sent').notNull().default(false),
+  lastReminderSentAt: timestamp('last_reminder_sent_at'),
   // Whether the event is private to the user and hidden from public views
   isPrivate: boolean('is_private').notNull().default(false),
   // Whether the event can be reset by the user (true by default)

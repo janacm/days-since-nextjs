@@ -131,7 +131,8 @@ describe('Event Analytics', () => {
     resetCount: 3,
     createdAt: new Date('2024-01-01'),
     reminderDays: null,
-    reminderSent: false
+    reminderSent: false,
+    lastReminderSentAt: null
   };
 
   const mockResets: EventReset[] = [
