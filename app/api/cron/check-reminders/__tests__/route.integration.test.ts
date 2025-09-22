@@ -20,9 +20,19 @@ jest.mock('@/lib/db', () => {
     {
       id: 1,
       name: 'Test Event',
-      date: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000), // 8 days ago
+      date: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString(), // 8 days ago
       reminderDays: 7,
       reminderSent: false,
+      lastReminderSentAt: null,
+      userId: 'test@example.com'
+    },
+    {
+      id: 2,
+      name: 'Another Event',
+      date: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+      reminderDays: 3,
+      reminderSent: false,
+      lastReminderSentAt: null,
       userId: 'test@example.com'
     }
   ];
@@ -46,8 +56,6 @@ jest.mock('@/lib/db', () => {
 
 // Import after mocks
 import { GET } from '../route';
-import { db, events } from '@/lib/db';
-import { eq } from 'drizzle-orm';
 import nodemailer from 'nodemailer';
 
 describe('Email Reminder Integration Test', () => {
@@ -98,22 +106,26 @@ describe('Email Reminder Integration Test', () => {
     // Verify successful response
     expect(response.status).toBe(200);
     expect(data.success).toBe(true);
-    expect(data.message).toBe('Sent 1 reminders');
+    expect(data.message).toBe('Sent 1 reminder emails');
+    expect(data.checkedEvents).toBe(2);
+    expect(data.notifiedUsers).toBe(1);
 
     // Verify email was sent with correct content
     expect(mockSendMail).toHaveBeenCalledTimes(1);
-    expect(mockSendMail).toHaveBeenCalledWith({
-      from: 'test@example.com',
-      to: 'test@example.com',
-      subject: 'Reminder: Test Event - 8 days since',
-      html: expect.stringContaining('<h2>Days Since Reminder</h2>')
-    });
+    expect(mockSendMail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        from: 'test@example.com',
+        to: 'test@example.com',
+        subject: 'Days Since reminders: 2 events due'
+      })
+    );
 
     // Verify HTML content contains expected elements
     const emailCall = mockSendMail.mock.calls[0][0];
     expect(emailCall.html).toContain('<strong>Test Event</strong>');
-    expect(emailCall.html).toContain('<strong>8 days</strong>');
-    expect(emailCall.html).toContain('You requested to be reminded after 7 days.');
+    expect(emailCall.html).toContain('<strong>Another Event</strong>');
+    expect(emailCall.html).toContain('Reminder requested after 7 days');
+    expect(emailCall.html).toContain('Reminder requested after 3 days');
   });
 
   it('should handle SMTP errors gracefully', async () => {
@@ -133,8 +145,8 @@ describe('Email Reminder Integration Test', () => {
     // Should still return success but with 0 sent reminders
     expect(response.status).toBe(200);
     expect(data.success).toBe(true);
-    expect(data.message).toBe('Sent 0 reminders');
-    expect(data.checkedEvents).toBe(1);
+    expect(data.message).toBe('Sent 0 reminder emails');
+    expect(data.checkedEvents).toBe(2);
   });
 
   it('should reject unauthorized requests', async () => {
@@ -168,13 +180,29 @@ describe('Email Reminder Integration Test', () => {
     // Validate email structure
     expect(emailCall.from).toBe('test@example.com');
     expect(emailCall.to).toBe('test@example.com');
-    expect(emailCall.subject).toMatch(/^Reminder: .+ - \d+ days since$/);
-    
+    expect(emailCall.subject).toBe('Days Since reminders: 2 events due');
+
     // Validate HTML structure
     expect(emailCall.html).toContain('<h2>Days Since Reminder</h2>');
-    expect(emailCall.html).toContain('<p>This is a reminder about your event:');
-    expect(emailCall.html).toContain('<p>It has been');
-    expect(emailCall.html).toContain('<p>You requested to be reminded after');
-    expect(emailCall.html).toContain('<p>Visit your dashboard to update');
+    expect(emailCall.html).toContain('<ul>');
+    expect(emailCall.html).toContain('<strong>Test Event</strong>');
+    expect(emailCall.html).toContain('<strong>Another Event</strong>');
+    expect(emailCall.html).toContain('Visit your dashboard to update');
+  });
+
+  it('groups reminders by user and only sends one email per user', async () => {
+    const { req } = createMocks({
+      method: 'GET',
+      headers: {
+        authorization: 'Bearer test-secret'
+      }
+    });
+
+    await GET(req);
+
+    expect(mockSendMail).toHaveBeenCalledTimes(1);
+    const emailCall = mockSendMail.mock.calls[0][0];
+    expect(emailCall.to).toBe('test@example.com');
+    expect(emailCall.subject).toBe('Days Since reminders: 2 events due');
   });
 });

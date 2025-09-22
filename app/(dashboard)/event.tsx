@@ -22,13 +22,23 @@ export function EventItem({ event }: { event: Event }) {
   const router = useRouter();
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
 
+  const now = new Date();
+  const eventDate = new Date(event.date);
+
   // Calculate days since
   const daysSince = Math.floor(
-    (new Date().getTime() - new Date(event.date).getTime()) / (1000 * 3600 * 24)
+    (now.getTime() - eventDate.getTime()) / (1000 * 3600 * 24)
   );
 
+  const lastReminderSentAt = event.lastReminderSentAt
+    ? new Date(event.lastReminderSentAt)
+    : null;
+  const reminderSentToday =
+    lastReminderSentAt !== null &&
+    lastReminderSentAt.toDateString() === now.toDateString();
+
   // Format the date
-  const formattedDate = new Date(event.date).toLocaleDateString('en-US', {
+  const formattedDate = eventDate.toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
@@ -36,15 +46,28 @@ export function EventItem({ event }: { event: Event }) {
   });
 
   // Get relative time (e.g., "2 months ago")
-  const relativeTime = formatDistanceToNow(new Date(event.date), {
+  const relativeTime = formatDistanceToNow(eventDate, {
     addSuffix: true
   });
 
   // Check if reminder is due
+  const hasReminder = typeof event.reminderDays === 'number';
   const isReminderDue =
-    event.reminderDays &&
-    daysSince >= event.reminderDays &&
-    !event.reminderSent;
+    hasReminder &&
+    daysSince >= (event.reminderDays ?? 0) &&
+    !reminderSentToday;
+
+  let reminderBadgeText: string | null = null;
+  if (hasReminder) {
+    if (isReminderDue) {
+      reminderBadgeText = 'Reminder due!';
+    } else if (reminderSentToday) {
+      reminderBadgeText = 'Reminder sent today';
+    } else {
+      const remaining = (event.reminderDays ?? 0) - daysSince;
+      reminderBadgeText = `Remind in ${Math.max(remaining, 0)} days`;
+    }
+  }
 
   const handleRowClick = (e: React.MouseEvent) => {
     // Don't navigate if clicking on buttons or dropdown
@@ -68,12 +91,10 @@ export function EventItem({ event }: { event: Event }) {
       <TableCell className="font-medium">
         <div className="flex items-center gap-2">
           {event.name}
-          {event.reminderDays && (
+          {hasReminder && reminderBadgeText && (
             <Badge variant={isReminderDue ? 'destructive' : 'secondary'}>
               <Bell className="h-3 w-3 mr-1" />
-              {isReminderDue
-                ? 'Reminder due!'
-                : `Remind in ${event.reminderDays - daysSince} days`}
+              {reminderBadgeText}
             </Badge>
           )}
         </div>

@@ -17,6 +17,7 @@ jest.mock('@/lib/db', () => ({
       createdAt: new Date('2025-01-01T00:00:00.000Z'),
       reminderDays: null,
       reminderSent: false,
+      lastReminderSentAt: null,
       isPrivate: false
     },
     {
@@ -28,6 +29,7 @@ jest.mock('@/lib/db', () => ({
       createdAt: new Date('2025-01-02T00:00:00.000Z'),
       reminderDays: null,
       reminderSent: false,
+      lastReminderSentAt: null,
       isPrivate: true
     },
     {
@@ -39,6 +41,7 @@ jest.mock('@/lib/db', () => ({
       createdAt: new Date('2025-01-03T00:00:00.000Z'),
       reminderDays: 5,
       reminderSent: false,
+      lastReminderSentAt: null,
       isPrivate: false
     }
   ])

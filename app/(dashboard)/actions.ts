@@ -63,6 +63,7 @@ export async function addEvent(formData: FormData) {
       date: date.toISOString(),
       reminderDays,
       reminderSent: false,
+      lastReminderSentAt: null,
       isPrivate,
       resettable
     })
@@ -136,6 +137,7 @@ export async function editEvent(formData: FormData) {
       date: date.toISOString(),
       reminderDays,
       reminderSent: false, // Reset reminder status when updating reminder settings
+      lastReminderSentAt: null,
       isPrivate,
       resettable
     })

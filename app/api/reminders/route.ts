@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer';
 import { db, events } from '@/lib/db';
-import { eq, and, lt, sql } from 'drizzle-orm';
+import { and, or, sql, inArray } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
 
 // Initialize Nodemailer transporter
@@ -47,9 +47,12 @@ export async function POST() {
       .from(events)
       .where(
         and(
-          eq(events.reminderSent, false),
           sql`${events.reminderDays} IS NOT NULL`,
-          sql`EXTRACT(DAY FROM (NOW() - ${events.date}::timestamp)) >= ${events.reminderDays}`
+          sql`EXTRACT(DAY FROM (NOW() - ${events.date}::timestamp)) >= ${events.reminderDays}`,
+          or(
+            sql`${events.lastReminderSentAt} IS NULL`,
+            sql`${events.lastReminderSentAt}::date < CURRENT_DATE`
+          )
         )
       );
 
@@ -58,64 +61,96 @@ export async function POST() {
       eventIds: eventsNeedingReminders.map((e) => e.id)
     });
 
+    const eventsByUser = new Map<
+      string,
+      (typeof eventsNeedingReminders)[number][]
+    >();
+
     for (const event of eventsNeedingReminders) {
-      console.log('📧 Reminders API: Processing event', {
-        eventId: event.id,
-        eventName: event.name,
-        userId: event.userId
+      const userEvents = eventsByUser.get(event.userId) ?? [];
+      userEvents.push(event);
+      eventsByUser.set(event.userId, userEvents);
+    }
+
+    for (const [userEmail, userEvents] of eventsByUser) {
+      console.log('📧 Reminders API: Processing reminders for user', {
+        userId: userEmail,
+        eventIds: userEvents.map((event) => event.id)
       });
 
       try {
-        // Send reminder email
-        console.log('📧 Reminders API: Sending reminder email', {
-          to: event.userId
+        const now = new Date();
+        const eventSummaries = userEvents.map((event) => {
+          const eventDate = new Date(event.date);
+          const daysSince = Math.floor(
+            (now.getTime() - eventDate.getTime()) / (1000 * 60 * 60 * 24)
+          );
+
+          return {
+            id: event.id,
+            name: event.name,
+            reminderDays: event.reminderDays,
+            daysSince,
+            date: eventDate
+          };
         });
 
-        // Calculate actual days since
-        const eventDate = new Date(event.date);
-        const now = new Date();
-        const daysSince = Math.floor(
-          (now.getTime() - eventDate.getTime()) / (1000 * 60 * 60 * 24)
-        );
+        const listItemsHtml = eventSummaries
+          .map(
+            (summary) => `
+              <li>
+                <strong>${summary.name}</strong><br />
+                ${summary.daysSince} days since (${summary.date.toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                  timeZone: 'UTC'
+                })})<br />
+                Reminder requested after ${summary.reminderDays} days
+              </li>
+            `
+          )
+          .join('');
 
         const info = await transporter.sendMail({
           from: process.env.SMTP_FROM || process.env.SMTP_USER,
-          to: event.userId,
-          subject: `Reminder: ${event.name} - ${daysSince} days since`,
+          to: userEmail,
+          subject: `Days Since reminders: ${eventSummaries.length} event${
+            eventSummaries.length === 1 ? '' : 's'
+          } due`,
           html: `
             <h2>Days Since Reminder</h2>
-            <p>This is a reminder about your event: <strong>${event.name}</strong></p>
-            <p>It has been <strong>${daysSince} days</strong> since this event occurred.</p>
-            <p>You requested to be reminded after ${event.reminderDays} days.</p>
-            <br>
+            <p>You have the following event${eventSummaries.length === 1 ? '' : 's'} with reminders due today:</p>
+            <ul>
+              ${listItemsHtml}
+            </ul>
             <p>Visit your dashboard to update or manage your events.</p>
           `
         });
 
         console.log('📧 Reminders API: Email sent successfully', {
           info,
-          eventId: event.id
+          userId: userEmail
         });
 
-        // Mark reminder as sent
-        console.log('📧 Reminders API: Marking reminder as sent', {
-          eventId: event.id
-        });
+        const nowIso = now.toISOString();
 
         await db
           .update(events)
-          .set({ reminderSent: true })
-          .where(eq(events.id, event.id));
+          .set({ reminderSent: true, lastReminderSentAt: nowIso })
+          .where(inArray(events.id, eventSummaries.map((summary) => summary.id)));
 
         console.log('📧 Reminders API: Reminder marked as sent', {
-          eventId: event.id
+          userId: userEmail,
+          eventIds: eventSummaries.map((summary) => summary.id)
         });
       } catch (error) {
-        console.error('📧 Reminders API: Error processing event', {
-          eventId: event.id,
+        console.error('📧 Reminders API: Error processing reminders for user', {
+          userId: userEmail,
+          eventIds: userEvents.map((event) => event.id),
           error: error instanceof Error ? error.message : String(error)
         });
-        // Continue with other events even if one fails
+        // Continue with other users even if one fails
       }
     }
 
