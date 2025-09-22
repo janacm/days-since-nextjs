@@ -28,7 +28,11 @@ export async function GET(request: NextRequest) {
     console.log('Running reminder check cron job...');
 
     // Verify SMTP configuration
-    if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
+    if (
+      !process.env.SMTP_HOST ||
+      !process.env.SMTP_USER ||
+      !process.env.SMTP_PASS
+    ) {
       console.error('SMTP configuration is incomplete');
       return NextResponse.json(
         { error: 'SMTP configuration is incomplete' },
@@ -97,12 +101,15 @@ export async function GET(request: NextRequest) {
             (summary) => `
               <li>
                 <strong>${summary.name}</strong><br />
-                ${summary.daysSince} days since (${summary.date.toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                  timeZone: 'UTC'
-                })})<br />
+                ${summary.daysSince} days since (${summary.date.toLocaleDateString(
+                  'en-US',
+                  {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    timeZone: 'UTC'
+                  }
+                )})<br />
                 Reminder requested after ${summary.reminderDays} days
               </li>
             `
@@ -132,12 +139,15 @@ export async function GET(request: NextRequest) {
           events: eventSummaries.map((summary) => summary.id)
         });
 
-        const nowIso = now.toISOString();
-
         await db
           .update(events)
-          .set({ reminderSent: true, lastReminderSentAt: nowIso })
-          .where(inArray(events.id, eventSummaries.map((summary) => summary.id)));
+          .set({ reminderSent: true, lastReminderSentAt: now })
+          .where(
+            inArray(
+              events.id,
+              eventSummaries.map((summary) => summary.id)
+            )
+          );
 
         sentCount++;
         console.log(`Sent reminder email to ${userEmail}`);

@@ -100,12 +100,15 @@ export async function POST() {
             (summary) => `
               <li>
                 <strong>${summary.name}</strong><br />
-                ${summary.daysSince} days since (${summary.date.toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                  timeZone: 'UTC'
-                })})<br />
+                ${summary.daysSince} days since (${summary.date.toLocaleDateString(
+                  'en-US',
+                  {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    timeZone: 'UTC'
+                  }
+                )})<br />
                 Reminder requested after ${summary.reminderDays} days
               </li>
             `
@@ -133,12 +136,15 @@ export async function POST() {
           userId: userEmail
         });
 
-        const nowIso = now.toISOString();
-
         await db
           .update(events)
-          .set({ reminderSent: true, lastReminderSentAt: nowIso })
-          .where(inArray(events.id, eventSummaries.map((summary) => summary.id)));
+          .set({ reminderSent: true, lastReminderSentAt: now })
+          .where(
+            inArray(
+              events.id,
+              eventSummaries.map((summary) => summary.id)
+            )
+          );
 
         console.log('📧 Reminders API: Reminder marked as sent', {
           userId: userEmail,
