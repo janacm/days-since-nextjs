@@ -299,3 +299,34 @@ export async function sendTestEmail() {
     throw error;
   }
 }
+
+export async function importEvents(formData: FormData) {
+  const session = await auth();
+  if (!session?.user?.email) {
+    throw new Error('You must be logged in to import events');
+  }
+
+  const file = formData.get('file') as File | null;
+  if (!file) {
+    throw new Error('CSV file is required');
+  }
+
+  const text = await file.text();
+  const lines = text.trim().split(/\r?\n/);
+  const rows = lines.slice(1); // skip header
+  for (const line of rows) {
+    if (!line.trim()) continue;
+    const [name, dateStr, reminderStr] = line.split(',');
+    if (!name || !dateStr) continue;
+    const reminderDays = reminderStr ? Number(reminderStr) : null;
+    await db.insert(events).values({
+      userId: session.user.email,
+      name,
+      date: new Date(dateStr).toISOString(),
+      reminderDays,
+      reminderSent: false
+    });
+  }
+
+  revalidatePath('/');
+}
