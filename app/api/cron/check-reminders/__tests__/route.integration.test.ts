@@ -1,16 +1,13 @@
 /* @jest-environment node */
 import { createMocks } from 'node-mocks-http';
 
-// Mock nodemailer with a proper setup
-jest.mock('nodemailer', () => {
-  const mockSendMail = jest.fn();
-  const mockCreateTransport = jest.fn(() => ({
-    sendMail: mockSendMail
-  }));
-  
+// Mock SendGrid mail client
+jest.mock('@sendgrid/mail', () => {
+  const send = jest.fn().mockResolvedValue([{ statusCode: 202 }]);
+  const setApiKey = jest.fn();
   return {
-    default: mockCreateTransport,
-    createTransport: mockCreateTransport
+    __esModule: true,
+    default: { setApiKey, send }
   };
 });
 
@@ -56,36 +53,29 @@ jest.mock('@/lib/db', () => {
 
 // Import after mocks
 import { GET } from '../route';
-import nodemailer from 'nodemailer';
+import sgMail from '@sendgrid/mail';
 
 describe('Email Reminder Integration Test', () => {
   const originalEnv = process.env;
-  let mockSendMail: jest.MockedFunction<any>;
+  let mockSend: jest.MockedFunction<any>;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    
-    // Get the mock function from the mocked nodemailer
-    const mockTransporter = (nodemailer.createTransport as jest.Mock)();
-    mockSendMail = mockTransporter.sendMail;
-    
-    // Set up test environment variables for Mailtrap
+
+    // Access mocked sendgrid client
+    mockSend = (sgMail as any).send;
+
+    // Set up test environment variables for SendGrid
     process.env = {
       ...originalEnv,
       CRON_SECRET: 'test-secret',
-      SMTP_HOST: 'sandbox.smtp.mailtrap.io',
-      SMTP_PORT: '2525',
-      SMTP_USER: 'test-user',
-      SMTP_PASS: 'test-pass',
-      SMTP_FROM: 'test@example.com'
+      SENDGRID_API_KEY: 'test-key',
+      SENDGRID_FROM_EMAIL: 'test@example.com',
+      SENDGRID_SANDBOX_MODE: 'true'
     };
 
     // Mock successful email sending
-    mockSendMail.mockResolvedValue({
-      messageId: 'test-message-id',
-      accepted: ['test@example.com'],
-      rejected: []
-    });
+    mockSend.mockResolvedValue([{ statusCode: 202 }]);
   });
 
   afterEach(() => {
@@ -111,8 +101,8 @@ describe('Email Reminder Integration Test', () => {
     expect(data.notifiedUsers).toBe(1);
 
     // Verify email was sent with correct content
-    expect(mockSendMail).toHaveBeenCalledTimes(1);
-    expect(mockSendMail).toHaveBeenCalledWith(
+    expect(mockSend).toHaveBeenCalledTimes(1);
+    expect(mockSend).toHaveBeenCalledWith(
       expect.objectContaining({
         from: 'test@example.com',
         to: 'test@example.com',
@@ -120,8 +110,8 @@ describe('Email Reminder Integration Test', () => {
       })
     );
 
-    // Verify HTML content contains expected elements
-    const emailCall = mockSendMail.mock.calls[0][0];
+    // Validate HTML content contains expected elements
+    const emailCall = mockSend.mock.calls[0][0];
     expect(emailCall.html).toContain('<strong>Test Event</strong>');
     expect(emailCall.html).toContain('<strong>Another Event</strong>');
     expect(emailCall.html).toContain('Reminder requested after 7 days');
@@ -130,7 +120,7 @@ describe('Email Reminder Integration Test', () => {
 
   it('should handle SMTP errors gracefully', async () => {
     // Mock email sending failure
-    mockSendMail.mockRejectedValue(new Error('SMTP connection failed'));
+    mockSend.mockRejectedValue(new Error('SMTP connection failed'));
 
     const { req } = createMocks({
       method: 'GET',
@@ -162,7 +152,7 @@ describe('Email Reminder Integration Test', () => {
 
     expect(response.status).toBe(401);
     expect(data.error).toBe('Unauthorized');
-    expect(mockSendMail).not.toHaveBeenCalled();
+    expect(mockSend).not.toHaveBeenCalled();
   });
 
   it('should validate email format matches expected structure', async () => {
@@ -175,7 +165,7 @@ describe('Email Reminder Integration Test', () => {
 
     await GET(req);
 
-    const emailCall = mockSendMail.mock.calls[0][0];
+    const emailCall = mockSend.mock.calls[0][0];
     
     // Validate email structure
     expect(emailCall.from).toBe('test@example.com');
@@ -200,8 +190,8 @@ describe('Email Reminder Integration Test', () => {
 
     await GET(req);
 
-    expect(mockSendMail).toHaveBeenCalledTimes(1);
-    const emailCall = mockSendMail.mock.calls[0][0];
+    expect(mockSend).toHaveBeenCalledTimes(1);
+    const emailCall = mockSend.mock.calls[0][0];
     expect(emailCall.to).toBe('test@example.com');
     expect(emailCall.subject).toBe('Days Since reminders: 2 events due');
   });

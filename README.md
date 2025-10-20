@@ -63,6 +63,26 @@ pnpm dev
 
 You should now be able to access the application at http://localhost:3000.
 
+## Email (SendGrid)
+
+This app sends emails using SendGrid via Web API.
+
+Environment variables (see `.env.example`):
+- SENDGRID_API_KEY
+- SENDGRID_FROM_EMAIL
+- SENDGRID_FROM_NAME (optional)
+- SENDGRID_SANDBOX_MODE=true (recommended locally to avoid real sends)
+
+Helpers:
+
+```bash
+# Send a test email (uses env vars; pass recipient with --to or SENDGRID_TEST_TO)
+pnpm sg:send -- --to="your@email"
+
+# List templates in your SendGrid account
+pnpm sg:templates
+```
+
 ## Running GitHub Actions Locally
 
 This project uses [act](https://github.com/nektos/act) to run GitHub Actions locally in Docker containers, providing an identical environment to GitHub's runners.

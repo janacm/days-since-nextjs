@@ -1,21 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db, events } from '@/lib/db';
 import { sql, and, or, inArray } from 'drizzle-orm';
-import nodemailer from 'nodemailer';
-
-// Create transporter for sending emails
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST as string,
-  port: Number(process.env.SMTP_PORT) || 587,
-  secure: Number(process.env.SMTP_PORT) === 465, // Use secure for port 465, otherwise false
-  auth: {
-    user: process.env.SMTP_USER as string,
-    pass: process.env.SMTP_PASS as string
-  },
-  tls: {
-    rejectUnauthorized: false // Accept self-signed certificates
-  }
-});
+import { sendEmail } from '@/lib/email';
 
 export async function GET(request: NextRequest) {
   try {
@@ -27,19 +13,18 @@ export async function GET(request: NextRequest) {
 
     console.log('Running reminder check cron job...');
 
-    // Verify SMTP configuration
-    if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
-      console.error('SMTP configuration is incomplete');
+    // Verify SendGrid configuration
+    if (!process.env.SENDGRID_API_KEY || !process.env.SENDGRID_FROM_EMAIL) {
+      console.error('SendGrid configuration is incomplete');
       return NextResponse.json(
-        { error: 'SMTP configuration is incomplete' },
+        { error: 'Email service is not configured' },
         { status: 500 }
       );
     }
 
-    console.log('SMTP configuration verified:', {
-      host: process.env.SMTP_HOST,
-      port: process.env.SMTP_PORT,
-      user: process.env.SMTP_USER ? '***configured***' : 'missing'
+    console.log('SendGrid configuration verified:', {
+      from: process.env.SENDGRID_FROM_EMAIL,
+      sandbox: process.env.SENDGRID_SANDBOX_MODE === 'true'
     });
 
     // Get events that need reminders
@@ -61,20 +46,17 @@ export async function GET(request: NextRequest) {
       `Found ${eventsNeedingReminders.length} events needing reminders`
     );
 
-    const eventsByUser = new Map<
-      string,
-      (typeof eventsNeedingReminders)[number][]
-    >();
-
-    for (const event of eventsNeedingReminders) {
-      const userEvents = eventsByUser.get(event.userId) ?? [];
-      userEvents.push(event);
-      eventsByUser.set(event.userId, userEvents);
+    // Group events by user using a plain object to avoid iterator requirements
+    const eventsByUser: Record<string, (typeof eventsNeedingReminders)[number][]> = {};
+    for (let i = 0; i < eventsNeedingReminders.length; i++) {
+      const ev = eventsNeedingReminders[i];
+      (eventsByUser[ev.userId] ||= []).push(ev);
     }
 
     let sentCount = 0;
 
-    for (const [userEmail, userEvents] of eventsByUser) {
+    for (const userEmail in eventsByUser) {
+      const userEvents = eventsByUser[userEmail];
       try {
         const now = new Date();
         const eventSummaries = userEvents.map((event) => {
@@ -109,8 +91,7 @@ export async function GET(request: NextRequest) {
           )
           .join('');
 
-        const mailOptions = {
-          from: process.env.SMTP_FROM || process.env.SMTP_USER,
+        await sendEmail({
           to: userEmail,
           subject: `Days Since reminders: ${eventSummaries.length} event${
             eventSummaries.length === 1 ? '' : 's'
@@ -123,20 +104,15 @@ export async function GET(request: NextRequest) {
             </ul>
             <p>Visit your dashboard to update or manage your events.</p>
           `
-        };
-
-        const emailResult = await transporter.sendMail(mailOptions);
+        });
         console.log(`Email sent successfully for user ${userEmail}:`, {
-          messageId: emailResult.messageId,
           to: userEmail,
           events: eventSummaries.map((summary) => summary.id)
         });
 
-        const nowIso = now.toISOString();
-
         await db
           .update(events)
-          .set({ reminderSent: true, lastReminderSentAt: nowIso })
+          .set({ reminderSent: true, lastReminderSentAt: now })
           .where(inArray(events.id, eventSummaries.map((summary) => summary.id)));
 
         sentCount++;

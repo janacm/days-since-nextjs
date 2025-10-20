@@ -13,17 +13,7 @@ import { revalidatePath } from 'next/cache';
 import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { eq, sql } from 'drizzle-orm';
-import nodemailer from 'nodemailer';
-
-// Initialize Nodemailer transporter
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST as string,
-  port: Number(process.env.SMTP_PORT),
-  auth: {
-    user: process.env.SMTP_USER as string,
-    pass: process.env.SMTP_PASS as string
-  }
-});
+import { sendEmail } from '@/lib/email';
 
 export async function addEvent(formData: FormData) {
   const session = await auth();
@@ -254,19 +244,15 @@ export async function sendTestEmail() {
     email: session.user.email
   });
 
-  // Ensure SMTP is configured
-  if (
-    !process.env.SMTP_HOST ||
-    !process.env.SMTP_USER ||
-    !process.env.SMTP_PASS
-  ) {
-    console.error('🔍 sendTestEmail: SMTP config is not configured');
+  // Ensure SendGrid is configured
+  if (!process.env.SENDGRID_API_KEY || !process.env.SENDGRID_FROM_EMAIL) {
+    console.error('🔍 sendTestEmail: SendGrid config is not configured');
     throw new Error('Email service is not configured properly');
   }
 
-  console.log('🔍 sendTestEmail: Transporter configured', {
-    host: process.env.SMTP_HOST,
-    port: process.env.SMTP_PORT
+  console.log('🔍 sendTestEmail: SendGrid configured', {
+    from: process.env.SENDGRID_FROM_EMAIL,
+    sandbox: process.env.SENDGRID_SANDBOX_MODE === 'true'
   });
 
   try {
@@ -275,8 +261,7 @@ export async function sendTestEmail() {
       session.user.email
     );
 
-    const info = await transporter.sendMail({
-      from: 'Days Since <reminders@dayssince.app>',
+    await sendEmail({
       to: session.user.email,
       subject: 'Test Email from Days Since App',
       html: `
@@ -286,7 +271,7 @@ export async function sendTestEmail() {
       `
     });
 
-    console.log('🔍 sendTestEmail: Email sent successfully', { info });
+    console.log('🔍 sendTestEmail: Email sent successfully');
 
     // Redirect back to the admin page
     revalidatePath('/admin');
