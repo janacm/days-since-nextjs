@@ -7,7 +7,11 @@ export async function GET(request: NextRequest) {
   try {
     // Verify this is a legitimate cron request
     const authHeader = request.headers.get('authorization');
-    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    const isVercelCron =
+      request.headers.get('x-vercel-cron') === '1' ||
+      request.headers.has('x-vercel-cron');
+
+    if (!isVercelCron && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
