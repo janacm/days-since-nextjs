@@ -1,42 +1,24 @@
-import nodemailer from 'nodemailer';
+import { sendEmail } from '@/lib/email';
 import { db, events } from '@/lib/db';
 import { and, or, sql, inArray } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
-
-// Initialize Nodemailer transporter
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST as string,
-  port: Number(process.env.SMTP_PORT) || 587,
-  secure: Number(process.env.SMTP_PORT) === 465, // Use secure for port 465, otherwise false
-  auth: {
-    user: process.env.SMTP_USER as string,
-    pass: process.env.SMTP_PASS as string
-  },
-  tls: {
-    rejectUnauthorized: false // Accept self-signed certificates
-  }
-});
 
 export async function POST() {
   console.log('📧 Reminders API: Request received');
 
   try {
-    // Ensure SMTP is configured
-    if (
-      !process.env.SMTP_HOST ||
-      !process.env.SMTP_USER ||
-      !process.env.SMTP_PASS
-    ) {
-      console.error('📧 Reminders API: SMTP config is not configured');
+    // Ensure SendGrid is configured
+    if (!process.env.SENDGRID_API_KEY || !process.env.SENDGRID_FROM_EMAIL) {
+      console.error('📧 Reminders API: SendGrid config is not configured');
       return NextResponse.json(
         { error: 'Email service is not configured' },
         { status: 500 }
       );
     }
 
-    console.log('📧 Reminders API: Mailtrap transporter configured', {
-      host: process.env.SMTP_HOST,
-      port: process.env.SMTP_PORT
+    console.log('📧 Reminders API: SendGrid configured', {
+      from: process.env.SENDGRID_FROM_EMAIL,
+      sandbox: process.env.SENDGRID_SANDBOX_MODE === 'true'
     });
 
     // Find all events that need reminders
@@ -61,18 +43,15 @@ export async function POST() {
       eventIds: eventsNeedingReminders.map((e) => e.id)
     });
 
-    const eventsByUser = new Map<
-      string,
-      (typeof eventsNeedingReminders)[number][]
-    >();
-
-    for (const event of eventsNeedingReminders) {
-      const userEvents = eventsByUser.get(event.userId) ?? [];
-      userEvents.push(event);
-      eventsByUser.set(event.userId, userEvents);
+    // Group events by user using a plain object to avoid iterator requirements
+    const eventsByUser: Record<string, (typeof eventsNeedingReminders)[number][]> = {};
+    for (let i = 0; i < eventsNeedingReminders.length; i++) {
+      const ev = eventsNeedingReminders[i];
+      (eventsByUser[ev.userId] ||= []).push(ev);
     }
 
-    for (const [userEmail, userEvents] of eventsByUser) {
+    for (const userEmail in eventsByUser) {
+      const userEvents = eventsByUser[userEmail];
       console.log('📧 Reminders API: Processing reminders for user', {
         userId: userEmail,
         eventIds: userEvents.map((event) => event.id)
@@ -112,8 +91,7 @@ export async function POST() {
           )
           .join('');
 
-        const info = await transporter.sendMail({
-          from: process.env.SMTP_FROM || process.env.SMTP_USER,
+        await sendEmail({
           to: userEmail,
           subject: `Days Since reminders: ${eventSummaries.length} event${
             eventSummaries.length === 1 ? '' : 's'
@@ -129,15 +107,12 @@ export async function POST() {
         });
 
         console.log('📧 Reminders API: Email sent successfully', {
-          info,
           userId: userEmail
         });
 
-        const nowIso = now.toISOString();
-
         await db
           .update(events)
-          .set({ reminderSent: true, lastReminderSentAt: nowIso })
+          .set({ reminderSent: true, lastReminderSentAt: now })
           .where(inArray(events.id, eventSummaries.map((summary) => summary.id)));
 
         console.log('📧 Reminders API: Reminder marked as sent', {
