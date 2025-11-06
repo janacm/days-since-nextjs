@@ -19,6 +19,7 @@ import { useState, useMemo } from 'react';
 import { ChevronUp, ChevronDown } from 'lucide-react';
 import Fuse from 'fuse.js';
 import { EventItem } from './event';
+import { EventCard } from './event-card';
 import { Event } from '@/lib/db';
 
 type SortField = 'name' | 'date' | 'daysSince' | 'relative';
@@ -172,40 +173,50 @@ export function EventsTable({ events }: { events: Event[] }) {
             No events match your search.
           </div>
         ) : (
-          <div className="-mx-4 md:mx-0">
-            <div 
-              className="overflow-x-auto overscroll-x-contain scroll-fade no-scrollbar"
-              role="region"
-              aria-label="Events table (horizontally scrollable)"
-              tabIndex={0}
-            >
-              <Table className="min-w-[720px]">
-                <TableHeader>
-                  <TableRow>
-                    <SortableHeader field="name">Event</SortableHeader>
-                    <SortableHeader field="date" className="min-w-[140px]">
-                      Date
-                    </SortableHeader>
-                    <SortableHeader field="daysSince" className="text-center min-w-[100px]">
-                      Days Since
-                    </SortableHeader>
-                    <SortableHeader
-                      field="relative"
-                      className="hidden md:table-cell min-w-[140px]"
-                    >
-                      Relative
-                    </SortableHeader>
-                    <TableHead className="min-w-[120px]"></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {sortedAndFiltered.map((event) => (
-                    <EventItem key={event.id} event={event} />
-                  ))}
-                </TableBody>
-              </Table>
+          <>
+            {/* Mobile: Card View */}
+            <div className="space-y-3 md:hidden">
+              {sortedAndFiltered.map((event) => (
+                <EventCard key={event.id} event={event} />
+              ))}
             </div>
-          </div>
+
+            {/* Desktop: Table View */}
+            <div className="hidden md:block -mx-4 md:mx-0">
+              <div 
+                className="overflow-x-auto overscroll-x-contain scroll-fade no-scrollbar"
+                role="region"
+                aria-label="Events table (horizontally scrollable)"
+                tabIndex={0}
+              >
+                <Table className="min-w-[720px]">
+                  <TableHeader>
+                    <TableRow>
+                      <SortableHeader field="name">Event</SortableHeader>
+                      <SortableHeader field="date" className="min-w-[140px]">
+                        Date
+                      </SortableHeader>
+                      <SortableHeader field="daysSince" className="text-center min-w-[100px]">
+                        Days Since
+                      </SortableHeader>
+                      <SortableHeader
+                        field="relative"
+                        className="hidden md:table-cell min-w-[140px]"
+                      >
+                        Relative
+                      </SortableHeader>
+                      <TableHead className="min-w-[120px]"></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {sortedAndFiltered.map((event) => (
+                      <EventItem key={event.id} event={event} />
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          </>
         )}
       </CardContent>
     </Card>
