@@ -74,7 +74,7 @@ export async function GET(request: NextRequest) {
 
     let sentCount = 0;
 
-    for (const [userEmail, userEvents] of eventsByUser) {
+    for (const [userEmail, userEvents] of Array.from(eventsByUser)) {
       try {
         const now = new Date();
         const eventSummaries = userEvents.map((event) => {
@@ -132,11 +132,9 @@ export async function GET(request: NextRequest) {
           events: eventSummaries.map((summary) => summary.id)
         });
 
-        const nowIso = now.toISOString();
-
         await db
           .update(events)
-          .set({ reminderSent: true, lastReminderSentAt: nowIso })
+          .set({ reminderSent: true, lastReminderSentAt: now })
           .where(inArray(events.id, eventSummaries.map((summary) => summary.id)));
 
         sentCount++;
