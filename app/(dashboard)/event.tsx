@@ -88,54 +88,61 @@ export function EventItem({ event }: { event: Event }) {
       className="cursor-pointer hover:bg-muted/50 transition-colors"
       onClick={handleRowClick}
     >
-      <TableCell className="font-medium">
+      <TableCell className="font-medium px-3 py-3 md:py-2">
         <div className="flex items-center gap-2">
-          {event.name}
+          <span className="truncate">{event.name}</span>
           {hasReminder && reminderBadgeText && (
-            <Badge variant={isReminderDue ? 'destructive' : 'secondary'}>
+            <Badge variant={isReminderDue ? 'destructive' : 'secondary'} className="shrink-0">
               <Bell className="h-3 w-3 mr-1" />
               {reminderBadgeText}
             </Badge>
           )}
         </div>
       </TableCell>
-      <TableCell>{formattedDate}</TableCell>
-      <TableCell className="text-center">
+      <TableCell className="whitespace-nowrap px-3 py-3 md:py-2">{formattedDate}</TableCell>
+      <TableCell className="text-center whitespace-nowrap px-3 py-3 md:py-2">
         <span className="text-lg font-bold">{daysSince}</span>
       </TableCell>
-      <TableCell className="hidden md:table-cell text-muted-foreground">
+      <TableCell className="hidden md:table-cell text-muted-foreground whitespace-nowrap px-3 py-3 md:py-2">
         {relativeTime}
       </TableCell>
-      <TableCell className="flex items-center gap-2">
-        {/* Hide reset UI when resets are disabled */}
-        {event.resettable !== false && (
-          <ResetButton eventId={event.id} onOpenChange={setIsResetModalOpen} />
-        )}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button aria-haspopup="true" size="icon" variant="ghost">
-              <MoreHorizontal className="h-4 w-4" />
-              <span className="sr-only">Toggle menu</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem asChild>
-              <a href={`/events/${event.id}`}>View Analytics</a>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <a href={`/edit/${event.id}`}>Edit</a>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <form action={deleteEvent}>
-                <input type="hidden" name="id" value={event.id} />
-                <button type="submit" className="w-full text-left">
-                  Delete
-                </button>
-              </form>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+      <TableCell className="px-3 py-3 md:py-2">
+        <div className="flex items-center gap-2">
+          {/* Hide reset UI when resets are disabled */}
+          {event.resettable !== false && (
+            <ResetButton eventId={event.id} onOpenChange={setIsResetModalOpen} />
+          )}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button 
+                aria-haspopup="true" 
+                size="icon" 
+                variant="ghost"
+                className="h-10 w-10 min-w-[44px] focus-visible:ring-2"
+              >
+                <MoreHorizontal className="h-4 w-4" />
+                <span className="sr-only">Toggle menu</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuItem asChild>
+                <a href={`/events/${event.id}`}>View Analytics</a>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <a href={`/edit/${event.id}`}>Edit</a>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <form action={deleteEvent}>
+                  <input type="hidden" name="id" value={event.id} />
+                  <button type="submit" className="w-full text-left">
+                    Delete
+                  </button>
+                </form>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </TableCell>
     </TableRow>
   );

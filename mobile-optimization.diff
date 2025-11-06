@@ -1,0 +1,4991 @@
+diff --git a/package.json b/package.json
+index 3022244..927c502 100644
+--- a/package.json
++++ b/package.json
+@@ -28,6 +28,7 @@
+     "@radix-ui/react-dialog": "^1.1.15",
+     "@radix-ui/react-dropdown-menu": "^2.1.16",
+     "@radix-ui/react-label": "^2.1.7",
++    "@radix-ui/react-select": "^2.2.6",
+     "@radix-ui/react-separator": "^1.1.7",
+     "@radix-ui/react-slot": "^1.2.3",
+     "@radix-ui/react-switch": "^1.2.6",
+@@ -54,6 +55,7 @@
+     "react-dom": "19.1.1",
+     "react-hook-form": "^7.62.0",
+     "react-markdown": "^10.1.0",
++    "recharts": "^2.15.4",
+     "sonner": "^2.0.7",
+     "tailwind-merge": "^3.3.1",
+     "zod": "^4.0.14"
+diff --git a/pnpm-lock.yaml b/pnpm-lock.yaml
+index 7d102e6..08bf15b 100644
+--- a/pnpm-lock.yaml
++++ b/pnpm-lock.yaml
+@@ -44,6 +44,9 @@ importers:
+       '@radix-ui/react-label':
+         specifier: ^2.1.7
+         version: 2.1.7(@types/react-dom@19.1.9(@types/react@19.1.15))(@types/react@19.1.15)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
++      '@radix-ui/react-select':
++        specifier: ^2.2.6
++        version: 2.2.6(@types/react-dom@19.1.9(@types/react@19.1.15))(@types/react@19.1.15)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+       '@radix-ui/react-separator':
+         specifier: ^1.1.7
+         version: 1.1.7(@types/react-dom@19.1.9(@types/react@19.1.15))(@types/react@19.1.15)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+@@ -122,6 +125,9 @@ importers:
+       react-markdown:
+         specifier: ^10.1.0
+         version: 10.1.0(@types/react@19.1.15)(react@19.1.1)
++      recharts:
++        specifier: ^2.15.4
++        version: 2.15.4(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+       sonner:
+         specifier: ^2.0.7
+         version: 2.0.7(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+@@ -1015,6 +1021,9 @@ packages:
+       react: '>= 16.8'
+       react-dom: '>= 16.8'
+ 
++  '@radix-ui/number@1.1.1':
++    resolution: {integrity: sha512-MkKCwxlXTgz6CFoJx3pCwn07GKp36+aZyu/u2Ln2VrA5DcdyCZkASEDBTd8x5whTQQL5CiYf4prXKLcgQdv29g==}
++
+   '@radix-ui/primitive@1.1.3':
+     resolution: {integrity: sha512-JTF99U/6XIjCBo0wqkU5sK10glYe27MRRsfwoiq5zzOEZLHU3A3KCMa5X/azekYRCJ0HlwI0crAXS/5dEHTzDg==}
+ 
+@@ -1284,6 +1293,19 @@ packages:
+       '@types/react-dom':
+         optional: true
+ 
++  '@radix-ui/react-select@2.2.6':
++    resolution: {integrity: sha512-I30RydO+bnn2PQztvo25tswPH+wFBjehVGtmagkU78yMdwTwVf12wnAOF+AeP8S2N8xD+5UPbGhkUfPyvT+mwQ==}
++    peerDependencies:
++      '@types/react': '*'
++      '@types/react-dom': '*'
++      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
++      react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
++    peerDependenciesMeta:
++      '@types/react':
++        optional: true
++      '@types/react-dom':
++        optional: true
++
+   '@radix-ui/react-separator@1.1.7':
+     resolution: {integrity: sha512-0HEb8R9E8A+jZjvmFCy/J4xhbXy3TV+9XSnGJ3KvTtjlIUy/YQ/p6UYZvi7YbeoeXdyU9+Y3scizK6hkY37baA==}
+     peerDependencies:
+@@ -1890,6 +1912,33 @@ packages:
+   '@types/cookie@0.6.0':
+     resolution: {integrity: sha512-4Kh9a6B2bQciAhf7FSuMRRkUWecJgJu9nPnx3yzpsfXX/c50REIqpHY4C82bXP90qrLtXtkDxTZosYO3UpOwlA==}
+ 
++  '@types/d3-array@3.2.2':
++    resolution: {integrity: sha512-hOLWVbm7uRza0BYXpIIW5pxfrKe0W+D5lrFiAEYR+pb6w3N2SwSMaJbXdUfSEv+dT4MfHBLtn5js0LAWaO6otw==}
++
++  '@types/d3-color@3.1.3':
++    resolution: {integrity: sha512-iO90scth9WAbmgv7ogoq57O9YpKmFBbmoEoCHDB2xMBY0+/KVrqAaCDyCE16dUspeOvIxFFRI+0sEtqDqy2b4A==}
++
++  '@types/d3-ease@3.0.2':
++    resolution: {integrity: sha512-NcV1JjO5oDzoK26oMzbILE6HW7uVXOHLQvHshBUW4UMdZGfiY6v5BeQwh9a9tCzv+CeefZQHJt5SRgK154RtiA==}
++
++  '@types/d3-interpolate@3.0.4':
++    resolution: {integrity: sha512-mgLPETlrpVV1YRJIglr4Ez47g7Yxjl1lj7YKsiMCb27VJH9W8NVM6Bb9d8kkpG/uAQS5AmbA48q2IAolKKo1MA==}
++
++  '@types/d3-path@3.1.1':
++    resolution: {integrity: sha512-VMZBYyQvbGmWyWVea0EHs/BwLgxc+MKi1zLDCONksozI4YJMcTt8ZEuIR4Sb1MMTE8MMW49v0IwI5+b7RmfWlg==}
++
++  '@types/d3-scale@4.0.9':
++    resolution: {integrity: sha512-dLmtwB8zkAeO/juAMfnV+sItKjlsw2lKdZVVy6LRr0cBmegxSABiLEpGVmSJJ8O08i4+sGR6qQtb6WtuwJdvVw==}
++
++  '@types/d3-shape@3.1.7':
++    resolution: {integrity: sha512-VLvUQ33C+3J+8p+Daf+nYSOsjB4GXp19/S/aGo60m9h1v6XaxjiT82lKVWJCfzhtuZ3yD7i/TPeC/fuKLLOSmg==}
++
++  '@types/d3-time@3.0.4':
++    resolution: {integrity: sha512-yuzZug1nkAAaBlBBikKZTgzCeA+k1uy4ZFwWANOfKw5z5LRhV0gNA7gNkKm7HoK+HRN0wX3EkxGk0fpbWhmB7g==}
++
++  '@types/d3-timer@3.0.2':
++    resolution: {integrity: sha512-Ps3T8E8dZDam6fUyNiMkekK3XUsaUEik+idO9/YjPtfj2qruF8tFBXS7XhtE4iIXBLxhmLjP3SXpLhVf21I9Lw==}
++
+   '@types/debug@4.1.12':
+     resolution: {integrity: sha512-vIChWdVG3LG1SMxEvI/AK+FWJthlrqlTu7fbrlywTkkaONwk/UAGaULXRlf8vkzFBLVm0zkMdCquhL5aOjhXPQ==}
+ 
+@@ -2474,6 +2523,50 @@ packages:
+   csstype@3.1.3:
+     resolution: {integrity: sha512-M1uQkMl8rQK/szD0LNhtqxIPLpimGm8sOBwU7lLnCpSbTyY3yeU1Vc7l4KT5zT4s/yOxHH5O7tIuuLOCnLADRw==}
+ 
++  d3-array@3.2.4:
++    resolution: {integrity: sha512-tdQAmyA18i4J7wprpYq8ClcxZy3SC31QMeByyCFyRt7BVHdREQZ5lpzoe5mFEYZUWe+oq8HBvk9JjpibyEV4Jg==}
++    engines: {node: '>=12'}
++
++  d3-color@3.1.0:
++    resolution: {integrity: sha512-zg/chbXyeBtMQ1LbD/WSoW2DpC3I0mpmPdW+ynRTj/x2DAWYrIY7qeZIHidozwV24m4iavr15lNwIwLxRmOxhA==}
++    engines: {node: '>=12'}
++
++  d3-ease@3.0.1:
++    resolution: {integrity: sha512-wR/XK3D3XcLIZwpbvQwQ5fK+8Ykds1ip7A2Txe0yxncXSdq1L9skcG7blcedkOX+ZcgxGAmLX1FrRGbADwzi0w==}
++    engines: {node: '>=12'}
++
++  d3-format@3.1.0:
++    resolution: {integrity: sha512-YyUI6AEuY/Wpt8KWLgZHsIU86atmikuoOmCfommt0LYHiQSPjvX2AcFc38PX0CBpr2RCyZhjex+NS/LPOv6YqA==}
++    engines: {node: '>=12'}
++
++  d3-interpolate@3.0.1:
++    resolution: {integrity: sha512-3bYs1rOD33uo8aqJfKP3JWPAibgw8Zm2+L9vBKEHJ2Rg+viTR7o5Mmv5mZcieN+FRYaAOWX5SJATX6k1PWz72g==}
++    engines: {node: '>=12'}
++
++  d3-path@3.1.0:
++    resolution: {integrity: sha512-p3KP5HCf/bvjBSSKuXid6Zqijx7wIfNW+J/maPs+iwR35at5JCbLUT0LzF1cnjbCHWhqzQTIN2Jpe8pRebIEFQ==}
++    engines: {node: '>=12'}
++
++  d3-scale@4.0.2:
++    resolution: {integrity: sha512-GZW464g1SH7ag3Y7hXjf8RoUuAFIqklOAq3MRl4OaWabTFJY9PN/E1YklhXLh+OQ3fM9yS2nOkCoS+WLZ6kvxQ==}
++    engines: {node: '>=12'}
++
++  d3-shape@3.2.0:
++    resolution: {integrity: sha512-SaLBuwGm3MOViRq2ABk3eLoxwZELpH6zhl3FbAoJ7Vm1gofKx6El1Ib5z23NUEhF9AsGl7y+dzLe5Cw2AArGTA==}
++    engines: {node: '>=12'}
++
++  d3-time-format@4.1.0:
++    resolution: {integrity: sha512-dJxPBlzC7NugB2PDLwo9Q8JiTR3M3e4/XANkreKSUxF8vvXKqm1Yfq4Q5dl8budlunRVlUUaDUgFt7eA8D6NLg==}
++    engines: {node: '>=12'}
++
++  d3-time@3.1.0:
++    resolution: {integrity: sha512-VqKjzBLejbSMT4IgbmVgDjpkYrNWUYJnbCGo874u7MMKIWsILRX+OpX/gTk8MqjpT1A/c6HY2dCA77ZN0lkQ2Q==}
++    engines: {node: '>=12'}
++
++  d3-timer@3.0.1:
++    resolution: {integrity: sha512-ndfJ/JxxMd3nw31uyKoY2naivF+r29V+Lc0svZxe1JvvIRmi8hUsrMvdOwgS1o6uBHmiz91geQ0ylPP0aj1VUA==}
++    engines: {node: '>=12'}
++
+   damerau-levenshtein@1.0.8:
+     resolution: {integrity: sha512-sdQSFB7+llfUcQHUQO3+B8ERRj0Oa4w9POWMI/puGtuf7gFywGmkaLCElnudfTiKZV+NvHqL0ifzdrI8Ro7ESA==}
+ 
+@@ -2520,6 +2613,9 @@ packages:
+       supports-color:
+         optional: true
+ 
++  decimal.js-light@2.5.1:
++    resolution: {integrity: sha512-qIMFpTMZmny+MMIitAB6D7iVPEorVw6YQRWkvarTkT4tBeSLLiHzcwj6q0MmYSFCiVpiqPJTJEYIrpcPzVEIvg==}
++
+   decimal.js@10.6.0:
+     resolution: {integrity: sha512-YpgQiITW3JXGntzdUmyUR1V812Hn8T1YVXhCu+wO3OpS4eU9l4YdD3qjyiKdV6mvV29zapkMeD390UVEf2lkUg==}
+ 
+@@ -2581,6 +2677,9 @@ packages:
+   dom-accessibility-api@0.6.3:
+     resolution: {integrity: sha512-7ZgogeTnjuHbo+ct10G9Ffp0mif17idi0IyWNVA/wcwcm7NPOD/WEHVP3n7n3MhXqxoIYm8d6MuZohYWIZ4T3w==}
+ 
++  dom-helpers@5.2.1:
++    resolution: {integrity: sha512-nRCa7CK3VTrM2NmGkIy4cbK7IZlgBE/PYMn55rrXefr5xXDP0LdtfPnblFDoVdcAfslJ7or6iqAUnx0CCGIWQA==}
++
+   dompurify@3.2.7:
+     resolution: {integrity: sha512-WhL/YuveyGXJaerVlMYGWhvQswa7myDG17P7Vu65EWC05o8vfeNbvNf4d/BOvH99+ZW+LlQsc1GDKMa1vNK6dw==}
+ 
+@@ -2838,6 +2937,9 @@ packages:
+     resolution: {integrity: sha512-aIL5Fx7mawVa300al2BnEE4iNvo1qETxLrPI/o05L7z6go7fCw1J6EQmbK4FmJ2AS7kgVF/KEZWufBfdClMcPg==}
+     engines: {node: '>= 0.6'}
+ 
++  eventemitter3@4.0.7:
++    resolution: {integrity: sha512-8guHBZCwKnFhYdHr2ysuRWErTwhoN2X8XELRlrRwpmfeY2jjuUN4taQMsULKUVo1K4DvZl+0pgfyoysHxvmvEw==}
++
+   eventsource-parser@3.0.6:
+     resolution: {integrity: sha512-Vo1ab+QXPzZ4tCa8SwIHJFaSzy4R6SHf7BY79rFBDf0idraZWAkYrDjDj8uWaSm3S2TK+hJ7/t1CEmZ7jXw+pg==}
+     engines: {node: '>=18.0.0'}
+@@ -2877,6 +2979,10 @@ packages:
+   fast-deep-equal@3.1.3:
+     resolution: {integrity: sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q==}
+ 
++  fast-equals@5.3.2:
++    resolution: {integrity: sha512-6rxyATwPCkaFIL3JLqw8qXqMpIZ942pTX/tbQFkRsDGblS8tNGtlUauA/+mt6RUfqn/4MoEr+WDkYoIQbibWuQ==}
++    engines: {node: '>=6.0.0'}
++
+   fast-glob@3.3.1:
+     resolution: {integrity: sha512-kNFPyjhh5cKjrUltxs+wFx+ZkbRaxxmZ+X0ZU31SOsxCEtP9VPgtq2teZw1DebupL5GmDaNQ6yKMMVcM41iqDg==}
+     engines: {node: '>=8.6.0'}
+@@ -3177,6 +3283,10 @@ packages:
+     resolution: {integrity: sha512-4gd7VpWNQNB4UKKCFFVcp1AVv+FMOgs9NKzjHKusc8jTMhd5eL1NqQqOpE0KzMds804/yHlglp3uxgluOqAPLw==}
+     engines: {node: '>= 0.4'}
+ 
++  internmap@2.0.3:
++    resolution: {integrity: sha512-5Hh7Y1wQbvY5ooGgPbDaL5iYLAPzMTUrjMulskHLH6wnv/A+1q5rgEaiuqEjB+oxGXIVZs1FF+R/KPN3ZSQYYg==}
++    engines: {node: '>=12'}
++
+   ipaddr.js@1.9.1:
+     resolution: {integrity: sha512-0KI/607xoxSToH7GjN1FfSbLoU0+btTicjsQSWQlh/hZykN8KpmMf7uYwPW3R+akZ6R/w18ZlXSHBYXiYUPO3g==}
+     engines: {node: '>= 0.10'}
+@@ -4220,6 +4330,9 @@ packages:
+   react-is@17.0.2:
+     resolution: {integrity: sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==}
+ 
++  react-is@18.3.1:
++    resolution: {integrity: sha512-/LLMVyas0ljjAtoYiPqYiL8VWXzUUdThrmU5+n20DZv+a+ClRoevUzw5JxU+Ieh5/c87ytoTBV9G1FiKfNJdmg==}
++
+   react-markdown@10.1.0:
+     resolution: {integrity: sha512-qKxVopLT/TyA6BX3Ue5NwabOsAzm0Q7kAPwq6L+wWDwisYs7R8vZ0nRXqq6rkueboxpkjvLGU9fWifiX/ZZFxQ==}
+     peerDependencies:
+@@ -4246,6 +4359,12 @@ packages:
+       '@types/react':
+         optional: true
+ 
++  react-smooth@4.0.4:
++    resolution: {integrity: sha512-gnGKTpYwqL0Iii09gHobNolvX4Kiq4PKx6eWBCYYix+8cdw+cGo3do906l1NBPKkSWx1DghC1dlWG9L2uGd61Q==}
++    peerDependencies:
++      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
++      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
++
+   react-style-singleton@2.2.3:
+     resolution: {integrity: sha512-b6jSvxvVnyptAiLjbkWLE/lOnR4lfTtDAl+eUC7RZy+QQWc6wRzIV2CE6xBuMmDxc2qIihtDCZD5NPOFl7fRBQ==}
+     engines: {node: '>=10'}
+@@ -4256,6 +4375,12 @@ packages:
+       '@types/react':
+         optional: true
+ 
++  react-transition-group@4.4.5:
++    resolution: {integrity: sha512-pZcd1MCJoiKiBR2NRxeCRg13uCXbydPnmB4EOeRrY7480qNWO8IIgQG6zlDkm6uRMsURXPuKq0GWtiM59a5Q6g==}
++    peerDependencies:
++      react: '>=16.6.0'
++      react-dom: '>=16.6.0'
++
+   react@19.1.1:
+     resolution: {integrity: sha512-w8nqGImo45dmMIfljjMwOGtbmC/mk4CMYhWIicdSflH91J9TyCyczcPFXJzrZ/ZXcgGRFeP6BU0BEJTw6tZdfQ==}
+     engines: {node: '>=0.10.0'}
+@@ -4268,6 +4393,16 @@ packages:
+     resolution: {integrity: sha512-YTUo+Flmw4ZXiWfQKGcwwc11KnoRAYgzAE2E7mXKCjSviTKShtxBsN6YUUBB2gtaBzKzeKunxhUwNHQuRryhWA==}
+     engines: {node: '>= 4'}
+ 
++  recharts-scale@0.4.5:
++    resolution: {integrity: sha512-kivNFO+0OcUNu7jQquLXAxz1FIwZj8nrj+YkOKc5694NbjCvcT6aSZiIzNzd2Kul4o4rTto8QVR9lMNtxD4G1w==}
++
++  recharts@2.15.4:
++    resolution: {integrity: sha512-UT/q6fwS3c1dHbXv2uFgYJ9BMFHu3fwnd7AYZaEQhXuYQ4hgsxLvsUXzGdKeZrW5xopzDCvuA2N41WJ88I7zIw==}
++    engines: {node: '>=14'}
++    peerDependencies:
++      react: ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
++      react-dom: ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
++
+   redent@3.0.0:
+     resolution: {integrity: sha512-6tDA8g98We0zd0GvVeMT9arEOnTw9qM03L9cJXaCjrip1OO764RDBLBfrB4cwzNGDj5OA5ioymC9GkizgWJDUg==}
+     engines: {node: '>=8'}
+@@ -4831,6 +4966,9 @@ packages:
+   vfile@6.0.3:
+     resolution: {integrity: sha512-KzIbH/9tXat2u30jf+smMwFCsno4wHVdNmzFyL+T/L3UGqqk6JKfVqOFOZEpZSHADH1k40ab6NUIXZq422ov3Q==}
+ 
++  victory-vendor@36.9.2:
++    resolution: {integrity: sha512-PnpQQMuxlwYdocC8fIJqVXvkeViHYzotI+NJrCuav0ZYFoq912ZHBk3mCeuj+5/VpodOjPe1z0Fk2ihgzlXqjQ==}
++
+   vite@7.1.12:
+     resolution: {integrity: sha512-ZWyE8YXEXqJrrSLvYgrRP7p62OziLW7xI5HYGWFzOvupfAlrLvURSzv/FyGyy0eidogEM3ujU+kUG1zuHgb6Ug==}
+     engines: {node: ^20.19.0 || >=22.12.0}
+@@ -5787,6 +5925,8 @@ snapshots:
+       react: 19.1.1
+       react-dom: 19.1.1(react@19.1.1)
+ 
++  '@radix-ui/number@1.1.1': {}
++
+   '@radix-ui/primitive@1.1.3': {}
+ 
+   '@radix-ui/react-accordion@1.2.12(@types/react-dom@19.1.9(@types/react@19.1.15))(@types/react@19.1.15)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)':
+@@ -6063,6 +6203,35 @@ snapshots:
+       '@types/react': 19.1.15
+       '@types/react-dom': 19.1.9(@types/react@19.1.15)
+ 
++  '@radix-ui/react-select@2.2.6(@types/react-dom@19.1.9(@types/react@19.1.15))(@types/react@19.1.15)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)':
++    dependencies:
++      '@radix-ui/number': 1.1.1
++      '@radix-ui/primitive': 1.1.3
++      '@radix-ui/react-collection': 1.1.7(@types/react-dom@19.1.9(@types/react@19.1.15))(@types/react@19.1.15)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
++      '@radix-ui/react-compose-refs': 1.1.2(@types/react@19.1.15)(react@19.1.1)
++      '@radix-ui/react-context': 1.1.2(@types/react@19.1.15)(react@19.1.1)
++      '@radix-ui/react-direction': 1.1.1(@types/react@19.1.15)(react@19.1.1)
++      '@radix-ui/react-dismissable-layer': 1.1.11(@types/react-dom@19.1.9(@types/react@19.1.15))(@types/react@19.1.15)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
++      '@radix-ui/react-focus-guards': 1.1.3(@types/react@19.1.15)(react@19.1.1)
++      '@radix-ui/react-focus-scope': 1.1.7(@types/react-dom@19.1.9(@types/react@19.1.15))(@types/react@19.1.15)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
++      '@radix-ui/react-id': 1.1.1(@types/react@19.1.15)(react@19.1.1)
++      '@radix-ui/react-popper': 1.2.8(@types/react-dom@19.1.9(@types/react@19.1.15))(@types/react@19.1.15)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
++      '@radix-ui/react-portal': 1.1.9(@types/react-dom@19.1.9(@types/react@19.1.15))(@types/react@19.1.15)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
++      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@19.1.9(@types/react@19.1.15))(@types/react@19.1.15)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
++      '@radix-ui/react-slot': 1.2.3(@types/react@19.1.15)(react@19.1.1)
++      '@radix-ui/react-use-callback-ref': 1.1.1(@types/react@19.1.15)(react@19.1.1)
++      '@radix-ui/react-use-controllable-state': 1.2.2(@types/react@19.1.15)(react@19.1.1)
++      '@radix-ui/react-use-layout-effect': 1.1.1(@types/react@19.1.15)(react@19.1.1)
++      '@radix-ui/react-use-previous': 1.1.1(@types/react@19.1.15)(react@19.1.1)
++      '@radix-ui/react-visually-hidden': 1.2.3(@types/react-dom@19.1.9(@types/react@19.1.15))(@types/react@19.1.15)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
++      aria-hidden: 1.2.6
++      react: 19.1.1
++      react-dom: 19.1.1(react@19.1.1)
++      react-remove-scroll: 2.7.1(@types/react@19.1.15)(react@19.1.1)
++    optionalDependencies:
++      '@types/react': 19.1.15
++      '@types/react-dom': 19.1.9(@types/react@19.1.15)
++
+   '@radix-ui/react-separator@1.1.7(@types/react-dom@19.1.9(@types/react@19.1.15))(@types/react@19.1.15)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)':
+     dependencies:
+       '@radix-ui/react-primitive': 2.1.3(@types/react-dom@19.1.9(@types/react@19.1.15))(@types/react@19.1.15)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+@@ -6614,6 +6783,30 @@ snapshots:
+ 
+   '@types/cookie@0.6.0': {}
+ 
++  '@types/d3-array@3.2.2': {}
++
++  '@types/d3-color@3.1.3': {}
++
++  '@types/d3-ease@3.0.2': {}
++
++  '@types/d3-interpolate@3.0.4':
++    dependencies:
++      '@types/d3-color': 3.1.3
++
++  '@types/d3-path@3.1.1': {}
++
++  '@types/d3-scale@4.0.9':
++    dependencies:
++      '@types/d3-time': 3.0.4
++
++  '@types/d3-shape@3.1.7':
++    dependencies:
++      '@types/d3-path': 3.1.1
++
++  '@types/d3-time@3.0.4': {}
++
++  '@types/d3-timer@3.0.2': {}
++
+   '@types/debug@4.1.12':
+     dependencies:
+       '@types/ms': 2.1.0
+@@ -7212,6 +7405,44 @@ snapshots:
+ 
+   csstype@3.1.3: {}
+ 
++  d3-array@3.2.4:
++    dependencies:
++      internmap: 2.0.3
++
++  d3-color@3.1.0: {}
++
++  d3-ease@3.0.1: {}
++
++  d3-format@3.1.0: {}
++
++  d3-interpolate@3.0.1:
++    dependencies:
++      d3-color: 3.1.0
++
++  d3-path@3.1.0: {}
++
++  d3-scale@4.0.2:
++    dependencies:
++      d3-array: 3.2.4
++      d3-format: 3.1.0
++      d3-interpolate: 3.0.1
++      d3-time: 3.1.0
++      d3-time-format: 4.1.0
++
++  d3-shape@3.2.0:
++    dependencies:
++      d3-path: 3.1.0
++
++  d3-time-format@4.1.0:
++    dependencies:
++      d3-time: 3.1.0
++
++  d3-time@3.1.0:
++    dependencies:
++      d3-array: 3.2.4
++
++  d3-timer@3.0.1: {}
++
+   damerau-levenshtein@1.0.8: {}
+ 
+   data-uri-to-buffer@4.0.1: {}
+@@ -7251,6 +7482,8 @@ snapshots:
+     dependencies:
+       ms: 2.1.3
+ 
++  decimal.js-light@2.5.1: {}
++
+   decimal.js@10.6.0: {}
+ 
+   decode-named-character-reference@1.2.0:
+@@ -7297,6 +7530,11 @@ snapshots:
+ 
+   dom-accessibility-api@0.6.3: {}
+ 
++  dom-helpers@5.2.1:
++    dependencies:
++      '@babel/runtime': 7.28.4
++      csstype: 3.1.3
++
+   dompurify@3.2.7:
+     optionalDependencies:
+       '@types/trusted-types': 2.0.7
+@@ -7709,6 +7947,8 @@ snapshots:
+ 
+   etag@1.8.1: {}
+ 
++  eventemitter3@4.0.7: {}
++
+   eventsource-parser@3.0.6: {}
+ 
+   eventsource@3.0.7:
+@@ -7786,6 +8026,8 @@ snapshots:
+ 
+   fast-deep-equal@3.1.3: {}
+ 
++  fast-equals@5.3.2: {}
++
+   fast-glob@3.3.1:
+     dependencies:
+       '@nodelib/fs.stat': 2.0.5
+@@ -8089,6 +8331,8 @@ snapshots:
+       hasown: 2.0.2
+       side-channel: 1.1.0
+ 
++  internmap@2.0.3: {}
++
+   ipaddr.js@1.9.1: {}
+ 
+   is-alphabetical@2.0.1: {}
+@@ -9234,6 +9478,8 @@ snapshots:
+ 
+   react-is@17.0.2: {}
+ 
++  react-is@18.3.1: {}
++
+   react-markdown@10.1.0(@types/react@19.1.15)(react@19.1.1):
+     dependencies:
+       '@types/hast': 3.0.4
+@@ -9271,6 +9517,14 @@ snapshots:
+     optionalDependencies:
+       '@types/react': 19.1.15
+ 
++  react-smooth@4.0.4(react-dom@19.1.1(react@19.1.1))(react@19.1.1):
++    dependencies:
++      fast-equals: 5.3.2
++      prop-types: 15.8.1
++      react: 19.1.1
++      react-dom: 19.1.1(react@19.1.1)
++      react-transition-group: 4.4.5(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
++
+   react-style-singleton@2.2.3(@types/react@19.1.15)(react@19.1.1):
+     dependencies:
+       get-nonce: 1.0.1
+@@ -9279,6 +9533,15 @@ snapshots:
+     optionalDependencies:
+       '@types/react': 19.1.15
+ 
++  react-transition-group@4.4.5(react-dom@19.1.1(react@19.1.1))(react@19.1.1):
++    dependencies:
++      '@babel/runtime': 7.28.4
++      dom-helpers: 5.2.1
++      loose-envify: 1.4.0
++      prop-types: 15.8.1
++      react: 19.1.1
++      react-dom: 19.1.1(react@19.1.1)
++
+   react@19.1.1: {}
+ 
+   real-require@0.2.0: {}
+@@ -9291,6 +9554,23 @@ snapshots:
+       tiny-invariant: 1.3.3
+       tslib: 2.8.1
+ 
++  recharts-scale@0.4.5:
++    dependencies:
++      decimal.js-light: 2.5.1
++
++  recharts@2.15.4(react-dom@19.1.1(react@19.1.1))(react@19.1.1):
++    dependencies:
++      clsx: 2.1.1
++      eventemitter3: 4.0.7
++      lodash: 4.17.21
++      react: 19.1.1
++      react-dom: 19.1.1(react@19.1.1)
++      react-is: 18.3.1
++      react-smooth: 4.0.4(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
++      recharts-scale: 0.4.5
++      tiny-invariant: 1.3.3
++      victory-vendor: 36.9.2
++
+   redent@3.0.0:
+     dependencies:
+       indent-string: 4.0.0
+@@ -10024,6 +10304,23 @@ snapshots:
+       '@types/unist': 3.0.3
+       vfile-message: 4.0.3
+ 
++  victory-vendor@36.9.2:
++    dependencies:
++      '@types/d3-array': 3.2.2
++      '@types/d3-ease': 3.0.2
++      '@types/d3-interpolate': 3.0.4
++      '@types/d3-scale': 4.0.9
++      '@types/d3-shape': 3.1.7
++      '@types/d3-time': 3.0.4
++      '@types/d3-timer': 3.0.2
++      d3-array: 3.2.4
++      d3-ease: 3.0.1
++      d3-interpolate: 3.0.1
++      d3-scale: 4.0.2
++      d3-shape: 3.2.0
++      d3-time: 3.1.0
++      d3-timer: 3.0.1
++
+   vite@7.1.12(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.1):
+     dependencies:
+       esbuild: 0.25.11
+diff --git a/src/actions/pacing/getFunds.ts b/src/actions/pacing/getFunds.ts
+new file mode 100644
+index 0000000..0dbbbc4
+--- /dev/null
++++ b/src/actions/pacing/getFunds.ts
+@@ -0,0 +1,60 @@
++'use server'
++
++import logger from '@/lib/logger'
++
++export type SubFund = {
++  id: string
++  name: string
++}
++
++export type Fund = {
++  id: string
++  name: string
++  subfunds: SubFund[]
++}
++
++/**
++ * Get funds with their subfunds
++ * TODO: Replace static data with API call when backend endpoint is ready
++ * @returns Promise resolving to array of funds with subfunds
++ */
++export async function getFunds(): Promise<Fund[]> {
++  try {
++    logger.info('Getting funds with subfunds')
++
++    // Static JSON data - will be replaced with API call
++    const staticFunds: Fund[] = [
++      {
++        id: '1',
++        name: 'Fund a',
++        subfunds: [
++          {
++            id: '1',
++            name: 'Subfund a',
++          },
++        ],
++      },
++      {
++        id: '2',
++        name: 'Fund b',
++        subfunds: [
++          {
++            id: '2',
++            name: 'Subfund b',
++          },
++        ],
++      },
++    ]
++
++    logger.info(
++      { fundCount: staticFunds.length },
++      'Successfully fetched funds'
++    )
++
++    return staticFunds
++  } catch (error) {
++    logger.error({ error }, 'Error in getFunds')
++    throw error
++  }
++}
++
+diff --git a/src/app/(app)/companies/[id]/page-client.tsx b/src/app/(app)/companies/[id]/page-client.tsx
+index 1417515..bf782c0 100644
+--- a/src/app/(app)/companies/[id]/page-client.tsx
++++ b/src/app/(app)/companies/[id]/page-client.tsx
+@@ -116,7 +116,7 @@ export default function CompanyDetailClient({
+   return (
+     <div className="flex h-full w-full flex-col">
+       {/* Breadcrumb */}
+-      <div className="border-b border-neutral-200 bg-white px-10 py-4">
++      <div className="border-b border-neutral-200 bg-white px-4 py-4 md:px-10">
+         <div className="flex items-center gap-2">
+           <Link href="/companies">
+             <Button
+@@ -134,7 +134,7 @@ export default function CompanyDetailClient({
+       </div>
+ 
+       {/* Company Header & Info */}
+-      <div className="border-b border-neutral-200 bg-white bg-gradient-to-b from-white/90 to-white px-10 py-5">
++      <div className="border-b border-neutral-200 bg-white bg-gradient-to-b from-white/90 to-white px-4 py-5 md:px-10">
+         <div className="mb-4 flex flex-col gap-4">
+           {/* Header Row */}
+           <div className="flex items-center gap-4 py-2">
+@@ -415,7 +415,7 @@ export default function CompanyDetailClient({
+       </div>
+ 
+       {/* Tabs */}
+-      <div className="px-10 py-5">
++      <div className="px-4 py-5 md:px-10">
+         <Tabs defaultValue="notes" className="w-full">
+           <TabsList className="mb-5 h-9 w-[400px] rounded-lg bg-indigo-50 p-[3px]">
+             <TabsTrigger
+diff --git a/src/app/(app)/companies/_components/toolbar.tsx b/src/app/(app)/companies/_components/toolbar.tsx
+index 499837c..374a9c9 100644
+--- a/src/app/(app)/companies/_components/toolbar.tsx
++++ b/src/app/(app)/companies/_components/toolbar.tsx
+@@ -39,9 +39,9 @@ export function CompaniesToolbar({
+   onPortfolioToggle,
+ }: Props) {
+   return (
+-    <div className="flex items-center justify-between py-4">
+-      <div className="flex items-center gap-2">
+-        <div className="relative w-[373px]">
++    <div className="flex flex-col gap-3 py-4 md:flex-row md:items-center md:justify-between">
++      <div className="flex flex-wrap items-center gap-2">
++        <div className="relative w-full md:w-[373px]">
+           <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+           <Input
+             type="text"
+diff --git a/src/app/(app)/companies/page.tsx b/src/app/(app)/companies/page.tsx
+index 5751867..c95f61c 100644
+--- a/src/app/(app)/companies/page.tsx
++++ b/src/app/(app)/companies/page.tsx
+@@ -9,6 +9,7 @@ import { getCompanies } from '@/actions/companies/getCompanies'
+ import { companyColumns } from '@/app/(app)/companies/_components/columns'
+ import { CompaniesToolbar } from '@/app/(app)/companies/_components/toolbar'
+ import { DataTable } from '@/components/data-table'
++import { MenuButton } from '@/components/menu-button'
+ import { PageErrorWrapper } from '@/components/page-error-boundary'
+ import { PageHeader } from '@/components/page-header'
+ import { TableSkeleton } from '@/components/table-skeleton'
+@@ -162,9 +163,10 @@ function CompaniesPageContent() {
+ 
+   return (
+     <div className="flex h-full w-full flex-col">
+-      <PageHeader title="Companies" />
++      <PageHeader title="Companies" action={<MenuButton />} />
+ 
+-      <div className="px-10 py-9">
++      <div className="grow overflow-y-auto overflow-x-hidden min-w-0">
++        <div className="mx-auto w-full max-w-[1920px] px-4 py-9 md:px-10 min-w-0">
+         <CompaniesToolbar
+           search={searchQuery}
+           onSearchChange={setSearchQuery}
+@@ -181,25 +183,26 @@ function CompaniesPageContent() {
+           industryOptions={industryOptions}
+         />
+ 
+-        {isInitialLoad ? (
+-          <TableSkeleton columns={8} rows={15} />
+-        ) : (
+-          <DataTable
+-            columns={companyColumns}
+-            data={companies}
+-            isLoading={loading}
+-            sorting={sorting}
+-            onSortingChange={setSorting}
+-            pagination={paginationMeta}
+-            onPreviousPage={goToPreviousPage}
+-            onNextPage={goToNextPage}
+-            onFirstPage={goToFirstPage}
+-            onLastPage={goToLastPage}
+-            getRowHref={(company: Company) =>
+-              `/companies/${company.universal_id}`
+-            }
+-          />
+-        )}
++          {isInitialLoad ? (
++            <TableSkeleton columns={8} rows={15} />
++          ) : (
++            <DataTable
++              columns={companyColumns}
++              data={companies}
++              isLoading={loading}
++              sorting={sorting}
++              onSortingChange={setSorting}
++              pagination={paginationMeta}
++              onPreviousPage={goToPreviousPage}
++              onNextPage={goToNextPage}
++              onFirstPage={goToFirstPage}
++              onLastPage={goToLastPage}
++              getRowHref={(company: Company) =>
++                `/companies/${company.universal_id}`
++              }
++            />
++          )}
++        </div>
+       </div>
+     </div>
+   )
+diff --git a/src/app/(app)/dashboard/pacing/_components/FundDetails.tsx b/src/app/(app)/dashboard/pacing/_components/FundDetails.tsx
+new file mode 100644
+index 0000000..f8ec55c
+--- /dev/null
++++ b/src/app/(app)/dashboard/pacing/_components/FundDetails.tsx
+@@ -0,0 +1,124 @@
++'use client'
++
++import { ChevronDownIcon } from 'lucide-react'
++import { useState } from 'react'
++
++import { Separator } from '@/components/ui/separator'
++import { cn } from '@/lib/utils'
++
++type FundDetailRow = {
++  label: string
++  value: string
++  isCollapsible?: boolean
++  subItems?: FundDetailRow[]
++}
++
++const FUND_DETAILS: FundDetailRow[] = [
++  { label: 'Fund Size', value: '$2,000.3 M' },
++  { label: 'Fees', value: '-$150.5 M' },
++  { label: 'Total Investable', value: '$175.0 M' },
++  {
++    label: 'Pipeline New',
++    value: '$50.0 M',
++    isCollapsible: true,
++    subItems: [],
++  },
++  {
++    label: 'Pipeline FO',
++    value: '$50.0 M',
++    isCollapsible: true,
++    subItems: [
++      { label: 'Company name 1', value: '$1.0 M' },
++      { label: 'Company name 2', value: '$1.0 M' },
++      { label: 'Company name 3', value: '$1.0 M' },
++    ],
++  },
++  { label: 'Remaining', value: '$88.0 M' },
++  { label: 'Recycled', value: '$93.3 M' },
++  { label: 'Pending Sale', value: '$53.4 M' },
++  { label: 'Total Remaining', value: '$260.5 M' },
++  { label: 'Available for New', value: '$56.0 M' },
++  { label: 'Available for Seed FO', value: '$67.4 M' },
++  { label: 'Available for Other FO', value: '$55.0 M' },
++]
++
++const SEPARATOR_AFTER_LABELS = ['Total Investable', 'Pending Sale']
++
++export function FundDetails() {
++  const [expandedSections, setExpandedSections] = useState<Set<string>>(
++    new Set()
++  )
++
++  const toggleSection = (label: string) => {
++    setExpandedSections((prev) => {
++      const next = new Set(prev)
++      if (next.has(label)) {
++        next.delete(label)
++      } else {
++        next.add(label)
++      }
++      return next
++    })
++  }
++
++  return (
++    <div className="space-y-3">
++      {FUND_DETAILS.map((detail) => {
++        const isExpanded = expandedSections.has(detail.label)
++        const hasSubItems =
++          detail.isCollapsible && detail.subItems && detail.subItems.length > 0
++
++        return (
++          <div key={detail.label}>
++            <div className="flex items-center justify-between">
++              <span className="text-sm text-neutral-600">
++                {detail.label}
++              </span>
++              <div className="flex items-center gap-2">
++                <span className="text-sm font-medium text-neutral-900">
++                  {detail.value}
++                </span>
++                {detail.isCollapsible && (
++                  <button
++                    type="button"
++                    onClick={() => toggleSection(detail.label)}
++                    className="flex items-center justify-center"
++                    aria-label={`Toggle ${detail.label}`}
++                  >
++                    <ChevronDownIcon
++                      className={cn(
++                        'size-4 text-neutral-500 transition-transform duration-200',
++                        isExpanded && 'rotate-180'
++                      )}
++                    />
++                  </button>
++                )}
++              </div>
++            </div>
++            {isExpanded && hasSubItems && (
++              <div className="ml-6 mt-2 space-y-2">
++                {detail.subItems?.map((subItem) => (
++                  <div
++                    key={subItem.label}
++                    className="flex items-center justify-between"
++                  >
++                    <span className="text-sm text-neutral-500">
++                      {subItem.label}
++                    </span>
++                    <span className="text-sm font-medium text-neutral-900">
++                      {subItem.value}
++                    </span>
++                  </div>
++                ))}
++              </div>
++            )}
++            {SEPARATOR_AFTER_LABELS.includes(detail.label) && (
++              <Separator className="mt-3" />
++            )}
++          </div>
++        )
++      })}
++    </div>
++  )
++}
++
+diff --git a/src/app/(app)/dashboard/pacing/_components/FundSelect.tsx b/src/app/(app)/dashboard/pacing/_components/FundSelect.tsx
+new file mode 100644
+index 0000000..7c0ad89
+--- /dev/null
++++ b/src/app/(app)/dashboard/pacing/_components/FundSelect.tsx
+@@ -0,0 +1,45 @@
++'use client'
++
++import {
++  Select,
++  SelectContent,
++  SelectItem,
++  SelectTrigger,
++  SelectValue,
++} from '@/components/ui/select'
++
++type FundSelectProps = {
++  label: string
++  value: string
++  onValueChange: (value: string) => void
++  options: { value: string; label: string }[]
++  placeholder?: string
++  disabled?: boolean
++}
++
++export function FundSelect({
++  label,
++  value,
++  onValueChange,
++  options,
++  placeholder = 'Select...',
++  disabled = false,
++}: FundSelectProps) {
++  const selectId = label.toLowerCase().replace(/\s+/g, '-')
++
++  return (
++    <Select value={value || undefined} onValueChange={onValueChange} disabled={disabled}>
++      <SelectTrigger id={selectId} className="w-full">
++        <SelectValue placeholder={placeholder} />
++      </SelectTrigger>
++      <SelectContent>
++        {options.map((option) => (
++          <SelectItem key={option.value} value={option.value}>
++            {option.label}
++          </SelectItem>
++        ))}
++      </SelectContent>
++    </Select>
++  )
++}
++
+diff --git a/src/app/(app)/dashboard/pacing/_components/SelectedCompanies.tsx b/src/app/(app)/dashboard/pacing/_components/SelectedCompanies.tsx
+new file mode 100644
+index 0000000..73e8f67
+--- /dev/null
++++ b/src/app/(app)/dashboard/pacing/_components/SelectedCompanies.tsx
+@@ -0,0 +1,55 @@
++'use client'
++
++import { DataTable } from '@/components/data-table'
++import {
++  selectedCompaniesColumns,
++  type SelectedCompany,
++} from './selected-companies-columns'
++
++type SelectedCompaniesProps = {
++  data?: SelectedCompany[]
++  isLoading?: boolean
++}
++
++// Mock data for demonstration - replace with real data fetching
++const MOCK_DATA: SelectedCompany[] = [
++  {
++    id: '1',
++    name: 'Acme Corporation',
++    domain: 'acme.com',
++    cost: 5.5,
++    date: '2024-01-15',
++  },
++  {
++    id: '2',
++    name: 'TechStart Inc',
++    domain: 'techstart.com',
++    cost: 12.3,
++    date: '2024-02-20',
++  },
++  {
++    id: '3',
++    name: 'Innovate Labs',
++    domain: 'innovatelabs.com',
++    cost: 8.7,
++    date: '2024-03-10',
++  },
++]
++
++export function SelectedCompanies({
++  data = MOCK_DATA,
++  isLoading = false,
++}: SelectedCompaniesProps) {
++  return (
++    <div className="w-full overflow-hidden -mx-4 -mb-4">
++      <div className="[&>div]:border-0 [&>div]:rounded-none">
++        <DataTable
++          columns={selectedCompaniesColumns}
++          data={data}
++          isLoading={isLoading}
++        />
++      </div>
++    </div>
++  )
++}
++
+diff --git a/src/app/(app)/dashboard/pacing/_components/selected-companies-columns.tsx b/src/app/(app)/dashboard/pacing/_components/selected-companies-columns.tsx
+new file mode 100644
+index 0000000..bb3fc37
+--- /dev/null
++++ b/src/app/(app)/dashboard/pacing/_components/selected-companies-columns.tsx
+@@ -0,0 +1,66 @@
++'use client'
++
++import type { ColumnDef } from '@tanstack/react-table'
++import dayjs from 'dayjs'
++
++import { CompanyLogo } from '@/components/company-logo'
++
++export type SelectedCompany = {
++  id: string
++  name: string
++  domain?: string
++  logoUrl?: string | null
++  cost: number // in millions
++  date: string // ISO date string
++}
++
++const formatCost = (value: number) => {
++  return `$${value.toFixed(1)}M`
++}
++
++export const selectedCompaniesColumns: ColumnDef<SelectedCompany>[] = [
++  {
++    id: 'icon',
++    header: '',
++    cell: ({ row }) => {
++      const company = row.original
++      return (
++        <CompanyLogo
++          domain={company.domain}
++          fallbackUrl={company.logoUrl}
++          name={company.name}
++          size={32}
++        />
++      )
++    },
++    enableSorting: false,
++  },
++  {
++    accessorKey: 'name',
++    header: 'Company',
++    cell: ({ getValue }) => {
++      return <span className="table-cell-text">{getValue() as string}</span>
++    },
++  },
++  {
++    accessorKey: 'cost',
++    header: 'Cost ($M)',
++    cell: ({ getValue }) => {
++      const cost = getValue() as number
++      return <span className="table-cell-text">{formatCost(cost)}</span>
++    },
++  },
++  {
++    accessorKey: 'date',
++    header: 'Date',
++    cell: ({ getValue }) => {
++      const date = getValue() as string
++      return (
++        <span className="table-cell-text">
++          {dayjs(date).format('MMM D, YYYY')}
++        </span>
++      )
++    },
++  },
++]
++
+diff --git a/src/app/(app)/dashboard/pacing/page.tsx b/src/app/(app)/dashboard/pacing/page.tsx
+new file mode 100644
+index 0000000..20146a8
+--- /dev/null
++++ b/src/app/(app)/dashboard/pacing/page.tsx
+@@ -0,0 +1,165 @@
++'use client'
++
++import { useEffect, useState } from 'react'
++
++import { getFunds, type Fund } from '@/actions/pacing/getFunds'
++import { MenuButton } from '@/components/menu-button'
++import { PerformanceChart } from '@/components/charts/performance-chart'
++import { PageHeader } from '@/components/page-header'
++import { Separator } from '@/components/ui/separator'
++import {
++  Select,
++  SelectContent,
++  SelectItem,
++  SelectTrigger,
++  SelectValue,
++} from '@/components/ui/select'
++import {
++  generateTestChartData,
++  getTestChartLines,
++} from '@/lib/test-chart-data'
++
++import { SectionCard } from '@/components/section-card'
++
++import { FundSelect } from './_components/FundSelect'
++import { FundDetails } from './_components/FundDetails'
++import { SelectedCompanies } from './_components/SelectedCompanies'
++
++const FUND_START_OPTIONS = [
++  { value: '2024-fund-start', label: '2024 - Fund Start' },
++  { value: '2023-fund-start', label: '2023 - Fund Start' },
++  { value: '2022-fund-start', label: '2022 - Fund Start' },
++  { value: '2021-fund-start', label: '2021 - Fund Start' },
++]
++
++export default function PacingPage() {
++  const [funds, setFunds] = useState<Fund[]>([])
++  const [selectedFund, setSelectedFund] = useState('')
++  const [selectedSubFund, setSelectedSubFund] = useState('')
++  const [selectedFundStart, setSelectedFundStart] = useState(
++    '2024-fund-start'
++  )
++
++  useEffect(() => {
++    const loadFunds = async () => {
++      try {
++        const fundsData = await getFunds()
++        setFunds(fundsData)
++      } catch (error) {
++        console.error('Failed to load funds:', error)
++      }
++    }
++
++    loadFunds()
++  }, [])
++
++  const selectedFundData = funds.find((fund) => fund.id === selectedFund)
++  const subfundOptions =
++    selectedFundData?.subfunds.map((subfund) => ({
++      value: subfund.id,
++      label: subfund.name,
++    })) || []
++
++  const fundOptions = funds.map((fund) => ({
++    value: fund.id,
++    label: fund.name,
++  }))
++
++  const handleFundChange = (fundId: string) => {
++    setSelectedFund(fundId)
++    setSelectedSubFund('')
++  }
++
++  const chartData = generateTestChartData({
++    start: '2024-01-01',
++    end: '2024-12-31',
++  })
++  const chartLines = getTestChartLines()
++
++  return (
++    <div className="flex h-full w-full flex-col">
++      <PageHeader title="Pacing" action={<MenuButton />} />
++
++      {/* Content */}
++      <div className="grow overflow-auto bg-neutral-50 px-4 py-8 md:px-10">
++        <div className="max-w-6xl">
++          {/* Dropdowns */}
++          <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:gap-6">
++            <FundSelect
++              label="Fund Selection"
++              value={selectedFund}
++              onValueChange={handleFundChange}
++              options={fundOptions}
++              placeholder="Select a fund"
++            />
++            <Separator
++              orientation="horizontal"
++              className="md:hidden"
++            />
++            <Separator
++              orientation="vertical"
++              className="hidden md:block"
++            />
++            <FundSelect
++              label="SubFund Selection"
++              value={selectedSubFund}
++              onValueChange={setSelectedSubFund}
++              options={subfundOptions}
++              placeholder={
++                selectedFund ? 'Select a subfund' : 'Select a fund first'
++              }
++              disabled={!selectedFund}
++            />
++          </div>
++
++          {/* Fund Details */}
++          <SectionCard header="SubFund" subHeader="As of October 20, 2025">
++            <FundDetails />
++          </SectionCard>
++
++          
++
++          {/* Chart */}
++          <SectionCard
++            header="Total Remaining"
++            subHeader={
++              <Select
++                value={selectedFundStart}
++                onValueChange={setSelectedFundStart}
++              >
++                <SelectTrigger className="w-fit">
++                  <SelectValue />
++                </SelectTrigger>
++                <SelectContent>
++                  {FUND_START_OPTIONS.map((option) => (
++                    <SelectItem key={option.value} value={option.value}>
++                      {option.label}
++                    </SelectItem>
++                  ))}
++                </SelectContent>
++              </Select>
++            }
++            className="mt-8"
++            cardClassName="pt-2 pb-2"
++            spacing="sm"
++          >
++            <div className="w-full overflow-hidden">
++              <PerformanceChart
++                data={chartData}
++                lines={chartLines}
++                xAxisKey="date"
++                height={350}
++              />
++            </div>
++          </SectionCard>
++
++          {/* Selected Companies */}
++          <SectionCard header="Selected Companies" className="mt-8">
++            <SelectedCompanies />
++          </SectionCard>
++        </div>
++      </div>
++    </div>
++  )
++}
++
+diff --git a/src/app/(app)/dashboard/performance/page.tsx b/src/app/(app)/dashboard/performance/page.tsx
+new file mode 100644
+index 0000000..828dacb
+--- /dev/null
++++ b/src/app/(app)/dashboard/performance/page.tsx
+@@ -0,0 +1,44 @@
++'use client'
++
++import { MenuButton } from '@/components/menu-button'
++import { PerformanceChart } from '@/components/charts/performance-chart'
++import { PageHeader } from '@/components/page-header'
++import {
++  generateTestChartData,
++  getTestChartLines,
++} from '@/lib/test-chart-data'
++
++export default function PerformancePage() {
++  const chartData = generateTestChartData({
++    start: '2024-01-01',
++    end: '2024-12-31',
++  })
++  const chartLines = getTestChartLines()
++
++  return (
++    <div className="flex h-full w-full flex-col">
++      <PageHeader title="Performance" action={<MenuButton />} />
++
++      {/* Content */}
++      <div className="grow overflow-auto bg-neutral-50 px-4 py-8 md:px-10">
++        <div className="max-w-6xl">
++          <div className="rounded-lg border border-neutral-200 bg-white p-6">
++            <h2 className="text-lg font-semibold text-neutral-900">
++              Performance Metrics
++            </h2>
++            <p className="mt-1 mb-6 text-sm text-neutral-500">
++              Dashboard for performance metrics and analytics
++            </p>
++            <PerformanceChart
++              data={chartData}
++              lines={chartLines}
++              xAxisKey="date"
++              height={350}
++            />
++          </div>
++        </div>
++      </div>
++    </div>
++  )
++}
++
+diff --git a/src/app/(app)/dev-options/page.tsx b/src/app/(app)/dev-options/page.tsx
+index b9b71a5..283a1f6 100644
+--- a/src/app/(app)/dev-options/page.tsx
++++ b/src/app/(app)/dev-options/page.tsx
+@@ -1,5 +1,6 @@
+ import { redirect } from 'next/navigation'
+ 
++import { MenuButton } from '@/components/menu-button'
+ import { PageHeader } from '@/components/page-header'
+ 
+ import DevOptions from '../_components/DevOptions'
+@@ -12,10 +13,10 @@ export default function DevOptionsPage() {
+ 
+   return (
+     <div className="flex h-full w-full flex-col">
+-      <PageHeader title="Developer Tools" />
++      <PageHeader title="Developer Tools" action={<MenuButton />} />
+ 
+       {/* Dev Options Component */}
+-      <div className="px-10 py-8">
++      <div className="px-4 py-8 md:px-10">
+         <DevOptions />
+       </div>
+     </div>
+diff --git a/src/app/(app)/layout.tsx b/src/app/(app)/layout.tsx
+index 30f5c1b..bec0276 100644
+--- a/src/app/(app)/layout.tsx
++++ b/src/app/(app)/layout.tsx
+@@ -1,8 +1,11 @@
+ import getProfile from '@/actions/profile/getProfile'
+ import { Sidebar } from '@/components/sidebar'
+ import { ProfileProvider } from '@/contexts/profile-context'
++import { SidebarProvider } from '@/contexts/sidebar-context'
+ import logger from '@/lib/logger'
+ 
++export const dynamic = 'force-dynamic'
++
+ export default async function ChatLayout({
+   children,
+ }: {
+@@ -19,12 +22,14 @@ export default async function ChatLayout({
+ 
+   return (
+     <ProfileProvider initialProfile={profile}>
+-      <div className="flex h-full w-full bg-background">
+-        <Sidebar />
+-        <div className="flex grow flex-col ml-[240px]">
+-          <main className="h-full w-full">{children}</main>
++      <SidebarProvider>
++        <div className="flex h-full w-full bg-background overflow-x-hidden">
++          <Sidebar />
++          <div className="flex grow flex-col min-w-0">
++            <main className="h-full w-full min-w-0 overflow-x-hidden">{children}</main>
++          </div>
+         </div>
+-      </div>
++      </SidebarProvider>
+     </ProfileProvider>
+   )
+ }
+diff --git a/src/app/(app)/meetings/page.tsx b/src/app/(app)/meetings/page.tsx
+index 2340153..18004c5 100644
+--- a/src/app/(app)/meetings/page.tsx
++++ b/src/app/(app)/meetings/page.tsx
+@@ -8,6 +8,7 @@ import { toast } from 'sonner'
+ import { getMeetingExternalDetails } from '@/actions/meetings/getMeetingExternalDetails'
+ import { getMeetings } from '@/actions/meetings/getMeetings'
+ import MeetingCard from '@/components/meeting-card'
++import { MenuButton } from '@/components/menu-button'
+ import { PageErrorWrapper } from '@/components/page-error-boundary'
+ import { PageHeader } from '@/components/page-header'
+ import { Button } from '@/components/ui/button'
+@@ -295,16 +296,17 @@ function MeetingsPageContent() {
+ 
+   return (
+     <div className="flex h-full w-full flex-col">
+-      <PageHeader title="Meetings" />
+-
+-      {/* Calendar Not Connected Banner */}
+-      {!hasGoogleCalendar && (
+-        <div className="bg-blue-50 border-b border-blue-200 px-10 py-4">
+-          <div className="flex items-start gap-4">
+-            <div className="flex-shrink-0">
++      <PageHeader title="Meetings" action={<MenuButton />} />
++
++      <div className="grow overflow-y-auto overflow-x-hidden">
++        {/* Calendar Not Connected Banner */}
++        {!hasGoogleCalendar && (
++        <div className="bg-blue-50 border-b border-blue-200 px-4 py-4 md:px-10">
++          <div className="flex flex-col items-start gap-4 md:flex-row">
++            <div className="shrink-0">
+               <Calendar className="size-5 text-blue-600 mt-0.5" />
+             </div>
+-            <div className="flex-1">
++            <div className="grow min-w-0">
+               <h3 className="text-sm font-medium text-blue-900">
+                 Connect your Google Calendar
+               </h3>
+@@ -313,7 +315,7 @@ function MeetingsPageContent() {
+                 automatic recording and note-taking.
+               </p>
+             </div>
+-            <Button asChild size="sm" className="flex-shrink-0">
++            <Button asChild size="sm" className="shrink-0 w-full md:w-auto">
+               <Link href="/settings">
+                 <Settings className="size-4 mr-2" />
+                 Go to Settings
+@@ -321,14 +323,14 @@ function MeetingsPageContent() {
+             </Button>
+           </div>
+         </div>
+-      )}
++        )}
+ 
+       {/* Active Meeting Banner - Only show if there's an active meeting */}
+       {activeMeeting && activeMeeting.start_time ? (
+-        <div className="bg-primary border border-white/10 px-10 py-3 flex items-center gap-3">
+-          <div className="flex items-center gap-3 flex-1">
+-            <Calendar className="size-4 text-white" />
+-            <div className="flex flex-col gap-1">
++        <div className="bg-primary border border-white/10 px-4 py-3 md:px-10 flex flex-col items-start gap-3 md:flex-row md:items-center">
++          <div className="flex items-center gap-3 grow min-w-0">
++            <Calendar className="size-4 text-white shrink-0" />
++            <div className="flex flex-col gap-1 min-w-0">
+               <p className="text-sm font-medium text-white truncate">
+                 {activeMeeting.title || 'Untitled Meeting'}
+               </p>
+@@ -339,7 +341,7 @@ function MeetingsPageContent() {
+           </div>
+ 
+           {/* AI Notetaker Toggle */}
+-          <div className="flex items-center gap-3">
++          <div className="flex items-center gap-3 shrink-0">
+             <div className="flex flex-col gap-0.5">
+               <p className="text-sm font-medium text-white">
+                 {activeMeeting.is_bot_scheduled
+@@ -372,7 +374,7 @@ function MeetingsPageContent() {
+           {activeMeeting.meeting_url ? (
+             <Button
+               asChild
+-              className="bg-white text-neutral-900 hover:bg-white/90 h-6 px-3 py-2 text-xs font-medium rounded-lg"
++              className="bg-white text-neutral-900 hover:bg-white/90 h-6 px-3 py-2 text-xs font-medium rounded-lg shrink-0 w-full md:w-auto"
+             >
+               <a
+                 href={activeMeeting.meeting_url}
+@@ -386,9 +388,9 @@ function MeetingsPageContent() {
+         </div>
+       ) : null}
+ 
+-      {/* View Toggle */}
+-      <div className="px-10 py-5">
+-        <div className="flex items-center bg-[#eef2ff] p-[3px] rounded-[10px] w-[400px]">
++        {/* View Toggle */}
++        <div className="px-4 py-5 md:px-10">
++        <div className="flex items-center bg-[#eef2ff] p-[3px] rounded-[10px] w-full max-w-[400px]">
+           <Button
+             variant="ghost"
+             size="sm"
+@@ -413,11 +415,11 @@ function MeetingsPageContent() {
+           >
+             Past meetings
+           </Button>
++          </div>
+         </div>
+-      </div>
+ 
+-      {/* Meetings List */}
+-      <div className="px-10 space-y-5">
++        {/* Meetings List */}
++        <div className="px-4 md:px-10 space-y-5">
+         {loading && (
+           <div className="flex flex-col items-center justify-center py-16">
+             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-neutral-900 mb-4" />
+@@ -479,7 +481,7 @@ function MeetingsPageContent() {
+             </div>
+           )}
+ 
+-        {!loading &&
++          {!loading &&
+           !error &&
+           (upcomingMeetings.length > 0 || allMeetings.length > 0) && (
+             <>
+@@ -585,8 +587,9 @@ function MeetingsPageContent() {
+                   </div>
+                 )
+               })}
+-            </>
+-          )}
++              </>
++            )}
++        </div>
+       </div>
+     </div>
+   )
+diff --git a/src/app/(app)/people/[id]/page-client.tsx b/src/app/(app)/people/[id]/page-client.tsx
+index c4b70ae..b1367d2 100644
+--- a/src/app/(app)/people/[id]/page-client.tsx
++++ b/src/app/(app)/people/[id]/page-client.tsx
+@@ -191,7 +191,7 @@ export default function PersonDetailClient({
+   return (
+     <div className="flex h-full flex-col bg-background">
+       <header className="border-b border-neutral-200 bg-white">
+-        <div className="flex items-center justify-between px-10 py-4">
++        <div className="flex items-center justify-between px-4 py-4 md:px-10">
+           <div className="flex items-center gap-2">
+             <Link href="/people">
+               <Button variant="ghost" size="sm" className="h-8 px-3">
+@@ -225,7 +225,7 @@ export default function PersonDetailClient({
+           </div>
+         </div>
+ 
+-        <div className="space-y-6 px-10 pb-8">
++        <div className="space-y-6 px-4 pb-8 md:px-10">
+           <div className="flex flex-wrap items-start gap-4">
+             <Avatar className="size-16">
+               {person.avatar_url ? (
+@@ -302,7 +302,7 @@ export default function PersonDetailClient({
+         </div>
+       </header>
+ 
+-      <main className="flex grow flex-col overflow-y-auto px-10 py-8">
++      <main className="flex grow flex-col overflow-y-auto px-4 py-8 md:px-10">
+         <Tabs
+           value={activeTab}
+           onValueChange={(value) => setActiveTab(value as 'resume' | 'notes')}
+diff --git a/src/app/(app)/people/_components/toolbar.tsx b/src/app/(app)/people/_components/toolbar.tsx
+index f321aeb..300ab6c 100644
+--- a/src/app/(app)/people/_components/toolbar.tsx
++++ b/src/app/(app)/people/_components/toolbar.tsx
+@@ -29,9 +29,9 @@ export function PeopleToolbar({
+   onLastInteractionSortChange,
+ }: Props) {
+   return (
+-    <div className="flex items-center justify-between py-4">
+-      <div className="flex items-center gap-2">
+-        <div className="relative w-[373px]">
++    <div className="flex flex-col gap-3 py-4 md:flex-row md:items-center md:justify-between">
++      <div className="flex flex-wrap items-center gap-2">
++        <div className="relative w-full md:w-[373px]">
+           <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+           <Input
+             type="text"
+diff --git a/src/app/(app)/people/page.tsx b/src/app/(app)/people/page.tsx
+index 59ecc79..686d342 100644
+--- a/src/app/(app)/people/page.tsx
++++ b/src/app/(app)/people/page.tsx
+@@ -9,6 +9,7 @@ import { getPeople } from '@/actions/people/getPeople'
+ import { peopleColumns } from '@/app/(app)/people/_components/columns'
+ import { PeopleToolbar } from '@/app/(app)/people/_components/toolbar'
+ import { DataTable } from '@/components/data-table'
++import { MenuButton } from '@/components/menu-button'
+ import { PageErrorWrapper } from '@/components/page-error-boundary'
+ import { PageHeader } from '@/components/page-header'
+ import { TableSkeleton } from '@/components/table-skeleton'
+@@ -112,9 +113,10 @@ function PeoplePageContent() {
+ 
+   return (
+     <div className="flex h-full w-full flex-col">
+-      <PageHeader title="People" />
++      <PageHeader title="People" action={<MenuButton />} />
+ 
+-      <div className="px-10 py-9">
++      <div className="grow overflow-y-auto overflow-x-hidden min-w-0 w-full">
++        <div className="mx-auto w-full max-w-[1920px] px-4 py-9 md:px-10 min-w-0">
+         <PeopleToolbar
+           search={searchQuery}
+           onSearchChange={setSearchQuery}
+@@ -126,23 +128,26 @@ function PeoplePageContent() {
+           }
+         />
+ 
+-        {isInitialLoad ? (
+-          <TableSkeleton columns={6} rows={15} />
+-        ) : (
+-          <DataTable
+-            columns={peopleColumns}
+-            data={people}
+-            isLoading={loading}
+-            sorting={sorting}
+-            onSortingChange={setSorting}
+-            pagination={paginationMeta}
+-            onPreviousPage={goToPreviousPage}
+-            onNextPage={goToNextPage}
+-            onFirstPage={goToFirstPage}
+-            onLastPage={goToLastPage}
+-            getRowHref={(person: Person) => `/people/${person.universal_id}`}
+-          />
+-        )}
++          {isInitialLoad ? (
++            <TableSkeleton columns={6} rows={15} />
++          ) : (
++            <div className="overflow-x-auto w-full max-w-full min-w-0">
++              <DataTable
++                columns={peopleColumns}
++                data={people}
++                isLoading={loading}
++                sorting={sorting}
++                onSortingChange={setSorting}
++                pagination={paginationMeta}
++                onPreviousPage={goToPreviousPage}
++                onNextPage={goToNextPage}
++                onFirstPage={goToFirstPage}
++                onLastPage={goToLastPage}
++                getRowHref={(person: Person) => `/people/${person.universal_id}`}
++              />
++            </div>
++          )}
++        </div>
+       </div>
+     </div>
+   )
+diff --git a/src/app/(app)/settings/page.tsx b/src/app/(app)/settings/page.tsx
+index 681cb7e..f15856a 100644
+--- a/src/app/(app)/settings/page.tsx
++++ b/src/app/(app)/settings/page.tsx
+@@ -4,6 +4,7 @@ import { useAuth } from '@clerk/nextjs'
+ import { redirect } from 'next/navigation'
+ import { Suspense } from 'react'
+ 
++import { MenuButton } from '@/components/menu-button'
+ import { PageHeader } from '@/components/page-header'
+ import { useProfile } from '@/contexts/profile-context'
+ 
+@@ -24,10 +25,10 @@ export default function SettingsPage() {
+ 
+   return (
+     <div className="flex h-full flex-col">
+-      <PageHeader title="Settings" />
++      <PageHeader title="Settings" action={<MenuButton />} />
+ 
+       {/* Content */}
+-      <div className="grow overflow-auto bg-neutral-50 px-10 py-8">
++      <div className="grow overflow-auto bg-neutral-50 px-4 py-8 md:px-10">
+         <div className="max-w-4xl">
+           {/* Integrations Section */}
+           <section className="rounded-lg border border-neutral-200 bg-white p-6">
+diff --git a/src/app/layout.tsx b/src/app/layout.tsx
+index c40967a..182774f 100644
+--- a/src/app/layout.tsx
++++ b/src/app/layout.tsx
+@@ -64,8 +64,8 @@ export default function RootLayout({
+         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+       >
+         <ClerkProvider
+-          signInFallbackRedirectUrl="/meetings"
+-          signUpFallbackRedirectUrl="/meetings"
++          signInFallbackRedirectUrl="/"
++          signUpFallbackRedirectUrl="/"
+         >
+           {children}
+           <Toaster />
+diff --git a/src/app/page.tsx b/src/app/page.tsx
+index 672048f..16655e6 100644
+--- a/src/app/page.tsx
++++ b/src/app/page.tsx
+@@ -1,52 +1,43 @@
+-'use client'
++'use server'
+ 
+-import { SignedOut, SignInButton, useUser } from '@clerk/nextjs'
+-import { useRouter } from 'next/navigation'
+-import { useEffect } from 'react'
++import { SignedOut, SignInButton } from '@clerk/nextjs'
++import { auth } from '@clerk/nextjs/server'
++import { redirect } from 'next/navigation'
+ 
++import getProfile from '@/actions/profile/getProfile'
+ import { PageErrorWrapper } from '@/components/page-error-boundary'
++import { getDefaultLandingPath } from '@/lib/user-access'
+ 
+-function HomeContent() {
+-  const router = useRouter()
+-  const { isSignedIn } = useUser()
++export default async function Home() {
++  const { userId } = await auth()
+ 
+-  useEffect(() => {
+-    // Redirect signed-in users directly to meetings page
+-    if (isSignedIn) {
+-      router.push('/meetings')
+-    }
+-  }, [isSignedIn, router])
++  if (userId) {
++    const profile = await getProfile()
++    const destination = getDefaultLandingPath(profile)
++    redirect(destination)
++  }
+ 
+   return (
+-    <div className="size-full center-all">
+-      <div className="center-col gap-y-8 text-center max-w-md mx-auto px-4">
+-        <div className="flex flex-col gap-y-4 items-start">
+-          <div className="col items-start">
+-            <h1 className="text-2xl font-semibold text-foreground font-heading">
+-              Atlas Notes
+-            </h1>
+-            <p className="text-sm text-muted">
+-              Your AI-powered note-taking assistant
+-            </p>
++    <PageErrorWrapper pageName="Home">
++      <div className="size-full center-all">
++        <div className="center-col gap-y-8 text-center max-w-md mx-auto px-4">
++          <div className="flex flex-col gap-y-4 items-start">
++            <div className="col items-start">
++              <h1 className="text-2xl font-semibold text-foreground font-heading">
++                Atlas Notes
++              </h1>
++              <p className="text-sm text-muted">Your AI-powered note-taking assistant</p>
++            </div>
++            <SignedOut>
++              <SignInButton fallbackRedirectUrl="/">
++                <button className="px-6 py-2 bg-gradient-to-r from-primary to-accent text-primary-foreground rounded-md hover:opacity-90 transition-opacity font-medium cursor-pointer">
++                  Log In
++                </button>
++              </SignInButton>
++            </SignedOut>
+           </div>
+-          <SignedOut>
+-            <SignInButton fallbackRedirectUrl="/meetings">
+-              <button className="px-6 py-2 bg-gradient-to-r from-primary to-accent text-primary-foreground rounded-md hover:opacity-90 transition-opacity font-medium cursor-pointer">
+-                Log In
+-              </button>
+-            </SignInButton>
+-          </SignedOut>
+         </div>
+       </div>
+-    </div>
+-  )
+-}
+-
+-// Wrap the home page in an error boundary
+-export default function Home() {
+-  return (
+-    <PageErrorWrapper pageName="Home">
+-      <HomeContent />
+     </PageErrorWrapper>
+   )
+ }
+diff --git a/src/components/charts/chart-legend.tsx b/src/components/charts/chart-legend.tsx
+new file mode 100644
+index 0000000..cda98c0
+--- /dev/null
++++ b/src/components/charts/chart-legend.tsx
+@@ -0,0 +1,66 @@
++'use client'
++
++import * as React from 'react'
++
++import { cn } from '@/lib/utils'
++import { type ChartConfig } from '@/lib/chart-utils'
++
++type ChartLegendProps = {
++  config: ChartConfig
++  visibleLines: Set<string>
++  onLineToggle: (dataKey: string) => void
++  className?: string
++}
++
++export function ChartLegend({
++  config,
++  visibleLines,
++  onLineToggle,
++  className,
++}: ChartLegendProps) {
++  const handleClick = React.useCallback(
++    (dataKey: string) => {
++      onLineToggle(dataKey)
++    },
++    [onLineToggle]
++  )
++
++  return (
++    <div
++      className={cn(
++        'flex flex-wrap items-center justify-center pt-2',
++        className
++      )}
++    >
++      {Object.entries(config).map(([dataKey, lineConfig]) => {
++        const isVisible = visibleLines.has(dataKey)
++
++        return (
++          <button
++            key={dataKey}
++            type="button"
++            onClick={() => handleClick(dataKey)}
++            className={cn(
++              'flex items-center gap-2 rounded-md px-3 py-1.5 text-sm transition-colors hover:bg-neutral-100',
++              !isVisible && 'opacity-50'
++            )}
++            aria-label={`Toggle ${lineConfig.label} visibility`}
++          >
++            <div
++              className="h-3 w-3 shrink-0 rounded-full"
++              style={{
++                backgroundColor: lineConfig.color,
++              }}
++            />
++            <span className={cn(!isVisible && 'line-through')}>
++              {lineConfig.label}
++            </span>
++          </button>
++        )
++      })}
++    </div>
++  )
++}
++
++export type { ChartLegendProps }
++
+diff --git a/src/components/charts/line-area-chart.tsx b/src/components/charts/line-area-chart.tsx
+new file mode 100644
+index 0000000..947849d
+--- /dev/null
++++ b/src/components/charts/line-area-chart.tsx
+@@ -0,0 +1,117 @@
++'use client'
++
++import * as React from 'react'
++import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts'
++
++import {
++  ChartContainer,
++  ChartTooltip,
++  ChartTooltipContent,
++} from '@/components/ui/chart'
++import { type ChartConfig, type ChartDataPoint } from '@/lib/chart-utils'
++
++type LineAreaChartProps = {
++  data: ChartDataPoint[]
++  config: ChartConfig
++  height?: number
++  xAxisKey: string
++  className?: string
++  visibleLines?: Set<string>
++  onLineVisibilityChange?: (dataKey: string, visible: boolean) => void
++}
++
++export function LineAreaChart({
++  data,
++  config,
++  height = 300,
++  xAxisKey,
++  className,
++  visibleLines,
++  onLineVisibilityChange,
++}: LineAreaChartProps) {
++  const [internalVisibleLines, setInternalVisibleLines] = React.useState<
++    Set<string>
++  >(new Set(Object.keys(config)))
++
++  const activeVisibleLines =
++    visibleLines !== undefined ? visibleLines : internalVisibleLines
++
++  const handleLineToggle = React.useCallback(
++    (dataKey: string) => {
++      const newVisible = new Set(activeVisibleLines)
++      if (newVisible.has(dataKey)) {
++        newVisible.delete(dataKey)
++      } else {
++        newVisible.add(dataKey)
++      }
++
++      if (visibleLines === undefined) {
++        setInternalVisibleLines(newVisible)
++      }
++
++      if (onLineVisibilityChange) {
++        onLineVisibilityChange(dataKey, newVisible.has(dataKey))
++      }
++    },
++    [activeVisibleLines, visibleLines, onLineVisibilityChange]
++  )
++
++  const chartDataWithConfig = React.useMemo(() => {
++    return data.map((point) => ({
++      ...point,
++      chartConfig: config,
++    }))
++  }, [data, config])
++
++  const visibleDataKeys = React.useMemo(() => {
++    return Object.keys(config).filter((key) => activeVisibleLines.has(key))
++  }, [config, activeVisibleLines])
++
++  return (
++    <ChartContainer config={config} className={className} style={{ height }}>
++      <AreaChart
++        data={chartDataWithConfig}
++        margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
++      >
++        <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
++        <XAxis
++          dataKey={xAxisKey}
++          tickLine={false}
++          axisLine={false}
++          tickMargin={8}
++          className="text-xs"
++        />
++        <YAxis
++          tickLine={false}
++          axisLine={false}
++          tickMargin={8}
++          className="text-xs"
++        />
++        <ChartTooltip
++          cursor={false}
++          content={<ChartTooltipContent indicator="dot" />}
++        />
++        {visibleDataKeys.map((dataKey) => {
++          const lineConfig = config[dataKey]
++          if (!lineConfig) return null
++
++          return (
++            <Area
++              key={dataKey}
++              type="monotone"
++              dataKey={dataKey}
++              stroke={lineConfig.color}
++              fill={lineConfig.color}
++              fillOpacity={0.2}
++              strokeWidth={2}
++              hide={!activeVisibleLines.has(dataKey)}
++            />
++          )
++        })}
++      </AreaChart>
++    </ChartContainer>
++  )
++}
++
++export type { LineAreaChartProps }
++
+diff --git a/src/components/charts/line-chart.tsx b/src/components/charts/line-chart.tsx
+new file mode 100644
+index 0000000..06bda99
+--- /dev/null
++++ b/src/components/charts/line-chart.tsx
+@@ -0,0 +1,118 @@
++'use client'
++
++import * as React from 'react'
++import { CartesianGrid, Line, LineChart, XAxis, YAxis } from 'recharts'
++
++import {
++  ChartContainer,
++  ChartTooltip,
++  ChartTooltipContent,
++} from '@/components/ui/chart'
++import { type ChartConfig, type ChartDataPoint } from '@/lib/chart-utils'
++
++type LineChartProps = {
++  data: ChartDataPoint[]
++  config: ChartConfig
++  height?: number
++  xAxisKey: string
++  className?: string
++  visibleLines?: Set<string>
++  onLineVisibilityChange?: (dataKey: string, visible: boolean) => void
++}
++
++export function LineChartComponent({
++  data,
++  config,
++  height = 300,
++  xAxisKey,
++  className,
++  visibleLines,
++  onLineVisibilityChange,
++}: LineChartProps) {
++  const [internalVisibleLines, setInternalVisibleLines] = React.useState<
++    Set<string>
++  >(new Set(Object.keys(config)))
++
++  const activeVisibleLines =
++    visibleLines !== undefined ? visibleLines : internalVisibleLines
++
++  const handleLineToggle = React.useCallback(
++    (dataKey: string) => {
++      const newVisible = new Set(activeVisibleLines)
++      if (newVisible.has(dataKey)) {
++        newVisible.delete(dataKey)
++      } else {
++        newVisible.add(dataKey)
++      }
++
++      if (visibleLines === undefined) {
++        setInternalVisibleLines(newVisible)
++      }
++
++      if (onLineVisibilityChange) {
++        onLineVisibilityChange(dataKey, newVisible.has(dataKey))
++      }
++    },
++    [activeVisibleLines, visibleLines, onLineVisibilityChange]
++  )
++
++  const chartDataWithConfig = React.useMemo(() => {
++    return data.map((point) => ({
++      ...point,
++      chartConfig: config,
++    }))
++  }, [data, config])
++
++  const visibleDataKeys = React.useMemo(() => {
++    return Object.keys(config).filter((key) => activeVisibleLines.has(key))
++  }, [config, activeVisibleLines])
++
++  return (
++    <div className="w-full overflow-hidden">
++      <ChartContainer config={config} className={className} style={{ height }}>
++        <LineChart
++          data={chartDataWithConfig}
++          margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
++        >
++          <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
++          <XAxis
++            dataKey={xAxisKey}
++            tickLine={false}
++            axisLine={false}
++            tickMargin={8}
++            className="text-xs"
++          />
++          <YAxis
++            tickLine={false}
++            axisLine={false}
++            tickMargin={8}
++            className="text-xs"
++          />
++          <ChartTooltip
++            cursor={false}
++            content={<ChartTooltipContent indicator="dot" />}
++          />
++          {visibleDataKeys.map((dataKey) => {
++            const lineConfig = config[dataKey]
++            if (!lineConfig) return null
++
++            return (
++              <Line
++                key={dataKey}
++                type="monotone"
++                dataKey={dataKey}
++                stroke={lineConfig.color}
++                strokeWidth={2}
++                dot={false}
++                hide={!activeVisibleLines.has(dataKey)}
++              />
++            )
++          })}
++        </LineChart>
++      </ChartContainer>
++    </div>
++  )
++}
++
++export type { LineChartProps }
++
+diff --git a/src/components/charts/performance-chart.tsx b/src/components/charts/performance-chart.tsx
+new file mode 100644
+index 0000000..89902df
+--- /dev/null
++++ b/src/components/charts/performance-chart.tsx
+@@ -0,0 +1,74 @@
++'use client'
++
++import * as React from 'react'
++
++import { ChartLegend } from '@/components/charts/chart-legend'
++import { LineChartComponent } from '@/components/charts/line-chart'
++import {
++  createChartConfig,
++  getDefaultChartColors,
++  type ChartDataPoint,
++  type ChartLineConfig,
++} from '@/lib/chart-utils'
++
++type PerformanceChartProps = {
++  data: ChartDataPoint[]
++  lines: ChartLineConfig[]
++  xAxisKey: string
++  height?: number
++  className?: string
++}
++
++export function PerformanceChart({
++  data,
++  lines,
++  xAxisKey,
++  height = 300,
++  className,
++}: PerformanceChartProps) {
++  const [visibleLines, setVisibleLines] = React.useState<Set<string>>(
++    new Set(lines.map((line) => line.dataKey))
++  )
++
++  const config = React.useMemo(() => createChartConfig(lines), [lines])
++
++  const handleLineToggle = React.useCallback(
++    (dataKey: string, visible: boolean) => {
++      setVisibleLines((prev) => {
++        const next = new Set(prev)
++        if (visible) {
++          next.add(dataKey)
++        } else {
++          next.delete(dataKey)
++        }
++        return next
++      })
++    },
++    []
++  )
++
++  return (
++    <div className={className}>
++      <LineChartComponent
++        data={data}
++        config={config}
++        xAxisKey={xAxisKey}
++        height={height}
++        visibleLines={visibleLines}
++        onLineVisibilityChange={handleLineToggle}
++      />
++      <ChartLegend
++        config={config}
++        visibleLines={visibleLines}
++        onLineToggle={(dataKey) => {
++          const isVisible = visibleLines.has(dataKey)
++          handleLineToggle(dataKey, !isVisible)
++        }}
++      />
++    </div>
++  )
++}
++
++export { getDefaultChartColors }
++export type { PerformanceChartProps }
++
+diff --git a/src/components/data-table.tsx b/src/components/data-table.tsx
+index 894880a..0d8c5e4 100644
+--- a/src/components/data-table.tsx
++++ b/src/components/data-table.tsx
+@@ -82,7 +82,7 @@ export function DataTable<TData, TValue>({
+   })
+ 
+   return (
+-    <div className="w-full rounded-lg border border-border bg-card">
++    <div className="min-w-0 w-full overflow-x-auto rounded-lg border border-border bg-card">
+       <Table>
+         <TableHeader>
+           {table.getHeaderGroups().map((headerGroup) => (
+diff --git a/src/components/icons/dashboard.tsx b/src/components/icons/dashboard.tsx
+new file mode 100644
+index 0000000..b2cb9dc
+--- /dev/null
++++ b/src/components/icons/dashboard.tsx
+@@ -0,0 +1,6 @@
++import { LayoutGrid } from 'lucide-react'
++
++export function DashboardIcon({ className }: { className?: string }) {
++  return <LayoutGrid className={className} />
++}
++
+diff --git a/src/components/icons/index.tsx b/src/components/icons/index.tsx
+index 2fb8b2d..f1bf1d0 100644
+--- a/src/components/icons/index.tsx
++++ b/src/components/icons/index.tsx
+@@ -1,5 +1,6 @@
+ export { BuildingIcon } from './building'
+ export { CalendarIcon } from './calendar'
++export { DashboardIcon } from './dashboard'
+ export { GCLogo, GCWordmark } from './gc-logo'
+ export { SettingsIcon } from './settings'
+ export { UsersIcon } from './users'
+diff --git a/src/components/menu-button.tsx b/src/components/menu-button.tsx
+new file mode 100644
+index 0000000..7ad51dc
+--- /dev/null
++++ b/src/components/menu-button.tsx
+@@ -0,0 +1,26 @@
++'use client'
++
++import { Menu } from 'lucide-react'
++
++import { Button } from '@/components/ui/button'
++import { useSidebar } from '@/contexts/sidebar-context'
++
++export function MenuButton() {
++  const { toggle, isMobile } = useSidebar()
++
++  // Only show on mobile
++  if (!isMobile) return null
++
++  return (
++    <Button
++      variant="outline"
++      size="sm"
++      onClick={toggle}
++      className="size-8 p-0 hover:bg-neutral-100"
++      aria-label="Open menu"
++    >
++      <Menu className="size-5" />
++    </Button>
++  )
++}
++
+diff --git a/src/components/page-header.tsx b/src/components/page-header.tsx
+index 8431b99..8b99c88 100644
+--- a/src/components/page-header.tsx
++++ b/src/components/page-header.tsx
+@@ -1,13 +1,15 @@
+ type PageHeaderProps = {
+   title: string
++  action?: React.ReactNode
+ }
+ 
+-export function PageHeader({ title }: PageHeaderProps) {
++export function PageHeader({ title, action }: PageHeaderProps) {
+   return (
+-    <div className="flex min-h-[var(--app-header-height)] items-center border-b border-neutral-200 bg-white px-10 py-4">
+-      <h1 className="text-xl font-medium leading-7 text-neutral-950">
++    <div className="flex min-h-[var(--app-header-height)] items-center justify-between border-b border-neutral-200 bg-white px-4 py-4 md:px-10 sticky top-0 z-10">
++      <h1 className="text-xl font-medium leading-7 text-neutral-950 truncate">
+         {title}
+       </h1>
++      {action && <div className="shrink-0 ml-4">{action}</div>}
+     </div>
+   )
+ }
+diff --git a/src/components/section-card.tsx b/src/components/section-card.tsx
+new file mode 100644
+index 0000000..082caba
+--- /dev/null
++++ b/src/components/section-card.tsx
+@@ -0,0 +1,75 @@
++import * as React from 'react'
++
++import { cn } from '@/lib/utils'
++
++type SectionCardProps = {
++  header: React.ReactNode
++  subHeader?: React.ReactNode
++  children: React.ReactNode
++  className?: string
++  headerClassName?: string
++  cardClassName?: string
++  spacing?: 'sm' | 'md' | 'lg'
++}
++
++export function SectionCard({
++  header,
++  subHeader,
++  children,
++  className,
++  headerClassName,
++  cardClassName,
++  spacing = 'md',
++}: SectionCardProps) {
++  const spacingClasses = {
++    sm: 'mb-2',
++    md: 'mb-2',
++    lg: 'mb-4',
++  }
++
++  const cardSpacingClasses = {
++    sm: 'p-2',
++    md: 'p-4',
++    lg: 'p-6',
++  }
++
++  const renderHeader = () => {
++    if (typeof header === 'string') {
++      return <h2 className="text-lg font-medium text-neutral-900">{header}</h2>
++    }
++    return header
++  }
++
++  const renderSubHeader = () => {
++    if (!subHeader) return null
++    if (typeof subHeader === 'string') {
++      return <p className="text-sm text-neutral-500">{subHeader}</p>
++    }
++    return subHeader
++  }
++
++  return (
++    <div className={className}>
++      <div
++        className={cn(
++          'flex items-center justify-between',
++          headerClassName,
++          spacingClasses[spacing]
++        )}
++      >
++        {renderHeader()}
++        {renderSubHeader()}
++      </div>
++      <div
++        className={cn(
++          'w-full overflow-hidden rounded-lg border border-neutral-200 bg-white',
++          cardSpacingClasses[spacing],
++          cardClassName
++        )}
++      >
++        {children}
++      </div>
++    </div>
++  )
++}
++
+diff --git a/src/components/sidebar.tsx b/src/components/sidebar.tsx
+index ce594a3..df4e0bd 100644
+--- a/src/components/sidebar.tsx
++++ b/src/components/sidebar.tsx
+@@ -1,13 +1,14 @@
+ 'use client'
+ 
+ import { SignOutButton } from '@clerk/nextjs'
+-import { LogOut } from 'lucide-react'
++import { LogOut, X } from 'lucide-react'
+ import Link from 'next/link'
+ import { usePathname } from 'next/navigation'
+ 
+ import {
+   BuildingIcon,
+   CalendarIcon,
++  DashboardIcon,
+   GCLogo,
+   GCWordmark,
+   SettingsIcon,
+@@ -15,15 +16,36 @@ import {
+   WrenchIcon,
+ } from '@/components/icons'
+ import { Button } from '@/components/ui/button'
++import {
++  Sheet,
++  SheetContent,
++  SheetHeader,
++  SheetTitle,
++} from '@/components/ui/sheet'
++import { useSidebar } from '@/contexts/sidebar-context'
+ import { cn } from '@/lib/utils'
+ 
+-interface NavItem {
++interface SubMenuItem {
+   href: string
+   label: string
++}
++
++interface NavItem {
++  href?: string
++  label: string
+   icon: React.ComponentType<{ className?: string }>
++  submenus?: SubMenuItem[]
+ }
+ 
+ const allNavItems: NavItem[] = [
++  {
++    label: 'Dashboard',
++    icon: DashboardIcon,
++    submenus: [
++      { href: '/dashboard/pacing', label: 'Pacing' },
++      { href: '/dashboard/performance', label: 'Performance' },
++    ],
++  },
+   { href: '/dev-options', label: 'Developer Tools', icon: WrenchIcon },
+   { href: '/meetings', label: 'Meetings', icon: CalendarIcon },
+   { href: '/companies', label: 'Companies', icon: BuildingIcon },
+@@ -31,8 +53,9 @@ const allNavItems: NavItem[] = [
+   { href: '/settings', label: 'Settings', icon: SettingsIcon },
+ ]
+ 
+-export function Sidebar() {
++function SidebarContent() {
+   const pathname = usePathname()
++  const { close, isMobile } = useSidebar()
+ 
+   // Filter out dev-options in production
+   const navItems =
+@@ -40,35 +63,99 @@ export function Sidebar() {
+       ? allNavItems
+       : allNavItems.filter((item) => item.href !== '/dev-options')
+ 
++  const handleNavClick = () => {
++    // Close sidebar on mobile when navigating
++    if (isMobile) {
++      close()
++    }
++  }
++
+   return (
+-    <aside className="fixed top-0 flex h-full w-60 flex-col gap-2 border-r border-[#e5e5e5] bg-white z-10">
++    <>
+       {/* Header */}
+       <div className="flex min-h-[var(--app-header-height)] shrink-0 items-center gap-2 border-b border-[#e5e5e5] bg-white px-6 py-4">
+         <GCLogo className="h-5 w-[19px] shrink-0" />
+         <GCWordmark className="h-4 shrink-0" />
++        {isMobile && (
++          <Button
++            variant="outline"
++            size="sm"
++            onClick={close}
++            className="ml-auto size-8 p-0 hover:bg-neutral-100"
++            aria-label="Close sidebar"
++          >
++            <X className="size-4" />
++          </Button>
++        )}
+       </div>
+ 
+       {/* Navigation */}
+       <nav className="flex-1 overflow-y-auto px-4 py-4">
+         <ul className="flex flex-col gap-3">
+           {navItems.map((item) => {
+-            const isActive = pathname === item.href
+             const Icon = item.icon
++            const hasSubmenus = item.submenus && item.submenus.length > 0
++            const isParentActive = hasSubmenus
++              ? item.submenus?.some((submenu) => pathname === submenu.href)
++              : pathname === item.href
+ 
+             return (
+-              <li key={item.href}>
+-                <Link
+-                  href={item.href}
+-                  className={cn(
+-                    'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium leading-5 transition-colors',
+-                    isActive
+-                      ? 'bg-secondary text-primary'
+-                      : 'text-[#737373] hover:bg-neutral-50 hover:text-foreground'
+-                  )}
+-                >
+-                  <Icon className="size-4 shrink-0" />
+-                  <span className="grow">{item.label}</span>
+-                </Link>
++              <li key={item.href || item.label} className="flex flex-col">
++                {hasSubmenus ? (
++                  <>
++                    {/* Parent menu item (no link, just label) */}
++                    <div className="flex items-center gap-3 px-3 py-2">
++                      <Icon className="size-4 shrink-0" />
++                      <span
++                        className={cn(
++                          'grow text-sm font-medium leading-5',
++                          isParentActive
++                            ? 'text-foreground'
++                            : 'text-[#737373]'
++                        )}
++                      >
++                        {item.label}
++                      </span>
++                    </div>
++                    {/* Submenus */}
++                    <div className="relative flex flex-col pl-7">
++                      {/* Vertical line connector - starts from parent menu item center */}
++                      <div className="absolute left-3 top-[-8px] h-[calc(100%+8px)] w-px bg-[#e5e5e5]" />
++                      {item.submenus?.map((submenu) => {
++                        const isSubmenuActive = pathname === submenu.href
++                        return (
++                          <Link
++                            key={submenu.href}
++                            href={submenu.href}
++                            onClick={handleNavClick}
++                            className={cn(
++                              'relative rounded-lg px-3 py-2 text-sm font-medium leading-5 transition-colors',
++                              isSubmenuActive
++                                ? 'bg-[#f3f0ff] text-[#3b82f6]'
++                                : 'text-[#737373] hover:bg-neutral-50 hover:text-foreground'
++                            )}
++                          >
++                            {submenu.label}
++                          </Link>
++                        )
++                      })}
++                    </div>
++                  </>
++                ) : (
++                  <Link
++                    href={item.href!}
++                    onClick={handleNavClick}
++                    className={cn(
++                      'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium leading-5 transition-colors',
++                      isParentActive
++                        ? 'bg-secondary text-primary'
++                        : 'text-[#737373] hover:bg-neutral-50 hover:text-foreground'
++                    )}
++                  >
++                    <Icon className="size-4 shrink-0" />
++                    <span className="grow">{item.label}</span>
++                  </Link>
++                )}
+               </li>
+             )
+           })}
+@@ -87,6 +174,34 @@ export function Sidebar() {
+           </Button>
+         </SignOutButton>
+       </div>
+-    </aside>
++    </>
++  )
++}
++
++export function Sidebar() {
++  const { isOpen, close, isMobile } = useSidebar()
++
++  // Desktop: Always visible sidebar
++  if (!isMobile) {
++    return (
++      <aside className="sticky top-0 left-0 flex h-screen w-60 shrink-0 flex-col gap-2 border-r border-[#e5e5e5] bg-white z-10">
++        <SidebarContent />
++      </aside>
++    )
++  }
++
++  // Mobile: Sheet-based sidebar (already fixed in place by Sheet component)
++  return (
++    <Sheet open={isOpen} onOpenChange={close}>
++      <SheetContent
++        side="left"
++        className="flex h-full w-full max-w-full flex-col gap-2 border-r border-[#e5e5e5] bg-white p-0 [&>button]:hidden"
++      >
++        <SheetHeader className="sr-only">
++          <SheetTitle>Navigation</SheetTitle>
++        </SheetHeader>
++        <SidebarContent />
++      </SheetContent>
++    </Sheet>
+   )
+ }
+diff --git a/src/components/ui/chart.tsx b/src/components/ui/chart.tsx
+new file mode 100644
+index 0000000..b7bd489
+--- /dev/null
++++ b/src/components/ui/chart.tsx
+@@ -0,0 +1,334 @@
++'use client'
++
++import * as React from 'react'
++import * as RechartsPrimitive from 'recharts'
++
++import { cn } from '@/lib/utils'
++
++// Chart container
++const ChartContainer = React.forwardRef<
++  HTMLDivElement,
++  React.ComponentProps<'div'> & {
++    config: Record<
++      string,
++      {
++        label?: React.ReactNode
++        icon?: React.ComponentType
++      } & (
++        | { color?: string; theme?: never }
++        | { color?: never; theme: Record<string, string> }
++      )
++    >
++    children: React.ComponentProps<
++      typeof RechartsPrimitive.ResponsiveContainer
++    >['children']
++  }
++>(({ id, className, children, config, ...props }, ref) => {
++  const uniqueId = React.useId()
++  const chartId = `chart-${id || uniqueId.replace(/:/g, '')}`
++
++  return (
++    <div
++      data-chart={chartId}
++      ref={ref}
++      className={cn(
++        'flex aspect-video justify-center text-xs [&_.recharts-cartesian-axis-tick_text]:fill-muted-foreground [&_.recharts-cartesian-grid_line[stroke="#ccc"]]:stroke-border/50 [&_.recharts-curve.recharts-tooltip-cursor]:stroke-border [&_.recharts-dot[stroke="#fff"]]:stroke-transparent [&_.recharts-layer]:outline-none [&_.recharts-polar-grid_[stroke="#ccc"]]:stroke-border [&_.recharts-radial-bar-background-sector]:fill-muted [&_.recharts-rectangle.recharts-tooltip-cursor]:fill-muted [&_.recharts-reference-line-line]:stroke-border [&_.recharts-sector[stroke="#fff"]]:stroke-transparent [&_.recharts-sector]:outline-none [&_.recharts-surface]:outline-none',
++        className
++      )}
++      {...props}
++    >
++      <ChartStyle id={chartId} config={config} />
++      <RechartsPrimitive.ResponsiveContainer>
++        {children}
++      </RechartsPrimitive.ResponsiveContainer>
++    </div>
++  )
++})
++ChartContainer.displayName = 'Chart'
++
++// Chart style component
++const ChartStyle = ({
++  id,
++  config,
++}: {
++  id: string
++  config: Record<
++    string,
++    {
++      label?: React.ReactNode
++      icon?: React.ComponentType
++    } & (
++      | { color?: string; theme?: never }
++      | { color?: never; theme?: Record<string, string> }
++      | { color?: string; theme?: Record<string, string> }
++    )
++  >
++}) => {
++  const colorConfig = Object.entries(config).filter(
++    ([, itemConfig]) => itemConfig.theme || itemConfig.color
++  )
++
++  if (!colorConfig.length) {
++    return null
++  }
++
++  return (
++    <style
++      dangerouslySetInnerHTML={{
++        __html: Object.entries(config)
++          .filter(([, itemConfig]) => itemConfig.theme || itemConfig.color)
++          .map(([key, itemConfig], index) => {
++            const color =
++              itemConfig.color ||
++              itemConfig.theme?.[
++                typeof window !== 'undefined' &&
++                document.documentElement.classList.contains('dark')
++                  ? 'dark'
++                  : 'light'
++              ] ||
++              `hsl(var(--chart-${index + 1}))`
++
++            return `.chart-${id} [data-${key}="${key}"] { 
++              ${itemConfig.color ? `color: ${color};` : `--color-${key}: ${color};`}
++            }`
++          })
++          .join('\n'),
++      }}
++    />
++  )
++}
++
++// Chart tooltip
++const ChartTooltip = RechartsPrimitive.Tooltip
++
++const ChartTooltipContent = React.forwardRef<
++  HTMLDivElement,
++  React.ComponentProps<typeof RechartsPrimitive.Tooltip> &
++    React.ComponentProps<'div'> & {
++      hideLabel?: boolean
++      hideIndicator?: boolean
++      indicator?: 'line' | 'dot' | 'dashed'
++      nameKey?: string
++      labelKey?: string
++    }
++>(
++  (
++    {
++      active,
++      payload,
++      className,
++      indicator = 'dot',
++      hideLabel = false,
++      hideIndicator = false,
++      label,
++      labelFormatter,
++      labelClassName,
++      formatter,
++      color,
++      nameKey,
++      labelKey,
++    },
++    ref
++  ) => {
++    const tooltipLabel = React.useMemo(() => {
++      if (hideLabel || !payload?.length) {
++        return null
++      }
++
++      const [item] = payload
++      const key = `${labelKey || item.dataKey || item.name || 'value'}`
++      const itemConfig = item.payload?.chartConfig?.[key]
++
++      if (!label && !labelFormatter && !itemConfig?.label) {
++        return null
++      }
++
++      return (
++        <div className={cn('font-medium', labelClassName)}>
++          {labelFormatter
++            ? labelFormatter(label, payload)
++            : itemConfig?.label || label}
++        </div>
++      )
++    }, [
++      label,
++      labelFormatter,
++      payload,
++      hideLabel,
++      labelClassName,
++      labelKey,
++    ])
++
++    if (!active || !payload?.length) {
++      return null
++    }
++
++    const nestLabel = payload.length === 1 && indicator !== 'dot'
++
++    return (
++      <div
++        ref={ref}
++        className={cn(
++          'border-border/50 bg-background text-foreground grid min-w-[8rem] items-start gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs shadow-md',
++          nestLabel && 'gap-3',
++          className
++        )}
++      >
++        {!nestLabel ? tooltipLabel : null}
++        <div className={cn('grid gap-1.5', nestLabel && 'gap-2')}>
++          {payload.map((item, index) => {
++            const key = `${nameKey || item.name || item.dataKey || 'value'}`
++            const itemConfig =
++              item.payload?.chartConfig?.[key] ||
++              item.payload?.chartConfig?.[item.dataKey as string] ||
++              item.payload?.chartConfig?.[item.name as string]
++
++            const indicatorColor =
++              color || item.payload?.fill || item.color || item.payload?.stroke
++
++            return (
++              <div
++                key={item.dataKey}
++                className={cn(
++                  'flex w-full flex-wrap items-stretch gap-2 [&>svg]:h-2.5 [&>svg]:w-2.5 [&>svg]:text-muted-foreground',
++                  indicator === 'line' && 'items-center'
++                )}
++              >
++                {formatter && item?.value !== undefined && item.name ? (
++                  formatter(item.value, item.name, item, index, item.payload)
++                ) : (
++                  <>
++                    {!hideIndicator ? (
++                      indicator === 'dot' ? (
++                        <div
++                          className="shrink-0 rounded-full border-[--color-border] bg-[--color-bg]"
++                          style={
++                            {
++                              '--color-bg': indicatorColor,
++                              '--color-border': indicatorColor,
++                            } as React.CSSProperties
++                          }
++                        />
++                      ) : indicator === 'line' ? (
++                        <div
++                          className="h-0.5 w-4 shrink-0 bg-[--color-bg]"
++                          style={
++                            {
++                              '--color-bg': indicatorColor,
++                            } as React.CSSProperties
++                          }
++                        />
++                      ) : (
++                        <div
++                          className="h-0.5 w-4 shrink-0 border-2 border-dashed bg-transparent border-[--color-border]"
++                          style={
++                            {
++                              '--color-border': indicatorColor,
++                            } as React.CSSProperties
++                          }
++                        />
++                      )
++                    ) : null}
++                    <div
++                      className={cn(
++                        'flex flex-1 justify-between leading-none',
++                        nestLabel ? 'items-center' : 'items-baseline'
++                      )}
++                    >
++                      <div className="grid gap-1.5">
++                        {nestLabel ? tooltipLabel : null}
++                        <span className="text-muted-foreground">
++                          {itemConfig?.label || item.name}
++                        </span>
++                      </div>
++                      {item.value && (
++                        <span className="font-mono font-medium tabular-nums text-foreground">
++                          {item.value.toLocaleString()}
++                        </span>
++                      )}
++                    </div>
++                  </>
++                )}
++              </div>
++            )
++          })}
++        </div>
++      </div>
++    )
++  }
++)
++ChartTooltipContent.displayName = 'ChartTooltip'
++
++const ChartLegend = RechartsPrimitive.Legend
++
++const ChartLegendContent = React.forwardRef<
++  HTMLDivElement,
++  React.ComponentProps<'div'> &
++    Pick<RechartsPrimitive.LegendProps, 'payload' | 'verticalAlign'> & {
++      hideIcon?: boolean
++      nameKey?: string
++    }
++>(
++  (
++    { className, hideIcon = false, payload, verticalAlign = 'bottom', nameKey },
++    ref
++  ) => {
++    if (!payload?.length) {
++      return null
++    }
++
++    return (
++      <div
++        ref={ref}
++        className={cn(
++          'flex items-center justify-center gap-4',
++          verticalAlign === 'top' ? 'pb-3' : 'pt-3',
++          className
++        )}
++      >
++        {payload.map((item) => {
++          const key = `${nameKey || item.dataKey || 'value'}`
++          const itemConfig = (
++            item.payload as { chartConfig?: Record<string, { label?: React.ReactNode; icon?: React.ComponentType }> } | undefined
++          )?.chartConfig?.[key]
++
++          return (
++            <div
++              key={item.value}
++              className={cn(
++                'text-muted-foreground flex items-center gap-1.5 [&>svg]:h-3 [&>svg]:w-3 [&>svg]:text-muted-foreground'
++              )}
++            >
++              {itemConfig?.icon && !hideIcon ? (
++                <itemConfig.icon />
++              ) : (
++                !hideIcon && (
++                  <div
++                    className="h-2 w-2 shrink-0 rounded-[2px] border-[--color-border] bg-[--color-bg]"
++                    style={
++                      {
++                        '--color-bg': item.color,
++                        '--color-border': item.color,
++                      } as React.CSSProperties
++                    }
++                  />
++                )
++              )}
++              {itemConfig?.label}
++            </div>
++          )
++        })}
++      </div>
++    )
++  }
++)
++ChartLegendContent.displayName = 'ChartLegend'
++
++export {
++  ChartContainer,
++  ChartTooltip,
++  ChartTooltipContent,
++  ChartLegend,
++  ChartLegendContent,
++}
++
+diff --git a/src/components/ui/select.tsx b/src/components/ui/select.tsx
+new file mode 100644
+index 0000000..25e5439
+--- /dev/null
++++ b/src/components/ui/select.tsx
+@@ -0,0 +1,187 @@
++"use client"
++
++import * as React from "react"
++import * as SelectPrimitive from "@radix-ui/react-select"
++import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from "lucide-react"
++
++import { cn } from "@/lib/utils"
++
++function Select({
++  ...props
++}: React.ComponentProps<typeof SelectPrimitive.Root>) {
++  return <SelectPrimitive.Root data-slot="select" {...props} />
++}
++
++function SelectGroup({
++  ...props
++}: React.ComponentProps<typeof SelectPrimitive.Group>) {
++  return <SelectPrimitive.Group data-slot="select-group" {...props} />
++}
++
++function SelectValue({
++  ...props
++}: React.ComponentProps<typeof SelectPrimitive.Value>) {
++  return <SelectPrimitive.Value data-slot="select-value" {...props} />
++}
++
++function SelectTrigger({
++  className,
++  size = "default",
++  children,
++  ...props
++}: React.ComponentProps<typeof SelectPrimitive.Trigger> & {
++  size?: "sm" | "default"
++}) {
++  return (
++    <SelectPrimitive.Trigger
++      data-slot="select-trigger"
++      data-size={size}
++      className={cn(
++        "border-input data-[placeholder]:text-muted-foreground [&_svg:not([class*='text-'])]:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 dark:hover:bg-input/50 flex w-fit items-center justify-between gap-2 rounded-md border bg-transparent px-3 py-2 text-sm whitespace-nowrap shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 data-[size=default]:h-9 data-[size=sm]:h-8 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
++        className
++      )}
++      {...props}
++    >
++      {children}
++      <SelectPrimitive.Icon asChild>
++        <ChevronDownIcon className="size-4 opacity-50" />
++      </SelectPrimitive.Icon>
++    </SelectPrimitive.Trigger>
++  )
++}
++
++function SelectContent({
++  className,
++  children,
++  position = "popper",
++  align = "center",
++  ...props
++}: React.ComponentProps<typeof SelectPrimitive.Content>) {
++  return (
++    <SelectPrimitive.Portal>
++      <SelectPrimitive.Content
++        data-slot="select-content"
++        className={cn(
++          "bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 relative z-50 max-h-(--radix-select-content-available-height) min-w-[8rem] origin-(--radix-select-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-md border shadow-md",
++          position === "popper" &&
++            "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1",
++          className
++        )}
++        position={position}
++        align={align}
++        {...props}
++      >
++        <SelectScrollUpButton />
++        <SelectPrimitive.Viewport
++          className={cn(
++            "p-1",
++            position === "popper" &&
++              "h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)] scroll-my-1"
++          )}
++        >
++          {children}
++        </SelectPrimitive.Viewport>
++        <SelectScrollDownButton />
++      </SelectPrimitive.Content>
++    </SelectPrimitive.Portal>
++  )
++}
++
++function SelectLabel({
++  className,
++  ...props
++}: React.ComponentProps<typeof SelectPrimitive.Label>) {
++  return (
++    <SelectPrimitive.Label
++      data-slot="select-label"
++      className={cn("text-muted-foreground px-2 py-1.5 text-xs", className)}
++      {...props}
++    />
++  )
++}
++
++function SelectItem({
++  className,
++  children,
++  ...props
++}: React.ComponentProps<typeof SelectPrimitive.Item>) {
++  return (
++    <SelectPrimitive.Item
++      data-slot="select-item"
++      className={cn(
++        "focus:bg-accent focus:text-accent-foreground [&_svg:not([class*='text-'])]:text-muted-foreground relative flex w-full cursor-default items-center gap-2 rounded-sm py-1.5 pr-8 pl-2 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2",
++        className
++      )}
++      {...props}
++    >
++      <span className="absolute right-2 flex size-3.5 items-center justify-center">
++        <SelectPrimitive.ItemIndicator>
++          <CheckIcon className="size-4" />
++        </SelectPrimitive.ItemIndicator>
++      </span>
++      <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
++    </SelectPrimitive.Item>
++  )
++}
++
++function SelectSeparator({
++  className,
++  ...props
++}: React.ComponentProps<typeof SelectPrimitive.Separator>) {
++  return (
++    <SelectPrimitive.Separator
++      data-slot="select-separator"
++      className={cn("bg-border pointer-events-none -mx-1 my-1 h-px", className)}
++      {...props}
++    />
++  )
++}
++
++function SelectScrollUpButton({
++  className,
++  ...props
++}: React.ComponentProps<typeof SelectPrimitive.ScrollUpButton>) {
++  return (
++    <SelectPrimitive.ScrollUpButton
++      data-slot="select-scroll-up-button"
++      className={cn(
++        "flex cursor-default items-center justify-center py-1",
++        className
++      )}
++      {...props}
++    >
++      <ChevronUpIcon className="size-4" />
++    </SelectPrimitive.ScrollUpButton>
++  )
++}
++
++function SelectScrollDownButton({
++  className,
++  ...props
++}: React.ComponentProps<typeof SelectPrimitive.ScrollDownButton>) {
++  return (
++    <SelectPrimitive.ScrollDownButton
++      data-slot="select-scroll-down-button"
++      className={cn(
++        "flex cursor-default items-center justify-center py-1",
++        className
++      )}
++      {...props}
++    >
++      <ChevronDownIcon className="size-4" />
++    </SelectPrimitive.ScrollDownButton>
++  )
++}
++
++export {
++  Select,
++  SelectContent,
++  SelectGroup,
++  SelectItem,
++  SelectLabel,
++  SelectScrollDownButton,
++  SelectScrollUpButton,
++  SelectSeparator,
++  SelectTrigger,
++  SelectValue,
++}
+diff --git a/src/components/ui/table.tsx b/src/components/ui/table.tsx
+index 770924e..04b6282 100644
+--- a/src/components/ui/table.tsx
++++ b/src/components/ui/table.tsx
+@@ -8,7 +8,7 @@ function Table({ className, ...props }: React.ComponentProps<'table'>) {
+   return (
+     <div
+       data-slot="table-container"
+-      className="relative w-full overflow-x-auto"
++      className="relative w-full min-w-0 overflow-x-auto"
+     >
+       <table
+         data-slot="table"
+diff --git a/src/contexts/sidebar-context.tsx b/src/contexts/sidebar-context.tsx
+new file mode 100644
+index 0000000..fc96d49
+--- /dev/null
++++ b/src/contexts/sidebar-context.tsx
+@@ -0,0 +1,54 @@
++'use client'
++
++import { createContext, useContext, useEffect, useState } from 'react'
++
++import { useMobileView } from '@/hooks/useMobileView'
++
++type SidebarContextType = {
++  isOpen: boolean
++  isMobile: boolean
++  open: () => void
++  close: () => void
++  toggle: () => void
++}
++
++const SidebarContext = createContext<SidebarContextType | null>(null)
++
++export function SidebarProvider({ children }: { children: React.ReactNode }) {
++  const isMobile = useMobileView()
++  const [isOpen, setIsOpen] = useState(false)
++
++  // Auto-close sidebar when switching to mobile view
++  useEffect(() => {
++    if (isMobile) {
++      setIsOpen(false)
++    }
++  }, [isMobile])
++
++  const open = () => setIsOpen(true)
++  const close = () => setIsOpen(false)
++  const toggle = () => setIsOpen((prev) => !prev)
++
++  return (
++    <SidebarContext.Provider
++      value={{
++        isOpen,
++        isMobile,
++        open,
++        close,
++        toggle,
++      }}
++    >
++      {children}
++    </SidebarContext.Provider>
++  )
++}
++
++export function useSidebar() {
++  const context = useContext(SidebarContext)
++  if (!context) {
++    throw new Error('useSidebar must be used within SidebarProvider')
++  }
++  return context
++}
++
+diff --git a/src/hooks/useMobileView.tsx b/src/hooks/useMobileView.tsx
+new file mode 100644
+index 0000000..036989a
+--- /dev/null
++++ b/src/hooks/useMobileView.tsx
+@@ -0,0 +1,39 @@
++'use client'
++
++import { useEffect, useState } from 'react'
++
++/**
++ * Hook to detect if the viewport is in mobile view (below md breakpoint: 768px)
++ * Returns false during SSR and updates on client resize
++ * Uses a mounted flag to prevent hydration mismatches
++ */
++export function useMobileView(): boolean {
++  const [isMobile, setIsMobile] = useState(false)
++  const [mounted, setMounted] = useState(false)
++
++  useEffect(() => {
++    setMounted(true)
++
++    // Initial check
++    const checkMobile = () => {
++      if (typeof window.matchMedia === 'function') {
++        return window.matchMedia('(max-width: 767.98px)').matches
++      }
++      return window.innerWidth < 768
++    }
++
++    setIsMobile(checkMobile())
++
++    // Listen for resize events
++    const handleResize = () => {
++      setIsMobile(checkMobile())
++    }
++
++    window.addEventListener('resize', handleResize)
++    return () => window.removeEventListener('resize', handleResize)
++  }, [])
++
++  // Always return false until mounted to match SSR
++  return mounted ? isMobile : false
++}
++
+diff --git a/src/lib/chart-utils.ts b/src/lib/chart-utils.ts
+new file mode 100644
+index 0000000..e8a75ed
+--- /dev/null
++++ b/src/lib/chart-utils.ts
+@@ -0,0 +1,40 @@
++export type ChartDataPoint = Record<string, string | number>
++
++export type ChartConfig = Record<
++  string,
++  {
++    label: string
++    color: string
++  }
++>
++
++export type ChartLineConfig = {
++  dataKey: string
++  label: string
++  color: string
++}
++
++export function createChartConfig(
++  lines: ChartLineConfig[]
++): ChartConfig {
++  return lines.reduce(
++    (acc, line) => {
++      acc[line.dataKey] = {
++        label: line.label,
++        color: line.color,
++      }
++      return acc
++    },
++    {} as ChartConfig
++  )
++}
++
++export function getDefaultChartColors(): string[] {
++  return [
++    'hsl(221.2 83.2% 53.3%)', // blue
++    'hsl(142.1 76.2% 36.3%)', // green
++    'hsl(346.8 77.2% 49.8%)', // red
++    'hsl(262.1 83.3% 57.8%)', // purple
++  ]
++}
++
+diff --git a/src/lib/google-oauth.ts b/src/lib/google-oauth.ts
+index 5078a90..5102614 100644
+--- a/src/lib/google-oauth.ts
++++ b/src/lib/google-oauth.ts
+@@ -15,15 +15,20 @@ function getRequiredEnvVar(key: string, envVar: string | undefined): string {
+   return envVar
+ }
+ 
+-// Validate client-accessible env vars at module load (these have NEXT_PUBLIC_ prefix)
+-const clientId = getRequiredEnvVar(
+-  'NEXT_PUBLIC_GOOGLE_CLIENT_ID',
+-  process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
+-)
+-const redirectUri = getRequiredEnvVar(
+-  'NEXT_PUBLIC_GOOGLE_OAUTH_REDIRECT_URI',
+-  process.env.NEXT_PUBLIC_GOOGLE_OAUTH_REDIRECT_URI
+-)
++// Validate client-accessible env vars lazily when needed (these have NEXT_PUBLIC_ prefix)
++function getClientId(): string {
++  return getRequiredEnvVar(
++    'NEXT_PUBLIC_GOOGLE_CLIENT_ID',
++    process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
++  )
++}
++
++function getRedirectUri(): string {
++  return getRequiredEnvVar(
++    'NEXT_PUBLIC_GOOGLE_OAUTH_REDIRECT_URI',
++    process.env.NEXT_PUBLIC_GOOGLE_OAUTH_REDIRECT_URI
++  )
++}
+ 
+ // Server-only env var - validated lazily when needed (no NEXT_PUBLIC_ prefix)
+ function getClientSecret(): string {
+@@ -35,11 +40,15 @@ function getClientSecret(): string {
+ 
+ // OAuth configuration from environment variables
+ export const GOOGLE_OAUTH_CONFIG = {
+-  clientId,
++  get clientId() {
++    return getClientId()
++  },
+   get clientSecret() {
+     return getClientSecret()
+   },
+-  redirectUri,
++  get redirectUri() {
++    return getRedirectUri()
++  },
+   scopes: [
+     'https://www.googleapis.com/auth/calendar.readonly',
+     'https://www.googleapis.com/auth/userinfo.email',
+diff --git a/src/lib/test-chart-data.ts b/src/lib/test-chart-data.ts
+new file mode 100644
+index 0000000..bd12a4f
+--- /dev/null
++++ b/src/lib/test-chart-data.ts
+@@ -0,0 +1,57 @@
++import { type ChartDataPoint, type ChartLineConfig } from './chart-utils'
++import { getDefaultChartColors } from './chart-utils'
++
++export function generateTestChartData(
++  dateRange: { start: string; end: string },
++  numberOfPoints: number = 12
++): ChartDataPoint[] {
++  const startDate = new Date(dateRange.start)
++  const endDate = new Date(dateRange.end)
++  const timeDiff = endDate.getTime() - startDate.getTime()
++  const interval = timeDiff / (numberOfPoints - 1)
++
++  const data: ChartDataPoint[] = []
++
++  for (let i = 0; i < numberOfPoints; i++) {
++    const date = new Date(startDate.getTime() + interval * i)
++    const dateStr = date.toISOString().split('T')[0]
++
++    data.push({
++      date: dateStr,
++      line1: Math.floor(Math.random() * 100) + 50,
++      line2: Math.floor(Math.random() * 100) + 100,
++      line3: Math.floor(Math.random() * 100) + 75,
++      line4: Math.floor(Math.random() * 100) + 125,
++    })
++  }
++
++  return data
++}
++
++export function getTestChartLines(): ChartLineConfig[] {
++  const colors = getDefaultChartColors()
++
++  return [
++    {
++      dataKey: 'line1',
++      label: 'Series A',
++      color: colors[0] || '#3b82f6',
++    },
++    {
++      dataKey: 'line2',
++      label: 'Series B',
++      color: colors[1] || '#10b981',
++    },
++    {
++      dataKey: 'line3',
++      label: 'Series C',
++      color: colors[2] || '#ef4444',
++    },
++    {
++      dataKey: 'line4',
++      label: 'Series D',
++      color: colors[3] || '#8b5cf6',
++    },
++  ]
++}
++
+diff --git a/src/lib/user-access.ts b/src/lib/user-access.ts
+new file mode 100644
+index 0000000..ea2ec5a
+--- /dev/null
++++ b/src/lib/user-access.ts
+@@ -0,0 +1,22 @@
++import type { User } from '@/types/calendar'
++
++// Manual allowlist for dashboard defaulting
++const DASHBOARD_EMAIL_ALLOWLIST = new Set<string>([
++  'bpatel@generalcatalyst.com','rgupate@generalcatalyst.com','tsaaji@generalcatalyst.com','shoerning@generalcatalyst.com'
++])
++
++export function isDashboardEligible(profile: User | (Partial<User> & { email?: string; is_dashboard?: boolean }) | null): boolean {
++  if (!profile) return false
++
++  const email = profile.email || ''
++  const hasBackendFlag = Boolean((profile as { is_dashboard?: boolean }).is_dashboard)
++  const isAllowlisted = email.length > 0 && DASHBOARD_EMAIL_ALLOWLIST.has(email.toLowerCase())
++
++  return hasBackendFlag || isAllowlisted
++}
++
++export function getDefaultLandingPath(profile: User | (Partial<User> & { email?: string; is_dashboard?: boolean }) | null): '/dashboard/pacing' | '/meetings' {
++  return isDashboardEligible(profile) ? '/dashboard/pacing' : '/meetings'
++}
++
++
+diff --git a/src/types/calendar.ts b/src/types/calendar.ts
+index 6ec0cb1..720f62d 100644
+--- a/src/types/calendar.ts
++++ b/src/types/calendar.ts
+@@ -105,6 +105,8 @@ export type User = {
+   first_name: string | null
+   last_name: string | null
+   is_active: boolean
++  // Optional flag to enable dashboard as default landing; provided by backend when available
++  is_dashboard?: boolean
+   integrations: UserIntegration[]
+   created_at: string
+   last_login_at: string | null
+diff --git a/tests/setup/vitest.setup.ts b/tests/setup/vitest.setup.ts
+index fb7e74e..7964e1f 100644
+--- a/tests/setup/vitest.setup.ts
++++ b/tests/setup/vitest.setup.ts
+@@ -3,3 +3,10 @@ import '@testing-library/jest-dom/vitest'
+ 
+ // Stabilize timezone to keep date formatting deterministic across machines
+ process.env.TZ = 'UTC'
++
++// Mock ResizeObserver for Recharts
++global.ResizeObserver = class ResizeObserver {
++  observe() {}
++  unobserve() {}
++  disconnect() {}
++}
+diff --git a/tests/unit/components/FundDetails.test.tsx b/tests/unit/components/FundDetails.test.tsx
+new file mode 100644
+index 0000000..dfb9f2a
+--- /dev/null
++++ b/tests/unit/components/FundDetails.test.tsx
+@@ -0,0 +1,186 @@
++import { render, screen } from '@testing-library/react'
++import userEvent from '@testing-library/user-event'
++import { describe, expect, it } from 'vitest'
++
++import { FundDetails } from '@/app/(app)/dashboard/pacing/_components/FundDetails'
++
++describe('FundDetails', () => {
++  it('renders all fund detail rows', () => {
++    render(<FundDetails />)
++
++    expect(screen.getByText('Fund Size')).toBeInTheDocument()
++    expect(screen.getByText('$2,000.3 M')).toBeInTheDocument()
++    expect(screen.getByText('Fees')).toBeInTheDocument()
++    expect(screen.getByText('-$150.5 M')).toBeInTheDocument()
++    expect(screen.getByText('Total Investable')).toBeInTheDocument()
++    expect(screen.getByText('$175.0 M')).toBeInTheDocument()
++  })
++
++  it('renders collapsible items with chevron icons', () => {
++    render(<FundDetails />)
++
++    const pipelineNewButton = screen.getByLabelText('Toggle Pipeline New')
++    const pipelineFOButton = screen.getByLabelText('Toggle Pipeline FO')
++
++    expect(pipelineNewButton).toBeInTheDocument()
++    expect(pipelineFOButton).toBeInTheDocument()
++  })
++
++  it('expands and collapses Pipeline FO when clicked', async () => {
++    const user = userEvent.setup()
++    render(<FundDetails />)
++
++    const pipelineFOButton = screen.getByLabelText('Toggle Pipeline FO')
++    const chevronIcon = pipelineFOButton.querySelector('svg')
++
++    expect(chevronIcon).toBeInTheDocument()
++    expect(chevronIcon).not.toHaveClass('rotate-180')
++
++    expect(screen.queryByText('Company name 1')).not.toBeInTheDocument()
++
++    await user.click(pipelineFOButton)
++
++    expect(screen.getByText('Company name 1')).toBeInTheDocument()
++    expect(screen.getByText('Company name 2')).toBeInTheDocument()
++    expect(screen.getByText('Company name 3')).toBeInTheDocument()
++    expect(chevronIcon).toHaveClass('rotate-180')
++
++    await user.click(pipelineFOButton)
++
++    expect(screen.queryByText('Company name 1')).not.toBeInTheDocument()
++    expect(chevronIcon).not.toHaveClass('rotate-180')
++  })
++
++  it('does not show sub-items for Pipeline New when expanded (empty subItems)', async () => {
++    const user = userEvent.setup()
++    render(<FundDetails />)
++
++    const pipelineNewButton = screen.getByLabelText('Toggle Pipeline New')
++    const chevronIcon = pipelineNewButton.querySelector('svg')
++
++    expect(chevronIcon).not.toHaveClass('rotate-180')
++
++    await user.click(pipelineNewButton)
++
++    expect(chevronIcon).toHaveClass('rotate-180')
++    expect(screen.queryByText('Company name 1')).not.toBeInTheDocument()
++  })
++
++  it('renders separators after specified labels', () => {
++    const { container } = render(<FundDetails />)
++
++    const totalInvestable = screen.getByText('Total Investable')
++    const pendingSale = screen.getByText('Pending Sale')
++
++    const totalInvestableRow = totalInvestable.closest('div')
++    const pendingSaleRow = pendingSale.closest('div')
++
++    expect(totalInvestableRow?.nextElementSibling).toHaveAttribute('data-orientation')
++    expect(pendingSaleRow?.nextElementSibling).toHaveAttribute('data-orientation')
++  })
++
++  it('renders sub-items with correct styling when expanded', async () => {
++    const user = userEvent.setup()
++    render(<FundDetails />)
++
++    const pipelineFOButton = screen.getByLabelText('Toggle Pipeline FO')
++    await user.click(pipelineFOButton)
++
++    const company1 = screen.getByText('Company name 1')
++    const company1Row = company1.closest('div')
++
++    expect(company1Row?.parentElement).toHaveClass('ml-6', 'mt-2', 'space-y-2')
++    expect(company1).toHaveClass('text-sm', 'text-neutral-500')
++  })
++
++  it('maintains independent expand/collapse state for each collapsible item', async () => {
++    const user = userEvent.setup()
++    render(<FundDetails />)
++
++    const pipelineNewButton = screen.getByLabelText('Toggle Pipeline New')
++    const pipelineFOButton = screen.getByLabelText('Toggle Pipeline FO')
++
++    await user.click(pipelineNewButton)
++    expect(pipelineNewButton.querySelector('svg')).toHaveClass('rotate-180')
++
++    await user.click(pipelineFOButton)
++    expect(pipelineFOButton.querySelector('svg')).toHaveClass('rotate-180')
++    expect(pipelineNewButton.querySelector('svg')).toHaveClass('rotate-180')
++
++    await user.click(pipelineNewButton)
++    expect(pipelineNewButton.querySelector('svg')).not.toHaveClass('rotate-180')
++    expect(pipelineFOButton.querySelector('svg')).toHaveClass('rotate-180')
++  })
++
++  it('renders all fund detail values correctly', () => {
++    render(<FundDetails />)
++
++    const expectedValues = [
++      '$2,000.3 M',
++      '-$150.5 M',
++      '$175.0 M',
++      '$50.0 M', // Pipeline New - appears twice
++      '$50.0 M', // Pipeline FO - appears twice
++      '$88.0 M',
++      '$93.3 M',
++      '$53.4 M',
++      '$260.5 M',
++      '$56.0 M',
++      '$67.4 M',
++      '$55.0 M',
++    ]
++
++    expectedValues.forEach((value) => {
++      const elements = screen.getAllByText(value)
++      expect(elements.length).toBeGreaterThan(0)
++      elements.forEach((element) => {
++        expect(element).toBeInTheDocument()
++      })
++    })
++  })
++
++  it('renders all fund detail labels correctly', () => {
++    render(<FundDetails />)
++
++    const expectedLabels = [
++      'Fund Size',
++      'Fees',
++      'Total Investable',
++      'Pipeline New',
++      'Pipeline FO',
++      'Remaining',
++      'Recycled',
++      'Pending Sale',
++      'Total Remaining',
++      'Available for New',
++      'Available for Seed FO',
++      'Available for Other FO',
++    ]
++
++    expectedLabels.forEach((label) => {
++      expect(screen.getByText(label)).toBeInTheDocument()
++    })
++  })
++
++  it('applies correct styling to main rows', () => {
++    const { container } = render(<FundDetails />)
++
++    const fundSizeRow = screen.getByText('Fund Size').closest('.flex')
++    expect(fundSizeRow).toHaveClass('items-center', 'justify-between')
++  })
++
++  it('applies correct styling to values', () => {
++    render(<FundDetails />)
++
++    const value = screen.getByText('$2,000.3 M')
++    expect(value).toHaveClass('text-sm', 'font-medium', 'text-neutral-900')
++  })
++
++  it('applies correct styling to labels', () => {
++    render(<FundDetails />)
++
++    const label = screen.getByText('Fund Size')
++    expect(label).toHaveClass('text-sm', 'text-neutral-600')
++  })
++})
++
+diff --git a/tests/unit/components/FundSelect.test.tsx b/tests/unit/components/FundSelect.test.tsx
+new file mode 100644
+index 0000000..aae3dc6
+--- /dev/null
++++ b/tests/unit/components/FundSelect.test.tsx
+@@ -0,0 +1,124 @@
++import { render, screen } from '@testing-library/react'
++import { describe, expect, it, vi } from 'vitest'
++
++import { FundSelect } from '@/app/(app)/dashboard/pacing/_components/FundSelect'
++
++const mockOptions = [
++  { value: 'fund-1', label: 'Fund I' },
++  { value: 'fund-2', label: 'Fund II' },
++  { value: 'fund-3', label: 'Fund III' },
++]
++
++describe('FundSelect', () => {
++  const defaultProps = {
++    label: 'Fund Selection',
++    value: '',
++    onValueChange: vi.fn(),
++    options: mockOptions,
++    placeholder: 'Select a fund',
++  }
++
++  it('renders select trigger', () => {
++    const { container } = render(<FundSelect {...defaultProps} />)
++
++    const trigger = container.querySelector('[data-slot="select-trigger"]')
++    expect(trigger).toBeInTheDocument()
++  })
++
++  it('generates correct id from label', () => {
++    const { container } = render(
++      <FundSelect {...defaultProps} label="Fund Selection" />
++    )
++
++    const trigger = container.querySelector('[id="fund-selection"]')
++    expect(trigger).toBeInTheDocument()
++  })
++
++  it('handles label with spaces correctly', () => {
++    const { container } = render(
++      <FundSelect {...defaultProps} label="SubFund Selection" />
++    )
++
++    const trigger = container.querySelector('[id="subfund-selection"]')
++    expect(trigger).toBeInTheDocument()
++  })
++
++  it('applies w-full class to trigger', () => {
++    const { container } = render(<FundSelect {...defaultProps} />)
++
++    const trigger = container.querySelector('[data-slot="select-trigger"]')
++    expect(trigger).toHaveClass('w-full')
++  })
++
++  it('passes placeholder to SelectValue', () => {
++    render(<FundSelect {...defaultProps} placeholder="Custom placeholder" />)
++
++    const placeholder = screen.getByText('Custom placeholder')
++    expect(placeholder).toBeInTheDocument()
++  })
++
++  it('uses default placeholder when not provided', () => {
++    const { placeholder, ...propsWithoutPlaceholder } = defaultProps
++    render(<FundSelect {...propsWithoutPlaceholder} />)
++
++    expect(screen.getByText('Select...')).toBeInTheDocument()
++  })
++
++  it('renders with correct role', () => {
++    render(<FundSelect {...defaultProps} />)
++
++    const combobox = screen.getByRole('combobox')
++    expect(combobox).toBeInTheDocument()
++  })
++
++  it('handles empty value', () => {
++    render(<FundSelect {...defaultProps} value="" />)
++
++    const combobox = screen.getByRole('combobox')
++    expect(combobox).toBeInTheDocument()
++  })
++
++  it('renders with provided value', () => {
++    render(<FundSelect {...defaultProps} value="fund-2" />)
++
++    const combobox = screen.getByRole('combobox')
++    expect(combobox).toBeInTheDocument()
++    expect(combobox).toHaveAttribute('data-state', 'closed')
++  })
++
++  it('handles empty options array', () => {
++    render(<FundSelect {...defaultProps} options={[]} />)
++
++    const combobox = screen.getByRole('combobox')
++    expect(combobox).toBeInTheDocument()
++  })
++
++  it('passes onValueChange callback', () => {
++    const onValueChange = vi.fn()
++    render(<FundSelect {...defaultProps} onValueChange={onValueChange} />)
++
++    expect(onValueChange).toBeDefined()
++  })
++
++  it('renders enabled by default', () => {
++    render(<FundSelect {...defaultProps} />)
++
++    const combobox = screen.getByRole('combobox')
++    expect(combobox).not.toBeDisabled()
++  })
++
++  it('renders disabled when disabled prop is true', () => {
++    render(<FundSelect {...defaultProps} disabled={true} />)
++
++    const combobox = screen.getByRole('combobox')
++    expect(combobox).toBeDisabled()
++  })
++
++  it('renders enabled when disabled prop is false', () => {
++    render(<FundSelect {...defaultProps} disabled={false} />)
++
++    const combobox = screen.getByRole('combobox')
++    expect(combobox).not.toBeDisabled()
++  })
++})
++
+diff --git a/tests/unit/components/chart-legend.test.tsx b/tests/unit/components/chart-legend.test.tsx
+new file mode 100644
+index 0000000..9c5b38b
+--- /dev/null
++++ b/tests/unit/components/chart-legend.test.tsx
+@@ -0,0 +1,187 @@
++import { render, screen } from '@testing-library/react'
++import userEvent from '@testing-library/user-event'
++import { describe, expect, it, vi } from 'vitest'
++
++import { ChartLegend } from '@/components/charts/chart-legend'
++import { type ChartConfig } from '@/lib/chart-utils'
++
++const mockConfig: ChartConfig = {
++  line1: {
++    label: 'Series A',
++    color: '#3b82f6',
++  },
++  line2: {
++    label: 'Series B',
++    color: '#10b981',
++  },
++  line3: {
++    label: 'Series C',
++    color: '#ef4444',
++  },
++  line4: {
++    label: 'Series D',
++    color: '#8b5cf6',
++  },
++}
++
++describe('ChartLegend', () => {
++  const defaultProps = {
++    config: mockConfig,
++    visibleLines: new Set(['line1', 'line2', 'line3', 'line4']),
++    onLineToggle: vi.fn(),
++  }
++
++  it('renders all legend items', () => {
++    render(<ChartLegend {...defaultProps} />)
++
++    expect(screen.getByText('Series A')).toBeInTheDocument()
++    expect(screen.getByText('Series B')).toBeInTheDocument()
++    expect(screen.getByText('Series C')).toBeInTheDocument()
++    expect(screen.getByText('Series D')).toBeInTheDocument()
++  })
++
++  it('renders color indicators', () => {
++    const { container } = render(<ChartLegend {...defaultProps} />)
++
++    const indicators = container.querySelectorAll('.h-3.w-3')
++    expect(indicators).toHaveLength(4)
++  })
++
++  it('calls onLineToggle when legend item is clicked', async () => {
++    const user = userEvent.setup()
++    const onLineToggle = vi.fn()
++
++    render(
++      <ChartLegend
++        {...defaultProps}
++        onLineToggle={onLineToggle}
++      />
++    )
++
++    const button = screen.getByRole('button', { name: /toggle series a visibility/i })
++    await user.click(button)
++
++    expect(onLineToggle).toHaveBeenCalledTimes(1)
++    expect(onLineToggle).toHaveBeenCalledWith('line1')
++  })
++
++  it('applies opacity-50 class to hidden lines', () => {
++    const visibleLines = new Set(['line1', 'line2'])
++
++    const { container } = render(
++      <ChartLegend
++        {...defaultProps}
++        visibleLines={visibleLines}
++      />
++    )
++
++    const line3Button = screen.getByRole('button', { name: /toggle series c visibility/i })
++    const line4Button = screen.getByRole('button', { name: /toggle series d visibility/i })
++
++    expect(line3Button).toHaveClass('opacity-50')
++    expect(line4Button).toHaveClass('opacity-50')
++  })
++
++  it('applies line-through class to hidden line labels', () => {
++    const visibleLines = new Set(['line1'])
++
++    render(
++      <ChartLegend
++        {...defaultProps}
++        visibleLines={visibleLines}
++      />
++    )
++
++    const line2Label = screen.getByText('Series B')
++    expect(line2Label).toHaveClass('line-through')
++  })
++
++  it('does not apply line-through to visible line labels', () => {
++    const visibleLines = new Set(['line1', 'line2'])
++
++    render(
++      <ChartLegend
++        {...defaultProps}
++        visibleLines={visibleLines}
++      />
++    )
++
++    const line1Label = screen.getByText('Series A')
++    const line2Label = screen.getByText('Series B')
++
++    expect(line1Label).not.toHaveClass('line-through')
++    expect(line2Label).not.toHaveClass('line-through')
++  })
++
++  it('handles empty config', () => {
++    const { container } = render(
++      <ChartLegend
++        config={{}}
++        visibleLines={new Set()}
++        onLineToggle={vi.fn()}
++      />
++    )
++
++    const legendContainer = container.firstChild as HTMLElement
++    expect(legendContainer).toBeInTheDocument()
++    expect(legendContainer.querySelectorAll('button')).toHaveLength(0)
++  })
++
++  it('applies custom className', () => {
++    const { container } = render(
++      <ChartLegend
++        {...defaultProps}
++        className="custom-class"
++      />
++    )
++
++    const legendContainer = container.firstChild as HTMLElement
++    expect(legendContainer).toHaveClass('custom-class')
++  })
++
++  it('renders with correct aria-labels', () => {
++    render(<ChartLegend {...defaultProps} />)
++
++    expect(
++      screen.getByRole('button', { name: /toggle series a visibility/i })
++    ).toBeInTheDocument()
++    expect(
++      screen.getByRole('button', { name: /toggle series b visibility/i })
++    ).toBeInTheDocument()
++  })
++
++  it('handles all lines hidden', () => {
++    const visibleLines = new Set<string>()
++
++    render(
++      <ChartLegend
++        {...defaultProps}
++        visibleLines={visibleLines}
++      />
++    )
++
++    const buttons = screen.getAllByRole('button')
++    expect(buttons).toHaveLength(4)
++
++    buttons.forEach((button) => {
++      expect(button).toHaveClass('opacity-50')
++    })
++  })
++
++  it('handles all lines visible', () => {
++    const visibleLines = new Set(['line1', 'line2', 'line3', 'line4'])
++
++    render(
++      <ChartLegend
++        {...defaultProps}
++        visibleLines={visibleLines}
++      />
++    )
++
++    const buttons = screen.getAllByRole('button')
++    buttons.forEach((button) => {
++      expect(button).not.toHaveClass('opacity-50')
++    })
++  })
++})
++
+diff --git a/tests/unit/components/line-area-chart.test.tsx b/tests/unit/components/line-area-chart.test.tsx
+new file mode 100644
+index 0000000..842533d
+--- /dev/null
++++ b/tests/unit/components/line-area-chart.test.tsx
+@@ -0,0 +1,169 @@
++import { render } from '@testing-library/react'
++import { describe, expect, it, vi } from 'vitest'
++
++import { LineChartComponent } from '@/components/charts/line-chart'
++import { type ChartConfig, type ChartDataPoint } from '@/lib/chart-utils'
++
++const mockChartData: ChartDataPoint[] = [
++  { date: '2024-01-01', line1: 50, line2: 100 },
++  { date: '2024-02-01', line1: 60, line2: 110 },
++  { date: '2024-03-01', line1: 70, line2: 120 },
++]
++
++const mockConfig: ChartConfig = {
++  line1: {
++    label: 'Series A',
++    color: '#3b82f6',
++  },
++  line2: {
++    label: 'Series B',
++    color: '#10b981',
++  },
++}
++
++describe('LineChartComponent', () => {
++  const defaultProps = {
++    data: mockChartData,
++    config: mockConfig,
++    xAxisKey: 'date',
++  }
++
++  it('renders chart container', () => {
++    const { container } = render(<LineChartComponent {...defaultProps} />)
++
++    const chartContainer = container.querySelector('[data-chart]')
++    expect(chartContainer).toBeInTheDocument()
++  })
++
++  it('applies custom height', () => {
++    const { container } = render(
++      <LineChartComponent {...defaultProps} height={500} />
++    )
++
++    const chartContainer = container.querySelector('[data-chart]')
++    expect(chartContainer).toBeInTheDocument()
++    expect(chartContainer).toHaveStyle({ height: '500px' })
++  })
++
++  it('uses default height when not provided', () => {
++    const { container } = render(<LineChartComponent {...defaultProps} />)
++
++    const chartContainer = container.querySelector('[data-chart]')
++    expect(chartContainer).toBeInTheDocument()
++  })
++
++  it('applies custom className', () => {
++    const { container } = render(
++      <LineChartComponent {...defaultProps} className="custom-class" />
++    )
++
++    const chartContainer = container.querySelector('[data-chart]')
++    expect(chartContainer).toBeInTheDocument()
++    expect(chartContainer).toHaveClass('custom-class')
++  })
++
++  it('handles empty data array', () => {
++    const { container } = render(
++      <LineChartComponent
++        {...defaultProps}
++        data={[]}
++      />
++    )
++
++    const chartContainer = container.querySelector('[data-chart]')
++    expect(chartContainer).toBeInTheDocument()
++  })
++
++  it('handles empty config', () => {
++    const { container } = render(
++      <LineChartComponent
++        {...defaultProps}
++        config={{}}
++      />
++    )
++
++    const chartContainer = container.querySelector('[data-chart]')
++    expect(chartContainer).toBeInTheDocument()
++  })
++
++  it('respects visibleLines prop', () => {
++    const visibleLines = new Set(['line1'])
++
++    const { container } = render(
++      <LineChartComponent
++        {...defaultProps}
++        visibleLines={visibleLines}
++      />
++    )
++
++    const chartContainer = container.querySelector('[data-chart]')
++    expect(chartContainer).toBeInTheDocument()
++  })
++
++  it('accepts onLineVisibilityChange callback', () => {
++    const onLineVisibilityChange = vi.fn()
++    const visibleLines = new Set(['line1', 'line2'])
++
++    const { container } = render(
++      <LineChartComponent
++        {...defaultProps}
++        visibleLines={visibleLines}
++        onLineVisibilityChange={onLineVisibilityChange}
++      />
++    )
++
++    const chartContainer = container.querySelector('[data-chart]')
++    expect(chartContainer).toBeInTheDocument()
++  })
++
++  it('manages internal state when visibleLines is not provided', () => {
++    const { container } = render(
++      <LineChartComponent
++        {...defaultProps}
++        visibleLines={undefined}
++      />
++    )
++
++    const chartContainer = container.querySelector('[data-chart]')
++    expect(chartContainer).toBeInTheDocument()
++  })
++
++  it('handles data with different xAxisKey', () => {
++    const dataWithMonth = [
++      { month: 'Jan', line1: 50 },
++      { month: 'Feb', line1: 60 },
++    ]
++
++    const { container } = render(
++      <LineChartComponent
++        data={dataWithMonth}
++        config={mockConfig}
++        xAxisKey="month"
++      />
++    )
++
++    const chartContainer = container.querySelector('[data-chart]')
++    expect(chartContainer).toBeInTheDocument()
++  })
++
++  it('handles config with missing dataKey in data', () => {
++    const configWithExtra = {
++      ...mockConfig,
++      line3: {
++        label: 'Series C',
++        color: '#ef4444',
++      },
++    }
++
++    const { container } = render(
++      <LineChartComponent
++        {...defaultProps}
++        config={configWithExtra}
++      />
++    )
++
++    const chartContainer = container.querySelector('[data-chart]')
++    expect(chartContainer).toBeInTheDocument()
++  })
++})
++
+diff --git a/tests/unit/components/performance-chart.test.tsx b/tests/unit/components/performance-chart.test.tsx
+new file mode 100644
+index 0000000..1905cf8
+--- /dev/null
++++ b/tests/unit/components/performance-chart.test.tsx
+@@ -0,0 +1,178 @@
++import { render, screen } from '@testing-library/react'
++import userEvent from '@testing-library/user-event'
++import { describe, expect, it } from 'vitest'
++
++import { PerformanceChart } from '@/components/charts/performance-chart'
++import { type ChartDataPoint, type ChartLineConfig } from '@/lib/chart-utils'
++
++const mockChartData: ChartDataPoint[] = [
++  { date: '2024-01-01', line1: 50, line2: 100, line3: 75, line4: 125 },
++  { date: '2024-02-01', line1: 60, line2: 110, line3: 85, line4: 135 },
++  { date: '2024-03-01', line1: 70, line2: 120, line3: 95, line4: 145 },
++]
++
++const mockChartLines: ChartLineConfig[] = [
++  {
++    dataKey: 'line1',
++    label: 'Series A',
++    color: '#3b82f6',
++  },
++  {
++    dataKey: 'line2',
++    label: 'Series B',
++    color: '#10b981',
++  },
++  {
++    dataKey: 'line3',
++    label: 'Series C',
++    color: '#ef4444',
++  },
++  {
++    dataKey: 'line4',
++    label: 'Series D',
++    color: '#8b5cf6',
++  },
++]
++
++describe('PerformanceChart', () => {
++  const defaultProps = {
++    data: mockChartData,
++    lines: mockChartLines,
++    xAxisKey: 'date',
++  }
++
++  it('renders chart container', () => {
++    const { container } = render(<PerformanceChart {...defaultProps} />)
++
++    const chartContainer = container.querySelector('[data-chart]')
++    expect(chartContainer).toBeInTheDocument()
++  })
++
++  it('renders all legend items', () => {
++    render(<PerformanceChart {...defaultProps} />)
++
++    expect(screen.getByText('Series A')).toBeInTheDocument()
++    expect(screen.getByText('Series B')).toBeInTheDocument()
++    expect(screen.getByText('Series C')).toBeInTheDocument()
++    expect(screen.getByText('Series D')).toBeInTheDocument()
++  })
++
++  it('initializes with all lines visible', () => {
++    render(<PerformanceChart {...defaultProps} />)
++
++    const legendItems = screen.getAllByRole('button')
++    legendItems.forEach((item) => {
++      expect(item).not.toHaveClass('opacity-50')
++    })
++  })
++
++  it('toggles line visibility when legend item is clicked', async () => {
++    const user = userEvent.setup()
++    render(<PerformanceChart {...defaultProps} />)
++
++    const seriesAButton = screen.getByRole('button', {
++      name: /toggle series a visibility/i,
++    })
++
++    await user.click(seriesAButton)
++
++    expect(seriesAButton).toHaveClass('opacity-50')
++  })
++
++  it('can toggle multiple lines', async () => {
++    const user = userEvent.setup()
++    render(<PerformanceChart {...defaultProps} />)
++
++    const seriesAButton = screen.getByRole('button', {
++      name: /toggle series a visibility/i,
++    })
++    const seriesBButton = screen.getByRole('button', {
++      name: /toggle series b visibility/i,
++    })
++
++    await user.click(seriesAButton)
++    await user.click(seriesBButton)
++
++    expect(seriesAButton).toHaveClass('opacity-50')
++    expect(seriesBButton).toHaveClass('opacity-50')
++  })
++
++  it('can re-toggle a hidden line to make it visible', async () => {
++    const user = userEvent.setup()
++    render(<PerformanceChart {...defaultProps} />)
++
++    const seriesAButton = screen.getByRole('button', {
++      name: /toggle series a visibility/i,
++    })
++
++    await user.click(seriesAButton)
++    expect(seriesAButton).toHaveClass('opacity-50')
++
++    await user.click(seriesAButton)
++    expect(seriesAButton).not.toHaveClass('opacity-50')
++  })
++
++  it('applies custom height', () => {
++    const { container } = render(
++      <PerformanceChart {...defaultProps} height={500} />
++    )
++
++    const chartContainer = container.querySelector('[data-chart]')
++    expect(chartContainer).toBeInTheDocument()
++    expect(chartContainer).toHaveStyle({ height: '500px' })
++  })
++
++  it('uses default height when not provided', () => {
++    const { container } = render(<PerformanceChart {...defaultProps} />)
++
++    const chartContainer = container.querySelector('[data-chart]')
++    expect(chartContainer).toBeInTheDocument()
++  })
++
++  it('applies custom className', () => {
++    const { container } = render(
++      <PerformanceChart {...defaultProps} className="custom-class" />
++    )
++
++    const wrapper = container.firstChild as HTMLElement
++    expect(wrapper).toHaveClass('custom-class')
++  })
++
++  it('handles empty data array', () => {
++    render(<PerformanceChart {...defaultProps} data={[]} />)
++
++    expect(screen.getByText('Series A')).toBeInTheDocument()
++  })
++
++  it('handles single line', () => {
++    const singleLine = [mockChartLines[0]]
++
++    render(
++      <PerformanceChart
++        {...defaultProps}
++        lines={singleLine}
++      />
++    )
++
++    expect(screen.getByText('Series A')).toBeInTheDocument()
++    expect(screen.queryByText('Series B')).not.toBeInTheDocument()
++  })
++
++  it('handles data with different xAxisKey', () => {
++    const dataWithMonth = [
++      { month: 'Jan', line1: 50 },
++      { month: 'Feb', line1: 60 },
++    ]
++
++    render(
++      <PerformanceChart
++        data={dataWithMonth}
++        lines={[mockChartLines[0]]}
++        xAxisKey="month"
++      />
++    )
++
++    expect(screen.getByText('Series A')).toBeInTheDocument()
++  })
++})
++
+diff --git a/tests/unit/components/section-card.test.tsx b/tests/unit/components/section-card.test.tsx
+new file mode 100644
+index 0000000..2a5f610
+--- /dev/null
++++ b/tests/unit/components/section-card.test.tsx
+@@ -0,0 +1,205 @@
++import { render, screen } from '@testing-library/react'
++import { describe, expect, it } from 'vitest'
++
++import { SectionCard } from '@/components/section-card'
++
++describe('SectionCard', () => {
++  it('renders header as string', () => {
++    render(
++      <SectionCard header="Test Header">
++        <div>Content</div>
++      </SectionCard>
++    )
++
++    expect(screen.getByText('Test Header')).toBeInTheDocument()
++    expect(screen.getByText('Test Header').tagName).toBe('H2')
++  })
++
++  it('renders header as ReactNode', () => {
++    render(
++      <SectionCard header={<div data-testid="custom-header">Custom Header</div>}>
++        <div>Content</div>
++      </SectionCard>
++    )
++
++    expect(screen.getByTestId('custom-header')).toBeInTheDocument()
++    expect(screen.getByText('Custom Header')).toBeInTheDocument()
++  })
++
++  it('renders subHeader as string', () => {
++    render(
++      <SectionCard header="Header" subHeader="Sub Header">
++        <div>Content</div>
++      </SectionCard>
++    )
++
++    expect(screen.getByText('Sub Header')).toBeInTheDocument()
++    expect(screen.getByText('Sub Header').tagName).toBe('P')
++  })
++
++  it('renders subHeader as ReactNode', () => {
++    render(
++      <SectionCard
++        header="Header"
++        subHeader={<button data-testid="custom-subheader">Button</button>}
++      >
++        <div>Content</div>
++      </SectionCard>
++    )
++
++    expect(screen.getByTestId('custom-subheader')).toBeInTheDocument()
++    expect(screen.getByText('Button')).toBeInTheDocument()
++  })
++
++  it('does not render subHeader when not provided', () => {
++    const { container } = render(
++      <SectionCard header="Header">
++        <div>Content</div>
++      </SectionCard>
++    )
++
++    expect(screen.getByText('Header')).toBeInTheDocument()
++    expect(container.querySelector('p')).not.toBeInTheDocument()
++  })
++
++  it('renders children content', () => {
++    render(
++      <SectionCard header="Header">
++        <div data-testid="content">Content</div>
++      </SectionCard>
++    )
++
++    expect(screen.getByTestId('content')).toBeInTheDocument()
++    expect(screen.getByText('Content')).toBeInTheDocument()
++  })
++
++  it('applies default spacing (md)', () => {
++    const { container } = render(
++      <SectionCard header="Header">
++        <div>Content</div>
++      </SectionCard>
++    )
++
++    const headerContainer = container.firstChild?.firstChild as HTMLElement
++    expect(headerContainer).toHaveClass('mb-2')
++
++    const card = container.querySelector('.rounded-lg')
++    expect(card).toHaveClass('p-4')
++  })
++
++  it('applies sm spacing', () => {
++    const { container } = render(
++      <SectionCard header="Header" spacing="sm">
++        <div>Content</div>
++      </SectionCard>
++    )
++
++    const headerContainer = container.firstChild?.firstChild as HTMLElement
++    expect(headerContainer).toHaveClass('mb-2')
++
++    const card = container.querySelector('.rounded-lg')
++    expect(card).toHaveClass('p-2')
++  })
++
++  it('applies lg spacing', () => {
++    const { container } = render(
++      <SectionCard header="Header" spacing="lg">
++        <div>Content</div>
++      </SectionCard>
++    )
++
++    const headerContainer = container.firstChild?.firstChild as HTMLElement
++    expect(headerContainer).toHaveClass('mb-4')
++
++    const card = container.querySelector('.rounded-lg')
++    expect(card).toHaveClass('p-6')
++  })
++
++  it('applies custom className to wrapper', () => {
++    const { container } = render(
++      <SectionCard header="Header" className="custom-wrapper">
++        <div>Content</div>
++      </SectionCard>
++    )
++
++    expect(container.firstChild).toHaveClass('custom-wrapper')
++  })
++
++  it('applies custom headerClassName', () => {
++    const { container } = render(
++      <SectionCard header="Header" headerClassName="custom-header-class">
++        <div>Content</div>
++      </SectionCard>
++    )
++
++    const headerContainer = container.firstChild?.firstChild as HTMLElement
++    expect(headerContainer).toHaveClass('custom-header-class')
++  })
++
++  it('applies custom cardClassName', () => {
++    const { container } = render(
++      <SectionCard header="Header" cardClassName="custom-card-class">
++        <div>Content</div>
++      </SectionCard>
++    )
++
++    const card = container.querySelector('.rounded-lg')
++    expect(card).toHaveClass('custom-card-class')
++  })
++
++  it('applies default card styles', () => {
++    const { container } = render(
++      <SectionCard header="Header">
++        <div>Content</div>
++      </SectionCard>
++    )
++
++    const card = container.querySelector('.rounded-lg')
++    expect(card).toHaveClass(
++      'w-full',
++      'overflow-hidden',
++      'rounded-lg',
++      'border',
++      'border-neutral-200',
++      'bg-white'
++    )
++  })
++
++  it('applies default header container styles', () => {
++    const { container } = render(
++      <SectionCard header="Header">
++        <div>Content</div>
++      </SectionCard>
++    )
++
++    const headerContainer = container.firstChild?.firstChild as HTMLElement
++    expect(headerContainer).toHaveClass(
++      'flex',
++      'items-center',
++      'justify-between'
++    )
++  })
++
++  it('renders complex nested content', () => {
++    render(
++      <SectionCard
++        header="Header"
++        subHeader="Sub Header"
++        headerClassName="custom-header"
++        cardClassName="custom-card"
++        className="wrapper"
++      >
++        <div>
++          <p>Paragraph 1</p>
++          <p>Paragraph 2</p>
++        </div>
++      </SectionCard>
++    )
++
++    expect(screen.getByText('Header')).toBeInTheDocument()
++    expect(screen.getByText('Sub Header')).toBeInTheDocument()
++    expect(screen.getByText('Paragraph 1')).toBeInTheDocument()
++    expect(screen.getByText('Paragraph 2')).toBeInTheDocument()
++  })
++})
++
+diff --git a/tests/unit/components/select.test.tsx b/tests/unit/components/select.test.tsx
+new file mode 100644
+index 0000000..5d8e52f
+--- /dev/null
++++ b/tests/unit/components/select.test.tsx
+@@ -0,0 +1,313 @@
++import { render, screen } from '@testing-library/react'
++import { describe, expect, it } from 'vitest'
++
++import {
++  Select,
++  SelectContent,
++  SelectGroup,
++  SelectItem,
++  SelectLabel,
++  SelectScrollDownButton,
++  SelectScrollUpButton,
++  SelectSeparator,
++  SelectTrigger,
++  SelectValue,
++} from '@/components/ui/select'
++
++describe('Select', () => {
++  it('renders select root component', () => {
++    render(
++      <Select>
++        <SelectTrigger>
++          <SelectValue placeholder="Select..." />
++        </SelectTrigger>
++      </Select>
++    )
++
++    const combobox = screen.getByRole('combobox')
++    expect(combobox).toBeInTheDocument()
++  })
++
++  it('passes props to underlying component', () => {
++    render(
++      <Select value="test-value" onValueChange={() => {}}>
++        <SelectTrigger>
++          <SelectValue placeholder="Select..." />
++        </SelectTrigger>
++      </Select>
++    )
++
++    const combobox = screen.getByRole('combobox')
++    expect(combobox).toBeInTheDocument()
++  })
++})
++
++describe('SelectTrigger', () => {
++  it('renders with data-slot attribute', () => {
++    const { container } = render(
++      <Select>
++        <SelectTrigger>
++          <SelectValue placeholder="Select..." />
++        </SelectTrigger>
++      </Select>
++    )
++
++    const trigger = container.querySelector('[data-slot="select-trigger"]')
++    expect(trigger).toBeInTheDocument()
++  })
++
++  it('applies default size class', () => {
++    const { container } = render(
++      <Select>
++        <SelectTrigger>
++          <SelectValue placeholder="Select..." />
++        </SelectTrigger>
++      </Select>
++    )
++
++    const trigger = container.querySelector('[data-slot="select-trigger"]')
++    expect(trigger).toHaveClass('data-[size=default]:h-9')
++  })
++
++  it('applies sm size class when size prop is sm', () => {
++    const { container } = render(
++      <Select>
++        <SelectTrigger size="sm">
++          <SelectValue placeholder="Select..." />
++        </SelectTrigger>
++      </Select>
++    )
++
++    const trigger = container.querySelector('[data-slot="select-trigger"]')
++    expect(trigger).toHaveAttribute('data-size', 'sm')
++    expect(trigger).toHaveClass('data-[size=sm]:h-8')
++  })
++
++  it('merges custom className', () => {
++    const { container } = render(
++      <Select>
++        <SelectTrigger className="custom-class">
++          <SelectValue placeholder="Select..." />
++        </SelectTrigger>
++      </Select>
++    )
++
++    const trigger = container.querySelector('[data-slot="select-trigger"]')
++    expect(trigger).toHaveClass('custom-class')
++  })
++
++  it('renders chevron down icon', () => {
++    const { container } = render(
++      <Select>
++        <SelectTrigger>
++          <SelectValue placeholder="Select..." />
++        </SelectTrigger>
++      </Select>
++    )
++
++    const icon = container.querySelector('svg')
++    expect(icon).toBeInTheDocument()
++  })
++
++  it('renders children', () => {
++    render(
++      <Select>
++        <SelectTrigger>
++          <SelectValue placeholder="Test placeholder" />
++        </SelectTrigger>
++      </Select>
++    )
++
++    expect(screen.getByText('Test placeholder')).toBeInTheDocument()
++  })
++})
++
++describe('SelectValue', () => {
++  it('renders with data-slot attribute', () => {
++    const { container } = render(
++      <Select>
++        <SelectTrigger>
++          <SelectValue placeholder="Select..." />
++        </SelectTrigger>
++      </Select>
++    )
++
++    const value = container.querySelector('[data-slot="select-value"]')
++    expect(value).toBeInTheDocument()
++  })
++
++  it('displays placeholder text', () => {
++    render(
++      <Select>
++        <SelectTrigger>
++          <SelectValue placeholder="Choose an option" />
++        </SelectTrigger>
++      </Select>
++    )
++
++    expect(screen.getByText('Choose an option')).toBeInTheDocument()
++  })
++})
++
++describe('SelectContent', () => {
++  it('renders content when select is open', () => {
++    render(
++      <Select open>
++        <SelectTrigger>
++          <SelectValue placeholder="Select..." />
++        </SelectTrigger>
++        <SelectContent>
++          <SelectItem value="1">Option 1</SelectItem>
++        </SelectContent>
++      </Select>
++    )
++
++    expect(screen.getByText('Option 1')).toBeInTheDocument()
++  })
++
++  it('renders items inside content', () => {
++    render(
++      <Select open>
++        <SelectTrigger>
++          <SelectValue placeholder="Select..." />
++        </SelectTrigger>
++        <SelectContent>
++          <SelectItem value="1">Option 1</SelectItem>
++          <SelectItem value="2">Option 2</SelectItem>
++        </SelectContent>
++      </Select>
++    )
++
++    expect(screen.getByText('Option 1')).toBeInTheDocument()
++    expect(screen.getByText('Option 2')).toBeInTheDocument()
++  })
++})
++
++describe('SelectItem', () => {
++  it('renders children text', () => {
++    render(
++      <Select open>
++        <SelectTrigger>
++          <SelectValue placeholder="Select..." />
++        </SelectTrigger>
++        <SelectContent>
++          <SelectItem value="test">Test Item</SelectItem>
++        </SelectContent>
++      </Select>
++    )
++
++    expect(screen.getByText('Test Item')).toBeInTheDocument()
++  })
++
++  it('renders with correct value', () => {
++    render(
++      <Select open>
++        <SelectTrigger>
++          <SelectValue placeholder="Select..." />
++        </SelectTrigger>
++        <SelectContent>
++          <SelectItem value="test-value">Test Item</SelectItem>
++        </SelectContent>
++      </Select>
++    )
++
++    const item = screen.getByText('Test Item')
++    expect(item).toBeInTheDocument()
++  })
++})
++
++describe('SelectLabel', () => {
++  it('renders label text within SelectGroup', () => {
++    render(
++      <Select open>
++        <SelectTrigger>
++          <SelectValue placeholder="Select..." />
++        </SelectTrigger>
++        <SelectContent>
++          <SelectGroup>
++            <SelectLabel>Category</SelectLabel>
++            <SelectItem value="1">Option 1</SelectItem>
++          </SelectGroup>
++        </SelectContent>
++      </Select>
++    )
++
++    expect(screen.getByText('Category')).toBeInTheDocument()
++  })
++})
++
++describe('SelectGroup', () => {
++  it('renders group with items', () => {
++    render(
++      <Select open>
++        <SelectTrigger>
++          <SelectValue placeholder="Select..." />
++        </SelectTrigger>
++        <SelectContent>
++          <SelectGroup>
++            <SelectItem value="1">Option 1</SelectItem>
++          </SelectGroup>
++        </SelectContent>
++      </Select>
++    )
++
++    expect(screen.getByText('Option 1')).toBeInTheDocument()
++  })
++})
++
++describe('SelectSeparator', () => {
++  it('renders separator between items', () => {
++    render(
++      <Select open>
++        <SelectTrigger>
++          <SelectValue placeholder="Select..." />
++        </SelectTrigger>
++        <SelectContent>
++          <SelectItem value="1">Option 1</SelectItem>
++          <SelectSeparator />
++          <SelectItem value="2">Option 2</SelectItem>
++        </SelectContent>
++      </Select>
++    )
++
++    expect(screen.getByText('Option 1')).toBeInTheDocument()
++    expect(screen.getByText('Option 2')).toBeInTheDocument()
++  })
++})
++
++describe('SelectScrollUpButton', () => {
++  it('renders within SelectContent', () => {
++    const { container } = render(
++      <Select open>
++        <SelectTrigger>
++          <SelectValue placeholder="Select..." />
++        </SelectTrigger>
++        <SelectContent>
++          <SelectItem value="1">Option 1</SelectItem>
++        </SelectContent>
++      </Select>
++    )
++
++    const icons = container.querySelectorAll('svg')
++    expect(icons.length).toBeGreaterThan(0)
++  })
++})
++
++describe('SelectScrollDownButton', () => {
++  it('renders within SelectContent', () => {
++    const { container } = render(
++      <Select open>
++        <SelectTrigger>
++          <SelectValue placeholder="Select..." />
++        </SelectTrigger>
++        <SelectContent>
++          <SelectItem value="1">Option 1</SelectItem>
++        </SelectContent>
++      </Select>
++    )
++
++    const icons = container.querySelectorAll('svg')
++    expect(icons.length).toBeGreaterThan(0)
++  })
++})
++
+diff --git a/tests/unit/hooks/useMobileView.test.tsx b/tests/unit/hooks/useMobileView.test.tsx
+new file mode 100644
+index 0000000..ce665f0
+--- /dev/null
++++ b/tests/unit/hooks/useMobileView.test.tsx
+@@ -0,0 +1,107 @@
++import { act, renderHook } from '@testing-library/react'
++
++import { useMobileView } from '@/hooks/useMobileView'
++
++function installMatchMediaMock() {
++  const mm = (query: string) => {
++    const maxMatch = /max-width:\s*(\d+(?:\.\d+)?)px/.exec(query)
++    const minMatch = /min-width:\s*(\d+(?:\.\d+)?)px/.exec(query)
++    const max = maxMatch ? parseFloat(maxMatch[1]) : Infinity
++    const min = minMatch ? parseFloat(minMatch[1]) : -Infinity
++    const matches = window.innerWidth >= min && window.innerWidth <= max
++    return {
++      matches,
++      media: query,
++      onchange: null as unknown as ((this: MediaQueryList, ev: MediaQueryListEvent) => unknown) | null,
++      addEventListener: vi.fn(),
++      removeEventListener: vi.fn(),
++      addListener: vi.fn(), // deprecated but some libs still call these
++      removeListener: vi.fn(),
++      dispatchEvent: vi.fn(() => false),
++    } as unknown as MediaQueryList
++  }
++
++  Object.defineProperty(window, 'matchMedia', {
++    writable: true,
++    configurable: true,
++    value: vi.fn(mm),
++  })
++}
++
++function setViewportWidth(width: number) {
++  Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: width })
++  window.dispatchEvent(new Event('resize'))
++}
++
++describe('useMobileView', () => {
++  beforeEach(() => {
++    // Default to desktop width and install matchMedia stub
++    setViewportWidth(1024)
++    installMatchMediaMock()
++  })
++
++  afterEach(() => {
++    vi.resetAllMocks()
++  })
++
++  test('returns false on first render to avoid hydration mismatch', () => {
++    const { result } = renderHook(() => useMobileView())
++    expect(result.current).toBe(false)
++  })
++
++  test('reports true when width is below 768px after mount', async () => {
++    const { result } = renderHook(() => useMobileView())
++
++    // Switch to mobile and let effect update
++    await act(async () => {
++      setViewportWidth(500)
++      // allow effect to run
++    })
++
++    expect(result.current).toBe(true)
++  })
++
++  test('reports false when width is 768px or above', async () => {
++    const { result } = renderHook(() => useMobileView())
++
++    await act(async () => {
++      setViewportWidth(1200)
++    })
++
++    expect(result.current).toBe(false)
++  })
++
++  test('updates value on resize events', async () => {
++    const { result } = renderHook(() => useMobileView())
++
++    await act(async () => {
++      setViewportWidth(600)
++    })
++    expect(result.current).toBe(true)
++
++    await act(async () => {
++      setViewportWidth(900)
++    })
++    expect(result.current).toBe(false)
++  })
++
++  test('falls back to innerWidth when matchMedia is unavailable', async () => {
++    // Remove matchMedia
++    // @ts-expect-error testing removal
++    delete window.matchMedia
++
++    const { result } = renderHook(() => useMobileView())
++
++    await act(async () => {
++      setViewportWidth(700)
++    })
++    expect(result.current).toBe(true)
++
++    await act(async () => {
++      setViewportWidth(800)
++    })
++    expect(result.current).toBe(false)
++  })
++})
++
++
+diff --git a/tests/unit/lib/chart-utils.test.ts b/tests/unit/lib/chart-utils.test.ts
+new file mode 100644
+index 0000000..8a4befd
+--- /dev/null
++++ b/tests/unit/lib/chart-utils.test.ts
+@@ -0,0 +1,120 @@
++import { describe, expect, it } from 'vitest'
++
++import {
++  createChartConfig,
++  getDefaultChartColors,
++  type ChartLineConfig,
++} from '@/lib/chart-utils'
++
++describe('chart-utils', () => {
++  describe('getDefaultChartColors', () => {
++    it('returns an array of 4 color strings', () => {
++      const colors = getDefaultChartColors()
++      expect(colors).toHaveLength(4)
++      expect(colors.every((color) => typeof color === 'string')).toBe(true)
++    })
++
++    it('returns HSL color values', () => {
++      const colors = getDefaultChartColors()
++      colors.forEach((color) => {
++        expect(color).toMatch(/^hsl\(/)
++      })
++    })
++
++    it('returns consistent colors', () => {
++      const colors1 = getDefaultChartColors()
++      const colors2 = getDefaultChartColors()
++      expect(colors1).toEqual(colors2)
++    })
++  })
++
++  describe('createChartConfig', () => {
++    it('creates config from chart lines', () => {
++      const lines: ChartLineConfig[] = [
++        {
++          dataKey: 'line1',
++          label: 'Series A',
++          color: '#3b82f6',
++        },
++        {
++          dataKey: 'line2',
++          label: 'Series B',
++          color: '#10b981',
++        },
++      ]
++
++      const config = createChartConfig(lines)
++
++      expect(config).toEqual({
++        line1: {
++          label: 'Series A',
++          color: '#3b82f6',
++        },
++        line2: {
++          label: 'Series B',
++          color: '#10b981',
++        },
++      })
++    })
++
++    it('handles empty array', () => {
++      const config = createChartConfig([])
++      expect(config).toEqual({})
++    })
++
++    it('handles single line', () => {
++      const lines: ChartLineConfig[] = [
++        {
++          dataKey: 'single',
++          label: 'Single Line',
++          color: '#ef4444',
++        },
++      ]
++
++      const config = createChartConfig(lines)
++
++      expect(config).toEqual({
++        single: {
++          label: 'Single Line',
++          color: '#ef4444',
++        },
++      })
++    })
++
++    it('handles multiple lines with same dataKey', () => {
++      const lines: ChartLineConfig[] = [
++        {
++          dataKey: 'line1',
++          label: 'First',
++          color: '#3b82f6',
++        },
++        {
++          dataKey: 'line1',
++          label: 'Second',
++          color: '#10b981',
++        },
++      ]
++
++      const config = createChartConfig(lines)
++
++      expect(config.line1.label).toBe('Second')
++      expect(config.line1.color).toBe('#10b981')
++    })
++
++    it('preserves all properties correctly', () => {
++      const lines: ChartLineConfig[] = [
++        {
++          dataKey: 'test',
++          label: 'Test Label',
++          color: 'hsl(221.2 83.2% 53.3%)',
++        },
++      ]
++
++      const config = createChartConfig(lines)
++
++      expect(config.test.label).toBe('Test Label')
++      expect(config.test.color).toBe('hsl(221.2 83.2% 53.3%)')
++    })
++  })
++})
++

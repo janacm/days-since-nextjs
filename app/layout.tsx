@@ -27,14 +27,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className="antialiased">
       <head>
         <link rel="apple-touch-icon" href="/icon-192x192.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
       </head>
-      <body className="flex min-h-screen w-full flex-col">{children}</body>
-      <Analytics />
+      <body className="flex min-h-screen w-full min-w-0 flex-col overflow-x-hidden">
+        {children}
+        <Analytics />
+      </body>
     </html>
   );
 }
