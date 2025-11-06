@@ -18,18 +18,24 @@ export default async function DashboardPage() {
 
   return (
     <Tabs defaultValue="all">
-      <div className="flex items-center">
-        <TabsList>
-          <TabsTrigger value="all">All Events</TabsTrigger>
-          <TabsTrigger value="recent" className="hidden sm:flex">
-            Recent
-          </TabsTrigger>
-          <TabsTrigger value="reminders">Has reminder</TabsTrigger>
-          <TabsTrigger value="overdue">Is overdue</TabsTrigger>
-          <TabsTrigger value="private">Private</TabsTrigger>
-        </TabsList>
-        <div className="ml-auto flex items-center gap-2">
-          <Button size="sm" className="h-8 gap-1" asChild>
+      <div className="flex items-center gap-3 min-w-0">
+        <div className="overflow-x-auto no-scrollbar min-w-0 flex-1">
+          <TabsList className="inline-flex">
+            <TabsTrigger value="all">All Events</TabsTrigger>
+            <TabsTrigger value="recent" className="hidden sm:flex">
+              Recent
+            </TabsTrigger>
+            <TabsTrigger value="reminders" className="whitespace-nowrap">
+              Has reminder
+            </TabsTrigger>
+            <TabsTrigger value="overdue" className="whitespace-nowrap">
+              Is overdue
+            </TabsTrigger>
+            <TabsTrigger value="private">Private</TabsTrigger>
+          </TabsList>
+        </div>
+        <div className="shrink-0">
+          <Button size="sm" className="h-11 min-w-[44px] gap-1" asChild>
             <Link href="/add">
               <PlusCircle className="h-3.5 w-3.5" />
               <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
