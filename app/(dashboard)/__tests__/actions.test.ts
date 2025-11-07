@@ -24,6 +24,11 @@ jest.mock('@/lib/db', () => {
   const mockWhere = jest.fn(() => ({ returning: mockReturning }));
   const mockSet = jest.fn(() => ({ where: mockWhere }));
   const mockUpdate = jest.fn(() => ({ set: mockSet }));
+  let mockSelectResult: any[] = [];
+  const mockLimit = jest.fn(() => Promise.resolve(mockSelectResult));
+  const mockWhereSelect = jest.fn(() => ({ limit: mockLimit }));
+  const mockFrom = jest.fn(() => ({ where: mockWhereSelect, limit: mockLimit }));
+  const mockSelect = jest.fn(() => ({ from: mockFrom }));
 
   (global as any).dbTestMocks = {
     mockInsert,
@@ -31,23 +36,31 @@ jest.mock('@/lib/db', () => {
     mockReturning,
     mockUpdate,
     mockSet,
-    mockWhere
+    mockWhere,
+    mockSelect,
+    mockFrom,
+    mockWhereSelect,
+    mockLimit,
+    setSelectResult: (result: any[]) => {
+      mockSelectResult = result;
+    }
   };
 
   return {
     ...actual,
-    db: { insert: mockInsert, update: mockUpdate },
+    db: { insert: mockInsert, update: mockUpdate, select: mockSelect },
     events: actual.events
   };
 });
 
-import { addEvent, editEvent } from '../actions';
+import { addEvent, editEvent, duplicateEvent } from '../actions';
 import { events } from '@/lib/db';
 const mockAuth = auth as unknown as jest.Mock;
 
 beforeEach(() => {
   jest.clearAllMocks();
   mockAuth.mockResolvedValue({ user: { email: 'user@example.com' } });
+  (global as any).dbTestMocks.setSelectResult([]);
 });
 
 describe('addEvent', () => {
@@ -173,5 +186,79 @@ describe('editEvent', () => {
     expect((global as any).dbTestMocks.mockSet).toHaveBeenCalledWith(
       expect.objectContaining({ isPrivate: false })
     );
+  });
+});
+
+describe('duplicateEvent', () => {
+  it('duplicates event with copy suffix', async () => {
+    (global as any).dbTestMocks.setSelectResult([
+      {
+        id: 1,
+        userId: 'user@example.com',
+        name: 'Original Event',
+        date: '2025-06-01T00:00:00.000Z',
+        reminderDays: 10,
+        isPrivate: true,
+        resettable: false,
+        reminderSent: true,
+        lastReminderSentAt: new Date('2025-06-10T00:00:00.000Z')
+      }
+    ]);
+
+    const formData = new FormData();
+    formData.append('id', '1');
+
+    await duplicateEvent(formData);
+
+    expect((global as any).dbTestMocks.mockInsert).toHaveBeenCalledWith(events);
+    expect((global as any).dbTestMocks.mockValues).toHaveBeenCalledWith(
+      expect.objectContaining({
+        userId: 'user@example.com',
+        name: 'Original Event (Copy)',
+        date: '2025-06-01T00:00:00.000Z',
+        reminderDays: 10,
+        isPrivate: true,
+        resettable: false,
+        reminderSent: false,
+        lastReminderSentAt: null
+      })
+    );
+    expect(revalidatePath).toHaveBeenCalledWith('/');
+  });
+
+  it('throws when event is not found', async () => {
+    (global as any).dbTestMocks.setSelectResult([]);
+
+    const formData = new FormData();
+    formData.append('id', '1');
+
+    await expect(duplicateEvent(formData)).rejects.toThrow(
+      'Event not found or access denied'
+    );
+    expect((global as any).dbTestMocks.mockInsert).not.toHaveBeenCalled();
+  });
+
+  it('throws when event belongs to different user', async () => {
+    (global as any).dbTestMocks.setSelectResult([
+      {
+        id: 1,
+        userId: 'other@example.com',
+        name: 'Original Event',
+        date: '2025-06-01T00:00:00.000Z',
+        reminderDays: null,
+        isPrivate: false,
+        resettable: true,
+        reminderSent: false,
+        lastReminderSentAt: null
+      }
+    ]);
+
+    const formData = new FormData();
+    formData.append('id', '1');
+
+    await expect(duplicateEvent(formData)).rejects.toThrow(
+      'Event not found or access denied'
+    );
+    expect((global as any).dbTestMocks.mockInsert).not.toHaveBeenCalled();
   });
 });

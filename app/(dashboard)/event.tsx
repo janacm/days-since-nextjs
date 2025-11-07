@@ -11,7 +11,7 @@ import {
 import { MoreHorizontal, Bell } from 'lucide-react';
 import { TableCell, TableRow } from '@/components/ui/table';
 import { Event } from '@/lib/db';
-import { deleteEvent } from './actions';
+import { deleteEvent, duplicateEvent } from './actions';
 import { formatDistanceToNow } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { ResetButton } from './reset-button';
@@ -125,6 +125,14 @@ export function EventItem({ event }: { event: Event }) {
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <a href={`/edit/${event.id}`}>Edit</a>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <form action={duplicateEvent}>
+                <input type="hidden" name="id" value={event.id} />
+                <button type="submit" className="w-full text-left">
+                  Duplicate
+                </button>
+              </form>
             </DropdownMenuItem>
             <DropdownMenuItem>
               <form action={deleteEvent}>

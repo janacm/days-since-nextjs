@@ -87,6 +87,45 @@ export async function deleteEvent(formData: FormData) {
   revalidatePath('/');
 }
 
+export async function duplicateEvent(formData: FormData) {
+  const session = await auth();
+  if (!session?.user?.email) {
+    throw new Error('You must be logged in to duplicate an event');
+  }
+
+  const rawId = formData.get('id');
+  const id = rawId ? Number(rawId) : NaN;
+
+  if (!Number.isInteger(id)) {
+    throw new Error('Invalid event ID');
+  }
+
+  const existingEvents = await db
+    .select()
+    .from(events)
+    .where(eq(events.id, id))
+    .limit(1);
+
+  const originalEvent = existingEvents[0];
+
+  if (!originalEvent || originalEvent.userId !== session.user.email) {
+    throw new Error('Event not found or access denied');
+  }
+
+  await db.insert(events).values({
+    userId: session.user.email,
+    name: `${originalEvent.name} (Copy)`,
+    date: originalEvent.date,
+    reminderDays: originalEvent.reminderDays,
+    reminderSent: false,
+    lastReminderSentAt: null,
+    isPrivate: originalEvent.isPrivate,
+    resettable: originalEvent.resettable
+  });
+
+  revalidatePath('/');
+}
+
 export async function deleteProduct(formData: FormData) {
   const session = await auth();
   if (!session?.user?.email) {
