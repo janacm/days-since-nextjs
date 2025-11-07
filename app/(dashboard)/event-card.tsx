@@ -9,7 +9,6 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal, Bell } from 'lucide-react';
-import { TableCell, TableRow } from '@/components/ui/table';
 import { Event } from '@/lib/db';
 import { deleteEvent } from './actions';
 import { formatDistanceToNow } from 'date-fns';
@@ -18,7 +17,7 @@ import { ResetButton } from './reset-button';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
-export function EventItem({ event }: { event: Event }) {
+export function EventCard({ event }: { event: Event }) {
   const router = useRouter();
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
 
@@ -69,7 +68,7 @@ export function EventItem({ event }: { event: Event }) {
     }
   }
 
-  const handleRowClick = (e: React.MouseEvent) => {
+  const handleCardClick = (e: React.MouseEvent) => {
     // Don't navigate if clicking on buttons or dropdown
     if (
       (e.target as HTMLElement).closest('button') ||
@@ -84,39 +83,30 @@ export function EventItem({ event }: { event: Event }) {
   };
 
   return (
-    <TableRow
-      className="cursor-pointer hover:bg-muted/50 transition-colors"
-      onClick={handleRowClick}
+    <div
+      className="rounded-lg border bg-card p-4 cursor-pointer hover:bg-muted/50 transition-colors space-y-3"
+      onClick={handleCardClick}
     >
-      <TableCell className="font-medium px-3 py-3 md:py-2">
-        <div className="flex items-center gap-2">
-          <span className="truncate">{event.name}</span>
+      {/* Header: Name + Actions */}
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex-1 min-w-0 space-y-2">
+          <h3 className="font-medium text-base truncate">{event.name}</h3>
           {hasReminder && reminderBadgeText && (
-            <Badge variant={isReminderDue ? 'destructive' : 'secondary'} className="shrink-0">
+            <Badge variant={isReminderDue ? 'destructive' : 'secondary'} className="inline-flex">
               <Bell className="h-3 w-3 mr-1" />
               {reminderBadgeText}
             </Badge>
           )}
         </div>
-      </TableCell>
-      <TableCell className="whitespace-nowrap px-3 py-3 md:py-2">{formattedDate}</TableCell>
-      <TableCell className="text-center whitespace-nowrap px-3 py-3 md:py-2">
-        <span className="text-lg font-bold">{daysSince}</span>
-      </TableCell>
-      <TableCell className="hidden md:table-cell text-muted-foreground whitespace-nowrap px-3 py-3 md:py-2">
-        {relativeTime}
-      </TableCell>
-      <TableCell className="px-3 py-3 md:py-2">
-        <div className="flex items-center gap-2">
-          {/* Hide reset UI when resets are disabled */}
+        <div className="flex items-center gap-2 shrink-0">
           {event.resettable !== false && (
             <ResetButton eventId={event.id} onOpenChange={setIsResetModalOpen} />
           )}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button 
-                aria-haspopup="true" 
-                size="icon" 
+              <Button
+                aria-haspopup="true"
+                size="icon"
                 variant="ghost"
                 className="h-10 w-10 min-w-[44px] focus-visible:ring-2"
               >
@@ -143,7 +133,19 @@ export function EventItem({ event }: { event: Event }) {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-      </TableCell>
-    </TableRow>
+      </div>
+
+      {/* Date & Days Since */}
+      <div className="flex items-center justify-between gap-4 pt-2 border-t">
+        <div className="space-y-1">
+          <div className="text-sm text-muted-foreground">{formattedDate}</div>
+          <div className="text-xs text-muted-foreground">{relativeTime}</div>
+        </div>
+        <div className="text-center">
+          <div className="text-2xl font-bold">{daysSince}</div>
+          <div className="text-xs text-muted-foreground">days</div>
+        </div>
+      </div>
+    </div>
   );
 }

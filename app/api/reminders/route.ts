@@ -72,7 +72,7 @@ export async function POST() {
       eventsByUser.set(event.userId, userEvents);
     }
 
-    for (const [userEmail, userEvents] of eventsByUser) {
+    for (const [userEmail, userEvents] of Array.from(eventsByUser)) {
       console.log('📧 Reminders API: Processing reminders for user', {
         userId: userEmail,
         eventIds: userEvents.map((event) => event.id)
@@ -133,11 +133,9 @@ export async function POST() {
           userId: userEmail
         });
 
-        const nowIso = now.toISOString();
-
         await db
           .update(events)
-          .set({ reminderSent: true, lastReminderSentAt: nowIso })
+          .set({ reminderSent: true, lastReminderSentAt: now })
           .where(inArray(events.id, eventSummaries.map((summary) => summary.id)));
 
         console.log('📧 Reminders API: Reminder marked as sent', {

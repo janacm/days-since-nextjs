@@ -33,6 +33,9 @@
     --ring: 222.2 84% 4.9%;
 
     --radius: 0.5rem;
+    
+    /* Mobile-safe header height */
+    --header-h: 56px;
   }
 
   .dark {
@@ -72,6 +75,77 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* Mobile-first optimizations */
+/* Prevent horizontal spillovers globally */
+html,
+body {
+  overflow-x: hidden;
+}
+
+/* Better text scaling on iOS */
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Respect sticky headers when linking to in-page anchors */
+html {
+  scroll-padding-top: calc(var(--header-h) + env(safe-area-inset-top));
+}
+
+/* iOS: prevent zoom on input focus by ensuring >=16px font-size */
+input,
+select,
+textarea {
+  font-size: 16px;
+}
+
+/* Reduce tap highlight and improve touch feel */
+* {
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Horizontal scroll utilities */
+.overscroll-x-contain {
+  overscroll-behavior-x: contain;
+}
+
+/* Hide scrollbar but keep functionality */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Scroll fade indicator for horizontal tables */
+.scroll-fade {
+  position: relative;
+}
+
+.scroll-fade::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
+  width: 36px;
+  pointer-events: none;
+  background: linear-gradient(to left, hsl(var(--background)), transparent);
+}
+
+/* Accessibility: Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
   }
 }
 

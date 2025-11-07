@@ -19,6 +19,7 @@ import { useState, useMemo } from 'react';
 import { ChevronUp, ChevronDown } from 'lucide-react';
 import Fuse from 'fuse.js';
 import { EventItem } from './event';
+import { EventCard } from './event-card';
 import { Event } from '@/lib/db';
 
 type SortField = 'name' | 'date' | 'daysSince' | 'relative';
@@ -118,7 +119,7 @@ export function EventsTable({ events }: { events: Event[] }) {
 
     return (
       <TableHead
-        className={`cursor-pointer select-none hover:bg-muted/50 ${className}`}
+        className={`cursor-pointer select-none hover:bg-muted/50 px-3 py-3.5 md:py-2.5 ${className}`}
         onClick={() => handleSort(field)}
       >
         <div className="flex items-center gap-1">
@@ -146,7 +147,7 @@ export function EventsTable({ events }: { events: Event[] }) {
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="p-4 md:p-6">
         <CardTitle>Your Events</CardTitle>
         <CardDescription>
           Track how many days have passed since important events. Click on any
@@ -158,11 +159,11 @@ export function EventsTable({ events }: { events: Event[] }) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             type="search"
-            className="mt-4 w-full sm:max-w-xs"
+            className="mt-4 w-full md:max-w-sm text-base"
           />
         )}
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-4 md:p-6">
         {events.length === 0 ? (
           <div className="text-center py-6 text-muted-foreground">
             No events yet. Add your first event to get started!
@@ -172,29 +173,50 @@ export function EventsTable({ events }: { events: Event[] }) {
             No events match your search.
           </div>
         ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <SortableHeader field="name">Event</SortableHeader>
-                <SortableHeader field="date">Date</SortableHeader>
-                <SortableHeader field="daysSince" className="text-center">
-                  Days Since
-                </SortableHeader>
-                <SortableHeader
-                  field="relative"
-                  className="hidden md:table-cell"
-                >
-                  Relative
-                </SortableHeader>
-                <TableHead className="w-[70px]"></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+          <>
+            {/* Mobile: Card View */}
+            <div className="space-y-3 md:hidden">
               {sortedAndFiltered.map((event) => (
-                <EventItem key={event.id} event={event} />
+                <EventCard key={event.id} event={event} />
               ))}
-            </TableBody>
-          </Table>
+            </div>
+
+            {/* Desktop: Table View */}
+            <div className="hidden md:block -mx-4 md:mx-0">
+              <div 
+                className="overflow-x-auto overscroll-x-contain scroll-fade no-scrollbar"
+                role="region"
+                aria-label="Events table (horizontally scrollable)"
+                tabIndex={0}
+              >
+                <Table className="min-w-[720px]">
+                  <TableHeader>
+                    <TableRow>
+                      <SortableHeader field="name">Event</SortableHeader>
+                      <SortableHeader field="date" className="min-w-[140px]">
+                        Date
+                      </SortableHeader>
+                      <SortableHeader field="daysSince" className="text-center min-w-[100px]">
+                        Days Since
+                      </SortableHeader>
+                      <SortableHeader
+                        field="relative"
+                        className="hidden md:table-cell min-w-[140px]"
+                      >
+                        Relative
+                      </SortableHeader>
+                      <TableHead className="min-w-[120px]"></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {sortedAndFiltered.map((event) => (
+                      <EventItem key={event.id} event={event} />
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          </>
         )}
       </CardContent>
     </Card>

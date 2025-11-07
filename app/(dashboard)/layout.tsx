@@ -36,15 +36,15 @@ export default function DashboardLayout({
 }) {
   return (
     <Providers>
-      <main className="flex min-h-screen w-full flex-col bg-muted/40">
+      <main className="flex min-h-screen w-full min-w-0 flex-col overflow-x-hidden bg-muted/40">
         <DesktopNav />
-        <header className="sticky top-0 z-30 flex h-14 w-full items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
+        <header className="sticky top-0 z-40 flex h-14 w-full items-center gap-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6 md:px-10">
           <MobileNav />
           <DashboardBreadcrumb />
           <User />
         </header>
         <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
-          <main className="grid flex-1 items-start gap-2 p-4 sm:px-6 sm:py-0 md:gap-4 bg-muted/40">
+          <main className="grid flex-1 items-start gap-2 p-4 sm:px-6 md:px-10 sm:py-0 md:gap-4 bg-muted/40 min-w-0">
             {children}
           </main>
         </div>
@@ -100,7 +100,7 @@ function MobileNav() {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button size="icon" variant="outline" className="sm:hidden">
+        <Button size="icon" variant="outline" className="sm:hidden h-11 min-w-[44px] focus-visible:ring-2">
           <PanelLeft className="h-5 w-5" />
           <span className="sr-only">Toggle Menu</span>
         </Button>
