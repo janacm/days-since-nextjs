@@ -17,10 +17,10 @@ export default async function DashboardPage() {
   const events = await getEvents(session.user.email);
 
   return (
-    <Tabs defaultValue="all">
-      <div className="flex flex-wrap items-center gap-3 min-w-0">
-        <div className="overflow-x-auto no-scrollbar min-w-0 flex-1 w-full sm:w-auto">
-          <TabsList className="inline-flex">
+    <Tabs defaultValue="all" className="min-w-0">
+      <div className="flex flex-wrap items-center gap-3 min-w-0 pr-2 sm:pr-0">
+        <div className="overflow-x-auto no-scrollbar min-w-0 flex-1 w-full sm:w-auto pb-1">
+          <TabsList className="inline-flex min-w-max mr-2 sm:mr-0">
             <TabsTrigger value="all">All Events</TabsTrigger>
             <TabsTrigger value="recent" className="hidden sm:flex">
               Recent
