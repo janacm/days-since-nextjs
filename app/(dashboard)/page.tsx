@@ -17,10 +17,10 @@ export default async function DashboardPage() {
   const events = await getEvents(session.user.email);
 
   return (
-    <Tabs defaultValue="all">
-      <div className="flex items-center gap-3 min-w-0">
-        <div className="overflow-x-auto no-scrollbar min-w-0 flex-1">
-          <TabsList className="inline-flex">
+    <Tabs defaultValue="all" className="min-w-0">
+      <div className="flex flex-wrap items-center gap-3 min-w-0 pr-2 sm:pr-0">
+        <div className="overflow-x-auto no-scrollbar min-w-0 flex-1 w-full sm:w-auto pb-1">
+          <TabsList className="inline-flex min-w-max mr-2 sm:mr-0">
             <TabsTrigger value="all">All Events</TabsTrigger>
             <TabsTrigger value="recent" className="hidden sm:flex">
               Recent
@@ -34,8 +34,12 @@ export default async function DashboardPage() {
             <TabsTrigger value="private">Private</TabsTrigger>
           </TabsList>
         </div>
-        <div className="shrink-0">
-          <Button size="sm" className="h-11 min-w-[44px] gap-1" asChild>
+        <div className="shrink-0 sm:ml-auto">
+          <Button
+            size="sm"
+            className="h-11 min-w-[44px] gap-1 w-full sm:w-auto"
+            asChild
+          >
             <Link href="/add">
               <PlusCircle className="h-3.5 w-3.5" />
               <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
