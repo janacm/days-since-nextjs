@@ -28,6 +28,7 @@ import { User } from './user';
 import Providers from './providers';
 import { NavItem } from './nav-item';
 import { SearchInput } from './search';
+import { ThemeToggle, ThemeToggleMobile } from './theme-toggle';
 
 export default function DashboardLayout({
   children
@@ -79,6 +80,7 @@ function DesktopNav() {
         </NavItem>
       </nav>
       <nav className="mt-auto flex flex-col items-center gap-4 px-2 sm:py-5">
+        <ThemeToggle />
         <Tooltip>
           <TooltipTrigger asChild>
             <Link
@@ -135,6 +137,9 @@ function MobileNav() {
             <Users2 className="h-5 w-5" />
             Admin
           </Link>
+          <div className="pt-4 border-t">
+            <ThemeToggleMobile />
+          </div>
         </nav>
       </SheetContent>
     </Sheet>
