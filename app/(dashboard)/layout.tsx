@@ -37,15 +37,15 @@ export default function DashboardLayout({
 }) {
   return (
     <Providers>
-      <main className="flex min-h-screen w-full min-w-0 flex-col overflow-x-hidden bg-muted/40">
+      <main className="flex min-h-screen w-full min-w-0 flex-col overflow-x-hidden bg-background">
         <DesktopNav />
-        <header className="sticky top-0 z-40 flex h-14 w-full items-center gap-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:pl-20 sm:pr-6 md:pl-24 md:pr-10">
+        <header className="sticky top-0 z-40 flex h-14 w-full items-center gap-4 border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80 px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:pl-20 sm:pr-6 md:pl-24 md:pr-10">
           <MobileNav />
           <DashboardBreadcrumb />
           <User />
         </header>
         <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
-          <main className="grid flex-1 items-start gap-2 p-4 sm:px-6 md:px-10 sm:py-0 md:gap-4 bg-muted/40 min-w-0">
+            <main className="grid flex-1 items-start gap-2 p-4 sm:px-6 md:px-10 sm:py-0 md:gap-4 bg-background min-w-0">
             {children}
           </main>
         </div>
@@ -57,7 +57,7 @@ export default function DashboardLayout({
 
 function DesktopNav() {
   return (
-    <aside className="fixed inset-y-0 left-0 z-50 hidden w-14 flex-col border-r bg-background sm:flex">
+    <aside className="fixed inset-y-0 left-0 z-50 hidden w-14 flex-col border-r border-border bg-card sm:flex">
       <nav className="flex flex-col items-center gap-4 px-2 sm:py-5">
         <Link
           href="/"

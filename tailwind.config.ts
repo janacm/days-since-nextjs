@@ -51,12 +51,24 @@ export default {
         card: {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))'
+        },
+        /* Braun design tokens */
+        braun: {
+          orange: 'hsl(var(--braun-orange))',
+          cream: 'hsl(var(--braun-cream))',
+          lcd: 'hsl(var(--braun-lcd))',
+          'lcd-text': 'hsl(var(--braun-lcd-text))'
         }
       },
       borderRadius: {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)'
+      },
+      boxShadow: {
+        'braun-panel':
+          '0 1px 3px 0 hsl(var(--braun-panel-shadow) / 0.12), 0 1px 2px -1px hsl(var(--braun-panel-shadow) / 0.08)',
+        'braun-inset': 'inset 0 1px 2px 0 hsl(var(--braun-panel-shadow) / 0.15)'
       },
       keyframes: {
         'accordion-down': {

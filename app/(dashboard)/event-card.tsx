@@ -84,18 +84,25 @@ export function EventCard({ event }: { event: Event }) {
 
   return (
     <div
-      className="rounded-lg border bg-card p-4 cursor-pointer hover:bg-muted/50 transition-colors space-y-3"
+      className="braun-panel border p-4 cursor-pointer hover:bg-muted/50 transition-colors space-y-3"
       onClick={handleCardClick}
     >
       {/* Header: Name + Actions */}
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0 space-y-2">
-          <h3 className="font-medium text-base truncate">{event.name}</h3>
+          <h3 className="font-medium text-base tracking-wide truncate">{event.name}</h3>
           {hasReminder && reminderBadgeText && (
-            <Badge variant={isReminderDue ? 'destructive' : 'secondary'} className="inline-flex">
-              <Bell className="h-3 w-3 mr-1" />
-              {reminderBadgeText}
-            </Badge>
+            <div className="flex items-center gap-2">
+              <span
+                className={`braun-indicator ${
+                  isReminderDue ? 'braun-indicator-active' : 'braun-indicator-idle'
+                }`}
+              />
+              <Badge variant={isReminderDue ? 'destructive' : 'secondary'} className="inline-flex">
+                <Bell className="h-3 w-3 mr-1" />
+                {reminderBadgeText}
+              </Badge>
+            </div>
           )}
         </div>
         <div className="flex items-center gap-2 shrink-0">
@@ -135,15 +142,15 @@ export function EventCard({ event }: { event: Event }) {
         </div>
       </div>
 
-      {/* Date & Days Since */}
-      <div className="flex items-center justify-between gap-4 pt-2 border-t">
+      {/* Date & Days Since — LCD display */}
+      <div className="flex items-center justify-between gap-4 pt-2 border-t border-border">
         <div className="space-y-1">
           <div className="text-sm text-muted-foreground">{formattedDate}</div>
           <div className="text-xs text-muted-foreground">{relativeTime}</div>
         </div>
-        <div className="text-center">
-          <div className="text-2xl font-bold">{daysSince}</div>
-          <div className="text-xs text-muted-foreground">days</div>
+        <div className="braun-lcd text-center min-w-[72px]">
+          <div className="text-2xl font-bold leading-tight">{daysSince}</div>
+          <div className="text-[10px] uppercase tracking-widest opacity-70">days</div>
         </div>
       </div>
     </div>

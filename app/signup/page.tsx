@@ -73,8 +73,8 @@ async function registerUser(formData: FormData) {
 
 export default function SignupPage() {
   return (
-    <div className="min-h-screen flex justify-center items-start md:items-center p-8">
-      <Card className="w-full max-w-sm">
+    <div className="min-h-screen flex justify-center items-start md:items-center p-8 bg-background">
+      <Card className="w-full max-w-sm braun-panel">
         <CardHeader>
           <CardTitle className="text-2xl">Create an account</CardTitle>
           <CardDescription>

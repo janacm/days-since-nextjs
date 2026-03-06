@@ -43,14 +43,14 @@ export function ThemeToggleMobile() {
   const { theme, setTheme } = useTheme();
 
   return (
-    <div className="flex items-center gap-1 rounded-lg bg-muted p-1">
+    <div className="flex items-center gap-1 rounded-md bg-muted p-1 shadow-braun-inset">
       {themes.map(({ value, icon: Icon, label }) => (
         <button
           key={value}
           onClick={() => setTheme(value)}
-          className={`flex items-center gap-2 rounded-md px-3 py-1.5 text-sm transition-colors ${
+          className={`flex items-center gap-2 rounded-sm px-3 py-1.5 text-sm tracking-wide uppercase transition-colors ${
             theme === value
-              ? 'bg-background text-foreground shadow-sm'
+              ? 'bg-background text-foreground shadow-braun-panel'
               : 'text-muted-foreground hover:text-foreground'
           }`}
         >
