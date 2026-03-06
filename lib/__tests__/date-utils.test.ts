@@ -2,6 +2,8 @@
  * Test suite for date utility functions
  */
 
+import { formatDateForInput } from '../date-utils';
+
 describe('Date Utilities', () => {
   describe('Local Date Formatting', () => {
     beforeEach(() => {
@@ -11,10 +13,6 @@ describe('Date Utilities', () => {
     afterEach(() => {
       jest.useRealTimers();
     });
-
-    const formatDateForInput = (date: Date): string => {
-      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-    };
 
     it('formats date correctly for HTML date input', () => {
       const testDate = new Date('2025-06-03T15:30:00');
