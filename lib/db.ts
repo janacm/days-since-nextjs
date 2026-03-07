@@ -75,17 +75,26 @@ export const eventResets = pgTable('event_resets', {
 // Create the database connection with schema
 const schema = { users, events, products, eventResets };
 
-// Check if we have a database URL
-if (!process.env.POSTGRES_URL) {
-  console.error(
-    'POSTGRES_URL environment variable is not set! Database operations will fail.'
-  );
+let _db: ReturnType<typeof drizzle> | null = null;
+
+function getDb() {
+  if (!_db) {
+    if (!process.env.POSTGRES_URL) {
+      throw new Error(
+        'POSTGRES_URL environment variable is not set! Database operations will fail.'
+      );
+    }
+    console.log('Initializing database connection');
+    _db = drizzle(neon(process.env.POSTGRES_URL), { schema });
+  }
+  return _db;
 }
 
-// Log connection attempt
-console.log('Initializing database connection');
-
-export const db = drizzle(neon(process.env.POSTGRES_URL!), { schema });
+export const db = new Proxy({} as ReturnType<typeof drizzle>, {
+  get(_target, prop, receiver) {
+    return Reflect.get(getDb(), prop, receiver);
+  }
+});
 
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
