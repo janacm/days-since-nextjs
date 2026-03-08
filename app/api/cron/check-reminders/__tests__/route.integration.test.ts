@@ -165,6 +165,24 @@ describe('Email Reminder Integration Test', () => {
     expect(mockSendMail).not.toHaveBeenCalled();
   });
 
+  it('should fail closed when CRON_SECRET is missing', async () => {
+    delete process.env.CRON_SECRET;
+
+    const { req } = createMocks({
+      method: 'GET',
+      headers: {
+        authorization: 'Bearer undefined'
+      }
+    });
+
+    const response = await GET(req);
+    const data = await response.json();
+
+    expect(response.status).toBe(500);
+    expect(data.error).toBe('CRON_SECRET is not configured');
+    expect(mockSendMail).not.toHaveBeenCalled();
+  });
+
   it('should validate email format matches expected structure', async () => {
     const { req } = createMocks({
       method: 'GET',

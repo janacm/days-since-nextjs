@@ -1,7 +1,7 @@
 import nodemailer from 'nodemailer';
 import { db, events } from '@/lib/db';
 import { and, or, sql, inArray } from 'drizzle-orm';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 // Initialize Nodemailer transporter
 const transporter = nodemailer.createTransport({
@@ -17,10 +17,24 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-export async function POST() {
+export async function POST(request: NextRequest) {
   console.log('📧 Reminders API: Request received');
 
   try {
+    const cronSecret = process.env.CRON_SECRET;
+    if (!cronSecret) {
+      console.error('📧 Reminders API: CRON_SECRET is not configured');
+      return NextResponse.json(
+        { error: 'CRON_SECRET is not configured' },
+        { status: 500 }
+      );
+    }
+
+    const authHeader = request.headers.get('authorization');
+    if (authHeader !== `Bearer ${cronSecret}`) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     // Ensure SMTP is configured
     if (
       !process.env.SMTP_HOST ||
