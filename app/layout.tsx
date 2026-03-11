@@ -1,6 +1,7 @@
 import './globals.css';
 
 import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 export const metadata = {
   title: 'Days Since - Track Time Since Events',
@@ -39,6 +40,7 @@ export default function RootLayout({
       <body className="flex min-h-screen w-full min-w-0 flex-col overflow-x-hidden">
         {children}
         <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

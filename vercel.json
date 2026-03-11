@@ -3,6 +3,17 @@
     {
       "path": "/api/cron/check-reminders",
       "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/cron/check-reminders",
+      "schedule": "0 8 * * *"
     }
-  ]
+  ],
+  "functions": {
+    "app/api/cron/check-reminders/route.ts": {
+      "maxDuration": 60,
+      "memory": 512
+    }
+  },
+  "skipDeploymentIfNoChanges": true
 }

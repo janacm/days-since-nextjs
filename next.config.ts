@@ -1,4 +1,5 @@
 export default {
+  serverExternalPackages: ['bcryptjs', 'nodemailer'],
   images: {
     remotePatterns: [
       {
