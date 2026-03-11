@@ -1,7 +1,7 @@
 import nodemailer from 'nodemailer';
 import { db, events } from '@/lib/db';
 import { and, or, sql, inArray } from 'drizzle-orm';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 // Initialize Nodemailer transporter
 const transporter = nodemailer.createTransport({
@@ -17,10 +17,15 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-export async function POST() {
+export async function POST(request: NextRequest) {
   console.log('📧 Reminders API: Request received');
 
   try {
+    const authHeader = request.headers.get('authorization');
+    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     // Ensure SMTP is configured
     if (
       !process.env.SMTP_HOST ||

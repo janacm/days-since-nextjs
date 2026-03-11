@@ -1,9 +1,39 @@
 import { db, events } from '@/lib/db';
+import { NextRequest } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    if (process.env.NODE_ENV === 'production') {
+      return new Response(JSON.stringify({ success: false, error: 'Not found' }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    const expectedSecret = process.env.SEED_SECRET || process.env.CRON_SECRET;
+    if (!expectedSecret) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Seed secret is not configured' }),
+        {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
+    const authHeader = request.headers.get('authorization');
+    if (authHeader !== `Bearer ${expectedSecret}`) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Unauthorized' }),
+        {
+          status: 401,
+          headers: { 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
     // Clear existing events
     await db.delete(events);
 
