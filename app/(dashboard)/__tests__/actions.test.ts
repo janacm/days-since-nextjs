@@ -174,4 +174,18 @@ describe('editEvent', () => {
       expect.objectContaining({ isPrivate: false })
     );
   });
+
+  it('throws when editing an event outside the user scope', async () => {
+    const formData = new FormData();
+    formData.append('id', '999');
+    formData.append('name', 'Event');
+    formData.append('date', '2025-06-01');
+
+    (global as any).dbTestMocks.mockReturning.mockResolvedValueOnce([]);
+
+    await expect(editEvent(formData)).rejects.toThrow(
+      'Event not found or access denied'
+    );
+    expect(redirect).not.toHaveBeenCalled();
+  });
 });
