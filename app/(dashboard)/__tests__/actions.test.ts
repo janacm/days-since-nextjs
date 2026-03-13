@@ -24,6 +24,14 @@ jest.mock('@/lib/db', () => {
   const mockWhere = jest.fn(() => ({ returning: mockReturning }));
   const mockSet = jest.fn(() => ({ where: mockWhere }));
   const mockUpdate = jest.fn(() => ({ set: mockSet }));
+  const mockDeleteWhere = jest.fn();
+  const mockDelete = jest.fn(() => ({ where: mockDeleteWhere }));
+  const mockLimit = jest
+    .fn()
+    .mockResolvedValue([{ id: 1, resettable: true }]);
+  const mockSelectWhere = jest.fn(() => ({ limit: mockLimit }));
+  const mockSelectFrom = jest.fn(() => ({ where: mockSelectWhere }));
+  const mockSelect = jest.fn(() => ({ from: mockSelectFrom }));
 
   (global as any).dbTestMocks = {
     mockInsert,
@@ -31,17 +39,28 @@ jest.mock('@/lib/db', () => {
     mockReturning,
     mockUpdate,
     mockSet,
-    mockWhere
+    mockWhere,
+    mockDelete,
+    mockDeleteWhere,
+    mockSelect,
+    mockSelectFrom,
+    mockSelectWhere,
+    mockLimit
   };
 
   return {
     ...actual,
-    db: { insert: mockInsert, update: mockUpdate },
+    db: {
+      insert: mockInsert,
+      update: mockUpdate,
+      delete: mockDelete,
+      select: mockSelect
+    },
     events: actual.events
   };
 });
 
-import { addEvent, editEvent } from '../actions';
+import { addEvent, editEvent, resetEvent } from '../actions';
 import { events } from '@/lib/db';
 const mockAuth = auth as unknown as jest.Mock;
 
@@ -173,5 +192,44 @@ describe('editEvent', () => {
     expect((global as any).dbTestMocks.mockSet).toHaveBeenCalledWith(
       expect.objectContaining({ isPrivate: false })
     );
+  });
+
+  it('throws when event is not owned by user', async () => {
+    (global as any).dbTestMocks.mockLimit.mockResolvedValueOnce([]);
+
+    const formData = new FormData();
+    formData.append('id', '1');
+    formData.append('name', 'Event');
+    formData.append('date', '2025-06-01');
+
+    await expect(editEvent(formData)).rejects.toThrow(
+      'Event not found or access denied'
+    );
+    expect((global as any).dbTestMocks.mockUpdate).not.toHaveBeenCalled();
+  });
+});
+
+describe('resetEvent', () => {
+  it('requires an authenticated user', async () => {
+    mockAuth.mockResolvedValueOnce(null);
+
+    const formData = new FormData();
+    formData.append('id', '1');
+
+    await expect(resetEvent(formData)).rejects.toThrow(
+      'You must be logged in to reset an event'
+    );
+  });
+
+  it('throws when event is not owned by user', async () => {
+    (global as any).dbTestMocks.mockLimit.mockResolvedValueOnce([]);
+
+    const formData = new FormData();
+    formData.append('id', '1');
+
+    await expect(resetEvent(formData)).rejects.toThrow(
+      'Event not found or access denied'
+    );
+    expect((global as any).dbTestMocks.mockUpdate).not.toHaveBeenCalled();
   });
 });
