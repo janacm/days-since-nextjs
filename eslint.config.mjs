@@ -10,5 +10,8 @@ export default [
       'react-hooks/static-components': 'off',
       'import/no-anonymous-default-export': 'off'
     }
+  },
+  {
+    ignores: ['e2e/**']
   }
 ];
