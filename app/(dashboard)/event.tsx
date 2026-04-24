@@ -92,16 +92,25 @@ export function EventItem({ event }: { event: Event }) {
         <div className="flex items-center gap-2">
           <span className="truncate">{event.name}</span>
           {hasReminder && reminderBadgeText && (
-            <Badge variant={isReminderDue ? 'destructive' : 'secondary'} className="shrink-0">
-              <Bell className="h-3 w-3 mr-1" />
-              {reminderBadgeText}
-            </Badge>
+            <span className="inline-flex items-center gap-1.5 shrink-0">
+              <span
+                className={`braun-indicator ${
+                  isReminderDue ? 'braun-indicator-active' : 'braun-indicator-idle'
+                }`}
+              />
+              <Badge variant={isReminderDue ? 'destructive' : 'secondary'}>
+                <Bell className="h-3 w-3 mr-1" />
+                {reminderBadgeText}
+              </Badge>
+            </span>
           )}
         </div>
       </TableCell>
       <TableCell className="whitespace-nowrap px-3 py-3 md:py-2">{formattedDate}</TableCell>
       <TableCell className="text-center whitespace-nowrap px-3 py-3 md:py-2">
-        <span className="text-lg font-bold">{daysSince}</span>
+        <span className="braun-lcd inline-block min-w-[56px] px-3 py-1.5 text-lg font-bold">
+          {daysSince}
+        </span>
       </TableCell>
       <TableCell className="hidden md:table-cell text-muted-foreground whitespace-nowrap px-3 py-3 md:py-2">
         {relativeTime}

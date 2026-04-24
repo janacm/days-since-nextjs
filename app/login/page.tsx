@@ -33,8 +33,8 @@ function SubmitButton() {
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen flex justify-center items-start md:items-center p-8">
-      <Card className="w-full max-w-sm">
+    <div className="min-h-screen flex justify-center items-start md:items-center p-8 bg-background">
+      <Card className="w-full max-w-sm braun-panel">
         <CardHeader>
           <CardTitle className="text-2xl">Login</CardTitle>
           <CardDescription>Sign in to your account to continue</CardDescription>

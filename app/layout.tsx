@@ -8,8 +8,8 @@ export const metadata = {
     'A simple app to track how many days have passed since important events in your life.',
   manifest: '/manifest.json',
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
-    { media: '(prefers-color-scheme: dark)', color: '#030711' }
+    { media: '(prefers-color-scheme: light)', color: '#f4f4f2' },
+    { media: '(prefers-color-scheme: dark)', color: '#18170f' }
   ],
   appleWebApp: {
     capable: true,

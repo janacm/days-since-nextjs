@@ -149,9 +149,8 @@ export function EventsTable({ events }: { events: Event[] }) {
     <Card>
       <CardHeader className="p-4 md:p-6">
         <CardTitle>Your Events</CardTitle>
-        <CardDescription>
-          Track how many days have passed since important events. Click on any
-          event to view detailed analytics. Click column headers to sort.
+        <CardDescription className="text-sm">
+          Track how many days have passed since important events.
         </CardDescription>
         {events.length > 0 && (
           <Input
