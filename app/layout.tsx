@@ -1,27 +1,29 @@
 import './globals.css';
 
 import { Analytics } from '@vercel/analytics/react';
+import type { Metadata, Viewport } from 'next';
 
-export const metadata = {
+export const metadata: Metadata = {
   title: 'Days Since - Track Time Since Events',
   description:
     'A simple app to track how many days have passed since important events in your life.',
   manifest: '/manifest.json',
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
-    { media: '(prefers-color-scheme: dark)', color: '#030711' }
-  ],
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
     title: 'Days Since'
-  },
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false
   }
+};
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+    { media: '(prefers-color-scheme: dark)', color: '#030711' }
+  ],
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false
 };
 
 export default function RootLayout({
