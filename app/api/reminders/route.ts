@@ -25,7 +25,8 @@ export async function POST() {
     if (
       !process.env.SMTP_HOST ||
       !process.env.SMTP_USER ||
-      !process.env.SMTP_PASS
+      !process.env.SMTP_PASS ||
+      !process.env.SMTP_FROM
     ) {
       console.error('📧 Reminders API: SMTP config is not configured');
       return NextResponse.json(
@@ -113,7 +114,7 @@ export async function POST() {
           .join('');
 
         const info = await transporter.sendMail({
-          from: process.env.SMTP_FROM || process.env.SMTP_USER,
+          from: process.env.SMTP_FROM,
           to: userEmail,
           subject: `Days Since reminders: ${eventSummaries.length} event${
             eventSummaries.length === 1 ? '' : 's'

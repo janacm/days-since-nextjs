@@ -18,10 +18,14 @@ import nodemailer from 'nodemailer';
 // Initialize Nodemailer transporter
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST as string,
-  port: Number(process.env.SMTP_PORT),
+  port: Number(process.env.SMTP_PORT) || 587,
+  secure: Number(process.env.SMTP_PORT) === 465,
   auth: {
     user: process.env.SMTP_USER as string,
     pass: process.env.SMTP_PASS as string
+  },
+  tls: {
+    rejectUnauthorized: false
   }
 });
 
@@ -258,7 +262,8 @@ export async function sendTestEmail() {
   if (
     !process.env.SMTP_HOST ||
     !process.env.SMTP_USER ||
-    !process.env.SMTP_PASS
+    !process.env.SMTP_PASS ||
+    !process.env.SMTP_FROM
   ) {
     console.error('🔍 sendTestEmail: SMTP config is not configured');
     throw new Error('Email service is not configured properly');
@@ -276,7 +281,7 @@ export async function sendTestEmail() {
     );
 
     const info = await transporter.sendMail({
-      from: 'Days Since <reminders@dayssince.app>',
+      from: process.env.SMTP_FROM,
       to: session.user.email,
       subject: 'Test Email from Days Since App',
       html: `
