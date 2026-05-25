@@ -19,7 +19,9 @@
       "Bash(git -C /Users/janac/Documents/GitHub/days-since-nextjs log --oneline -3)",
       "Bash(git -C /Users/janac/Documents/GitHub/days-since-nextjs push)",
       "Bash(pnpm jest:*)",
-      "Bash(gh api:*)"
+      "Bash(gh api:*)",
+      "mcp__plugin_mem0_mem0__search_memories",
+      "Bash(pnpm install *)"
     ],
     "deny": [],
     "ask": []
