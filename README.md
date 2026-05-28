@@ -63,6 +63,24 @@ pnpm dev
 
 You should now be able to access the application at http://localhost:3000.
 
+## Email Reminders
+
+This project can send reminder emails using Nodemailer. Configure the SMTP
+credentials and cron secret in your `.env` file:
+
+```bash
+SMTP_HOST=
+SMTP_PORT=587
+SMTP_USER=
+SMTP_PASS=
+SMTP_FROM="Days Since <reminders@dayssince.app>"
+CRON_SECRET=
+```
+
+Vercel triggers `/api/cron/check-reminders` daily via the schedule in
+`vercel.json`. The request must include an `Authorization` header of
+`Bearer $CRON_SECRET`.
+
 ## Running GitHub Actions Locally
 
 This project uses [act](https://github.com/nektos/act) to run GitHub Actions locally in Docker containers, providing an identical environment to GitHub's runners.
