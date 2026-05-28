@@ -11,9 +11,6 @@ const transporter = nodemailer.createTransport({
   auth: {
     user: process.env.SMTP_USER as string,
     pass: process.env.SMTP_PASS as string
-  },
-  tls: {
-    rejectUnauthorized: false // Accept self-signed certificates
   }
 });
 
@@ -28,7 +25,12 @@ export async function GET(request: NextRequest) {
     console.log('Running reminder check cron job...');
 
     // Verify SMTP configuration
-    if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
+    if (
+      !process.env.SMTP_HOST ||
+      !process.env.SMTP_USER ||
+      !process.env.SMTP_PASS ||
+      !process.env.SMTP_FROM
+    ) {
       console.error('SMTP configuration is incomplete');
       return NextResponse.json(
         { error: 'SMTP configuration is incomplete' },
@@ -110,7 +112,7 @@ export async function GET(request: NextRequest) {
           .join('');
 
         const mailOptions = {
-          from: process.env.SMTP_FROM || process.env.SMTP_USER,
+          from: process.env.SMTP_FROM,
           to: userEmail,
           subject: `Days Since reminders: ${eventSummaries.length} event${
             eventSummaries.length === 1 ? '' : 's'
