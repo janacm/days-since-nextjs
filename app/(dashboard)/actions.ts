@@ -1,9 +1,6 @@
 'use server';
 
 import {
-  createEvent,
-  deleteEventById,
-  updateEvent,
   deleteProductById,
   db,
   events,
@@ -12,7 +9,7 @@ import {
 import { revalidatePath } from 'next/cache';
 import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
-import { eq, sql } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import nodemailer from 'nodemailer';
 
 // Initialize Nodemailer transporter
@@ -24,6 +21,27 @@ const transporter = nodemailer.createTransport({
     pass: process.env.SMTP_PASS as string
   }
 });
+
+async function getOwnedEventOrThrow(eventId: number, userEmail: string) {
+  if (!Number.isInteger(eventId) || eventId <= 0) {
+    throw new Error('Invalid event ID');
+  }
+
+  const ownedEvent = await db
+    .select({
+      id: events.id,
+      resettable: events.resettable
+    })
+    .from(events)
+    .where(and(eq(events.id, eventId), eq(events.userId, userEmail)))
+    .limit(1);
+
+  if (!ownedEvent[0]) {
+    throw new Error('Event not found or access denied');
+  }
+
+  return ownedEvent[0];
+}
 
 export async function addEvent(formData: FormData) {
   const session = await auth();
@@ -81,9 +99,11 @@ export async function deleteEvent(formData: FormData) {
 
   const id = Number(formData.get('id'));
 
-  // Deletion is allowed regardless of reset settings
+  await getOwnedEventOrThrow(id, session.user.email);
 
-  await deleteEventById(id);
+  await db
+    .delete(events)
+    .where(and(eq(events.id, id), eq(events.userId, session.user.email)));
   revalidatePath('/');
 }
 
@@ -130,6 +150,8 @@ export async function editEvent(formData: FormData) {
 
   const date = new Date(dateStr);
 
+  await getOwnedEventOrThrow(id, session.user.email);
+
   const result = await db
     .update(events)
     .set({
@@ -141,8 +163,12 @@ export async function editEvent(formData: FormData) {
       isPrivate,
       resettable
     })
-    .where(eq(events.id, id))
+    .where(and(eq(events.id, id), eq(events.userId, session.user.email)))
     .returning();
+
+  if (!result[0]) {
+    throw new Error('Event not found or access denied');
+  }
 
   revalidatePath('/');
   redirect('/');
@@ -150,32 +176,35 @@ export async function editEvent(formData: FormData) {
 
 export async function resetEvent(formData: FormData) {
   'use server';
+  const session = await auth();
+  if (!session?.user?.email) {
+    throw new Error('You must be logged in to reset an event');
+  }
+
   const id = formData.get('id') as string;
   const numericId = parseInt(id, 10);
   const now = new Date();
   const dateStr = now.toISOString();
 
-  // ---- RESET PROTECTION ----------------------------------------------------
-  // Ensure resets are allowed before mutating the event.
-  const ev = await db
-    .select()
-    .from(events)
-    .where(eq(events.id, numericId))
-    .limit(1);
-  if (ev[0] && ev[0].resettable === false) {
+  const event = await getOwnedEventOrThrow(numericId, session.user.email);
+  if (event.resettable === false) {
     throw new Error('Resets are disabled for this event');
   }
-  // --------------------------------------------------------------------------
 
   try {
     // 1. Update the event's date and increment reset count
-    await db
+    const updatedEvent = await db
       .update(events)
       .set({
         date: dateStr,
         resetCount: sql`COALESCE(reset_count, 0) + 1`
       })
-      .where(eq(events.id, numericId));
+      .where(and(eq(events.id, numericId), eq(events.userId, session.user.email)))
+      .returning({ id: events.id });
+
+    if (!updatedEvent[0]) {
+      throw new Error('Event not found or access denied');
+    }
 
     // 2. Add a record to the event_resets table
     await db.insert(eventResets).values({
@@ -192,6 +221,11 @@ export async function resetEvent(formData: FormData) {
 
 export async function resetEventWithDate(formData: FormData) {
   'use server';
+  const session = await auth();
+  if (!session?.user?.email) {
+    throw new Error('You must be logged in to reset an event');
+  }
+
   const id = formData.get('id') as string;
   const customDate = formData.get('resetDate') as string;
   const numericId = parseInt(id, 10);
@@ -203,26 +237,25 @@ export async function resetEventWithDate(formData: FormData) {
   const resetDate = new Date(customDate);
   const dateStr = resetDate.toISOString();
 
-  // ---- RESET PROTECTION ----------------------------------------------------
-  const ev = await db
-    .select()
-    .from(events)
-    .where(eq(events.id, numericId))
-    .limit(1);
-  if (ev[0] && ev[0].resettable === false) {
+  const event = await getOwnedEventOrThrow(numericId, session.user.email);
+  if (event.resettable === false) {
     throw new Error('Resets are disabled for this event');
   }
-  // --------------------------------------------------------------------------
 
   try {
     // 1. Update the event's date and increment reset count
-    await db
+    const updatedEvent = await db
       .update(events)
       .set({
         date: dateStr,
         resetCount: sql`COALESCE(reset_count, 0) + 1`
       })
-      .where(eq(events.id, numericId));
+      .where(and(eq(events.id, numericId), eq(events.userId, session.user.email)))
+      .returning({ id: events.id });
+
+    if (!updatedEvent[0]) {
+      throw new Error('Event not found or access denied');
+    }
 
     // 2. Add a record to the event_resets table
     await db.insert(eventResets).values({
