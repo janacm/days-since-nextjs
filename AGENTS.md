@@ -2,23 +2,32 @@
 
 ## Setup
 
-This repository uses **pnpm** (lockfile is committed). If `pnpm` is missing:
+This repository uses **pnpm 9**. Use that version, not whatever `corepack enable pnpm` gives you:
 
 ```bash
 corepack enable pnpm
-corepack prepare pnpm@9 --activate   # see version note below
+corepack prepare pnpm@9 --activate
 pnpm install
 ```
 
-Pin **pnpm 9**. `pnpm-lock.yaml` is `lockfileVersion: '9.0'`, and installing with pnpm 11 rewrites
-~580 lines of peer-dependency annotations (`(supports-color@8.1.1)` suffixes) with no actual version
-changes — pure diff noise. Note that `.github/workflows/pr-tests.yml` pins `version: 8` via
-`pnpm/action-setup`, which predates `lockfileVersion 9.0`; that mismatch is unresolved, so don't
-treat CI's 8 as the intended local version.
+Three reasons pnpm 9 specifically:
 
-`pnpm-workspace.yaml` declares `allowBuilds` for `esbuild` and `sharp`. pnpm blocks post-install
-build scripts by default and refuses to run *any* script while approvals are pending — without that
-file, `pnpm dev` exits 1 with `ERR_PNPM_IGNORED_BUILDS`. Don't delete it.
+- `pnpm-lock.yaml` is `lockfileVersion: '9.0'`. Installing with pnpm 11 rewrites ~580 lines of
+  peer-dependency annotations (`(supports-color@8.1.1)` suffixes) with no actual version changes —
+  pure diff noise. pnpm 9 leaves the lockfile untouched.
+- Vercel picks pnpm 9 for this project on its own (`Detected pnpm-lock.yaml 9 ... Using pnpm@9.x
+  based on project creation date`), so local pnpm 9 matches the deploy.
+- pnpm 10+ blocks post-install build scripts and then refuses to run *any* script while approvals
+  are pending, so `pnpm dev` exits 1 with `ERR_PNPM_IGNORED_BUILDS` for `esbuild` and `sharp`.
+  pnpm 9 has no such gate and just builds them.
+
+If you must use pnpm 10 or 11, run `pnpm approve-builds esbuild sharp` — but do **not** commit the
+`pnpm-workspace.yaml` it generates. That file makes pnpm 9 treat the repo as a workspace, and it then
+fails the Vercel build with `ERROR packages field missing or empty`. The `pnpm.onlyBuiltDependencies`
+field in `package.json` is not an alternative — pnpm 11 ignores it.
+
+`.github/workflows/pr-tests.yml` pins `version: 8` via `pnpm/action-setup`, which predates
+`lockfileVersion 9.0`. That mismatch is unresolved; don't treat CI's 8 as the intended local version.
 
 ## Environment
 
