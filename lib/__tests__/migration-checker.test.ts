@@ -14,7 +14,12 @@ import {
 
 // Mock dependencies
 jest.mock('@neondatabase/serverless');
-jest.mock('drizzle-orm/neon-http');
+// Use an explicit factory rather than an automock: drizzle-orm's `drizzle`
+// export carries its own `mock` property (drizzle.mock()), and automocking
+// copies that onto the generated mock function. jest defines `.mock` with a
+// setter that writes its internal mock-state map, so the copy replaces that
+// state with a function and every later call dies in _ensureMockState.
+jest.mock('drizzle-orm/neon-http', () => ({ drizzle: jest.fn() }));
 jest.mock('fs');
 jest.mock('path');
 

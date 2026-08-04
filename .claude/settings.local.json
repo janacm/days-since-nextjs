@@ -21,7 +21,11 @@
       "Bash(pnpm jest:*)",
       "Bash(gh api:*)",
       "mcp__plugin_mem0_mem0__search_memories",
-      "Bash(pnpm install *)"
+      "Bash(pnpm install *)",
+      "Bash(npx tsx *)",
+      "Bash(pnpm why *)",
+      "Bash(corepack prepare *)",
+      "Bash(pnpm --version)"
     ],
     "deny": [],
     "ask": []
