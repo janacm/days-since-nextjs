@@ -1,5 +1,6 @@
 .add-task-button {
-  background-color: #0f172a; /* or your desired dark color */
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
   border-radius: 50%;
   position: fixed;
   bottom: 24px;

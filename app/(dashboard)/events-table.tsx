@@ -16,12 +16,26 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useState, useMemo } from 'react';
+import { ChevronUp, ChevronDown } from 'lucide-react';
 import Fuse from 'fuse.js';
 import { EventItem } from './event';
+import { EventCard } from './event-card';
 import { Event } from '@/lib/db';
+
+type SortField = 'name' | 'date' | 'daysSince' | 'relative';
+type SortDirection = 'asc' | 'desc';
+
+interface SortConfig {
+  field: SortField | null;
+  direction: SortDirection;
+}
 
 export function EventsTable({ events }: { events: Event[] }) {
   const [query, setQuery] = useState('');
+  const [sortConfig, setSortConfig] = useState<SortConfig>({
+    field: null,
+    direction: 'asc'
+  });
 
   const fuse = useMemo(() => {
     return new Fuse(events, {
@@ -35,13 +49,109 @@ export function EventsTable({ events }: { events: Event[] }) {
       ? events
       : fuse.search(query).map((result) => result.item);
 
+  // Sort the filtered events
+  const sortedAndFiltered = useMemo(() => {
+    if (!sortConfig.field) return filtered;
+
+    return [...filtered].sort((a, b) => {
+      let aValue: any;
+      let bValue: any;
+
+      switch (sortConfig.field) {
+        case 'name':
+          aValue = a.name.toLowerCase();
+          bValue = b.name.toLowerCase();
+          break;
+        case 'date':
+          aValue = new Date(a.date).getTime();
+          bValue = new Date(b.date).getTime();
+          break;
+        case 'daysSince':
+          aValue = Math.floor(
+            (new Date().getTime() - new Date(a.date).getTime()) /
+              (1000 * 3600 * 24)
+          );
+          bValue = Math.floor(
+            (new Date().getTime() - new Date(b.date).getTime()) /
+              (1000 * 3600 * 24)
+          );
+          break;
+        case 'relative':
+          // Sort by actual date for relative time
+          aValue = new Date(a.date).getTime();
+          bValue = new Date(b.date).getTime();
+          break;
+        default:
+          return 0;
+      }
+
+      if (aValue < bValue) {
+        return sortConfig.direction === 'asc' ? -1 : 1;
+      }
+      if (aValue > bValue) {
+        return sortConfig.direction === 'asc' ? 1 : -1;
+      }
+      return 0;
+    });
+  }, [filtered, sortConfig]);
+
+  const handleSort = (field: SortField) => {
+    setSortConfig((prevConfig) => ({
+      field,
+      direction:
+        prevConfig.field === field && prevConfig.direction === 'asc'
+          ? 'desc'
+          : 'asc'
+    }));
+  };
+
+  const SortableHeader = ({
+    field,
+    children,
+    className = ''
+  }: {
+    field: SortField;
+    children: React.ReactNode;
+    className?: string;
+  }) => {
+    const isActive = sortConfig.field === field;
+    const direction = isActive ? sortConfig.direction : null;
+
+    return (
+      <TableHead
+        className={`cursor-pointer select-none hover:bg-muted/50 px-3 py-3.5 md:py-2.5 ${className}`}
+        onClick={() => handleSort(field)}
+      >
+        <div className="flex items-center gap-1">
+          {children}
+          <div className="flex flex-col">
+            <ChevronUp
+              className={`h-3 w-3 ${
+                isActive && direction === 'asc'
+                  ? 'text-foreground'
+                  : 'text-muted-foreground/50'
+              }`}
+            />
+            <ChevronDown
+              className={`h-3 w-3 -mt-1 ${
+                isActive && direction === 'desc'
+                  ? 'text-foreground'
+                  : 'text-muted-foreground/50'
+              }`}
+            />
+          </div>
+        </div>
+      </TableHead>
+    );
+  };
+
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="p-4 md:p-6">
         <CardTitle>Your Events</CardTitle>
         <CardDescription>
           Track how many days have passed since important events. Click on any
-          event to view detailed analytics.
+          event to view detailed analytics. Click column headers to sort.
         </CardDescription>
         {events.length > 0 && (
           <Input
@@ -49,36 +159,64 @@ export function EventsTable({ events }: { events: Event[] }) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             type="search"
-            className="mt-4 w-full sm:max-w-xs"
+            className="mt-4 w-full md:max-w-sm text-base"
           />
         )}
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-4 md:p-6">
         {events.length === 0 ? (
           <div className="text-center py-6 text-muted-foreground">
             No events yet. Add your first event to get started!
           </div>
-        ) : filtered.length === 0 ? (
+        ) : sortedAndFiltered.length === 0 ? (
           <div className="text-center py-6 text-muted-foreground">
             No events match your search.
           </div>
         ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Event</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead className="text-center">Days Since</TableHead>
-                <TableHead className="hidden md:table-cell">Relative</TableHead>
-                <TableHead className="w-[70px]"></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filtered.map((event) => (
-                <EventItem key={event.id} event={event} />
+          <>
+            {/* Mobile: Card View */}
+            <div className="space-y-3 md:hidden">
+              {sortedAndFiltered.map((event) => (
+                <EventCard key={event.id} event={event} />
               ))}
-            </TableBody>
-          </Table>
+            </div>
+
+            {/* Desktop: Table View */}
+            <div className="hidden md:block -mx-4 md:mx-0">
+              <div 
+                className="overflow-x-auto overscroll-x-contain scroll-fade no-scrollbar"
+                role="region"
+                aria-label="Events table (horizontally scrollable)"
+                tabIndex={0}
+              >
+                <Table className="min-w-[720px]">
+                  <TableHeader>
+                    <TableRow>
+                      <SortableHeader field="name">Event</SortableHeader>
+                      <SortableHeader field="date" className="min-w-[140px]">
+                        Date
+                      </SortableHeader>
+                      <SortableHeader field="daysSince" className="text-center min-w-[100px]">
+                        Days Since
+                      </SortableHeader>
+                      <SortableHeader
+                        field="relative"
+                        className="hidden md:table-cell min-w-[140px]"
+                      >
+                        Relative
+                      </SortableHeader>
+                      <TableHead className="min-w-[120px]"></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {sortedAndFiltered.map((event) => (
+                      <EventItem key={event.id} event={event} />
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          </>
         )}
       </CardContent>
     </Card>
