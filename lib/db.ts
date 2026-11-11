@@ -15,7 +15,7 @@ import {
   varchar,
   boolean
 } from 'drizzle-orm/pg-core';
-import { count, eq, ilike, desc, sql, and } from 'drizzle-orm';
+import { count, eq, ne, ilike, desc, sql, and } from 'drizzle-orm';
 import { createInsertSchema } from 'drizzle-zod';
 
 // Define the schema
@@ -56,7 +56,12 @@ export const events = pgTable('events', {
   resetCount: integer('reset_count').notNull().default(0),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   reminderDays: integer('reminder_days'),
-  reminderSent: boolean('reminder_sent').notNull().default(false)
+  reminderSent: boolean('reminder_sent').notNull().default(false),
+  lastReminderSentAt: timestamp('last_reminder_sent_at'),
+  // Whether the event is private to the user and hidden from public views
+  isPrivate: boolean('is_private').notNull().default(false),
+  // Whether the event can be reset by the user (true by default)
+  resettable: boolean('resettable').notNull().default(true)
 });
 
 export const eventResets = pgTable('event_resets', {
@@ -190,23 +195,22 @@ export async function getEvents(userId: string): Promise<Event[]> {
   }));
 }
 
+/**
+ * Returns true when the user already has an event with this exact name.
+ * Pass `excludeId` when renaming an event so it does not match itself.
+ */
 export async function checkEventNameExists(
   userId: string,
   name: string,
   excludeId?: number
 ): Promise<boolean> {
-  let conditions = [
-    eq(events.userId, userId),
-    eq(events.name, name)
-  ];
-
-  // If we're checking for updates, exclude the current event
-  if (excludeId) {
-    conditions.push(sql`${events.id} != ${excludeId}`);
+  const conditions = [eq(events.userId, userId), eq(events.name, name)];
+  if (excludeId !== undefined) {
+    conditions.push(ne(events.id, excludeId));
   }
 
   const result = await db
-    .select()
+    .select({ id: events.id })
     .from(events)
     .where(and(...conditions))
     .limit(1);
@@ -219,12 +223,6 @@ export async function createEvent(
   name: string,
   date: Date
 ): Promise<Event> {
-  // Check if an event with this name already exists for this user
-  const nameExists = await checkEventNameExists(userId, name);
-  if (nameExists) {
-    throw new Error('An event with this name already exists');
-  }
-
   // Convert Date to ISO string for Drizzle
   const dateStr = date.toISOString();
 
@@ -246,17 +244,10 @@ export async function deleteEventById(id: number) {
 
 export async function updateEvent(
   id: number,
-  userId: string,
   name: string,
   date: Date,
   reminderDays?: number | null
 ): Promise<Event> {
-  // Check if an event with this name already exists for this user (excluding current event)
-  const nameExists = await checkEventNameExists(userId, name, id);
-  if (nameExists) {
-    throw new Error('An event with this name already exists');
-  }
-
   // Convert Date to ISO string for Drizzle
   const dateStr = date.toISOString();
 

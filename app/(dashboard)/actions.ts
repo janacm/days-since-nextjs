@@ -1,9 +1,8 @@
 'use server';
 
 import {
-  createEvent,
+  checkEventNameExists,
   deleteEventById,
-  updateEvent,
   deleteProductById,
   db,
   events,
@@ -25,7 +24,16 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-export async function addEvent(formData: FormData) {
+// 'use server' files may only export async functions, so this stays private.
+const DUPLICATE_EVENT_NAME_ERROR =
+  'You already have an event with this name. Please choose a different name.';
+
+/** Returned by addEvent/editEvent for errors the form should show inline. */
+export type EventFormResult = { error: string } | undefined;
+
+export async function addEvent(
+  formData: FormData
+): Promise<EventFormResult> {
   const session = await auth();
   if (!session?.user?.email) {
     throw new Error('You must be logged in to add an event');
@@ -34,6 +42,15 @@ export async function addEvent(formData: FormData) {
   const name = formData.get('name') as string;
   const dateStr = formData.get('date') as string;
   const reminderDaysStr = formData.get('reminderDays') as string | null;
+  const isPrivateRaw = formData.get('isPrivate');
+  const isPrivate =
+    isPrivateRaw === 'on' || isPrivateRaw === 'true' || isPrivateRaw === '1';
+  const disableResetsRaw = formData.get('disableResets');
+  const disableResets =
+    disableResetsRaw === 'on' ||
+    disableResetsRaw === 'true' ||
+    disableResetsRaw === '1';
+  const resettable = !disableResets;
   const reminderDays = reminderDaysStr ? Number(reminderDaysStr) : null;
 
   if (!name || !dateStr) {
@@ -46,27 +63,22 @@ export async function addEvent(formData: FormData) {
 
   const date = new Date(dateStr);
 
-  // Use the createEvent function which now includes duplicate checking
-  try {
-    const result = await createEvent(session.user.email, name, date);
-    
-    // Update reminder settings if provided
-    if (reminderDays !== null) {
-      await db
-        .update(events)
-        .set({
-          reminderDays,
-          reminderSent: false
-        })
-        .where(eq(events.id, result.id));
-    }
-  } catch (error) {
-    // Re-throw with a user-friendly message if it's a duplicate error
-    if (error instanceof Error && error.message.includes('already exists')) {
-      throw new Error('An event with this name already exists. Please choose a different name.');
-    }
-    throw error;
+  if (await checkEventNameExists(session.user.email, name)) {
+    return { error: DUPLICATE_EVENT_NAME_ERROR };
   }
+
+  await db
+    .insert(events)
+    .values({
+      userId: session.user.email,
+      name,
+      date: date.toISOString(),
+      reminderDays,
+      reminderSent: false,
+      lastReminderSentAt: null,
+      isPrivate,
+      resettable
+    });
 
   revalidatePath('/');
   redirect('/');
@@ -79,6 +91,8 @@ export async function deleteEvent(formData: FormData) {
   }
 
   const id = Number(formData.get('id'));
+
+  // Deletion is allowed regardless of reset settings
 
   await deleteEventById(id);
   revalidatePath('/');
@@ -96,7 +110,9 @@ export async function deleteProduct(formData: FormData) {
   revalidatePath('/products');
 }
 
-export async function editEvent(formData: FormData) {
+export async function editEvent(
+  formData: FormData
+): Promise<EventFormResult> {
   const session = await auth();
   if (!session?.user?.email) {
     throw new Error('You must be logged in to edit an event');
@@ -106,6 +122,15 @@ export async function editEvent(formData: FormData) {
   const name = formData.get('name') as string;
   const dateStr = formData.get('date') as string;
   const reminderDaysStr = formData.get('reminderDays') as string | null;
+  const isPrivateRaw = formData.get('isPrivate');
+  const isPrivate =
+    isPrivateRaw === 'on' || isPrivateRaw === 'true' || isPrivateRaw === '1';
+  const disableResetsRaw = formData.get('disableResets');
+  const disableResets =
+    disableResetsRaw === 'on' ||
+    disableResetsRaw === 'true' ||
+    disableResetsRaw === '1';
+  const resettable = !disableResets;
   const reminderDays = reminderDaysStr ? Number(reminderDaysStr) : null;
 
   if (!name || !dateStr) {
@@ -118,16 +143,22 @@ export async function editEvent(formData: FormData) {
 
   const date = new Date(dateStr);
 
-  // Use the updateEvent function which now includes duplicate checking
-  try {
-    const result = await updateEvent(id, session.user.email, name, date, reminderDays);
-  } catch (error) {
-    // Re-throw with a user-friendly message if it's a duplicate error
-    if (error instanceof Error && error.message.includes('already exists')) {
-      throw new Error('An event with this name already exists. Please choose a different name.');
-    }
-    throw error;
+  if (await checkEventNameExists(session.user.email, name, id)) {
+    return { error: DUPLICATE_EVENT_NAME_ERROR };
   }
+
+  await db
+    .update(events)
+    .set({
+      name,
+      date: date.toISOString(),
+      reminderDays,
+      reminderSent: false, // Reset reminder status when updating reminder settings
+      lastReminderSentAt: null,
+      isPrivate,
+      resettable
+    })
+    .where(eq(events.id, id));
 
   revalidatePath('/');
   redirect('/');
@@ -139,6 +170,18 @@ export async function resetEvent(formData: FormData) {
   const numericId = parseInt(id, 10);
   const now = new Date();
   const dateStr = now.toISOString();
+
+  // ---- RESET PROTECTION ----------------------------------------------------
+  // Ensure resets are allowed before mutating the event.
+  const ev = await db
+    .select()
+    .from(events)
+    .where(eq(events.id, numericId))
+    .limit(1);
+  if (ev[0] && ev[0].resettable === false) {
+    throw new Error('Resets are disabled for this event');
+  }
+  // --------------------------------------------------------------------------
 
   try {
     // 1. Update the event's date and increment reset count
@@ -175,6 +218,17 @@ export async function resetEventWithDate(formData: FormData) {
 
   const resetDate = new Date(customDate);
   const dateStr = resetDate.toISOString();
+
+  // ---- RESET PROTECTION ----------------------------------------------------
+  const ev = await db
+    .select()
+    .from(events)
+    .where(eq(events.id, numericId))
+    .limit(1);
+  if (ev[0] && ev[0].resettable === false) {
+    throw new Error('Resets are disabled for this event');
+  }
+  // --------------------------------------------------------------------------
 
   try {
     // 1. Update the event's date and increment reset count

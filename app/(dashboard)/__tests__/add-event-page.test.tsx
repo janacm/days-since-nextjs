@@ -2,6 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import AddEventPage from '../add/page';
+import { addEvent } from '../actions';
 
 // Mock the addEvent action
 jest.mock('../actions', () => ({
@@ -90,6 +91,7 @@ describe('Add Event Page', () => {
       expect(
         screen.getByLabelText('Remind me after (days)')
       ).toBeInTheDocument();
+      expect(screen.getByLabelText('Private')).toBeInTheDocument();
       expect(screen.getByText('Optional')).toBeInTheDocument();
 
       // Check for buttons
@@ -103,6 +105,7 @@ describe('Add Event Page', () => {
       const nameInput = screen.getByLabelText('Event Name');
       const dateInput = screen.getByLabelText('When did it happen?');
       const reminderDaysInput = screen.getByLabelText('Remind me after (days)');
+      const privateCheckbox = screen.getByLabelText('Private');
 
       // Text inputs don't explicitly have type="text" in HTML
       expect(nameInput).toHaveAttribute('required');
@@ -114,6 +117,15 @@ describe('Add Event Page', () => {
       expect(reminderDaysInput).toHaveAttribute('type', 'number');
       expect(reminderDaysInput).toHaveAttribute('min', '1');
       expect(reminderDaysInput).toHaveAttribute('placeholder', 'e.g. 30');
+      expect(privateCheckbox).toHaveAttribute('type', 'checkbox');
+    });
+
+    it('has Private unchecked by default', () => {
+      render(<AddEventPage />);
+      const privateCheckbox = screen.getByLabelText(
+        'Private'
+      ) as HTMLInputElement;
+      expect(privateCheckbox.checked).toBe(false);
     });
 
     it('has correct form action', () => {
@@ -145,7 +157,6 @@ describe('Add Event Page', () => {
 
       expect(dateInput).toHaveValue('2025-05-15');
     });
-
 
     it('allows user to input reminder days', async () => {
       const user = userEvent.setup();
@@ -215,6 +226,26 @@ describe('Add Event Page', () => {
         screen.getByRole('button', { name: 'Add Event' })
       ).toBeInTheDocument();
       expect(screen.getByRole('link', { name: 'Cancel' })).toBeInTheDocument();
+    });
+  });
+
+  describe('Duplicate names', () => {
+    it('shows the error returned by addEvent and keeps the typed name', async () => {
+      (addEvent as jest.Mock).mockResolvedValue({
+        error:
+          'You already have an event with this name. Please choose a different name.'
+      });
+      const user = userEvent.setup();
+      render(<AddEventPage />);
+
+      const nameInput = screen.getByLabelText('Event Name');
+      await user.type(nameInput, 'Dentist');
+      await user.click(screen.getByRole('button', { name: 'Add Event' }));
+
+      expect(await screen.findByRole('alert')).toHaveTextContent(
+        'You already have an event with this name'
+      );
+      expect(nameInput).toHaveValue('Dentist');
     });
   });
 });

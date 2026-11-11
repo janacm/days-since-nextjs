@@ -1,0 +1,11 @@
+---
+globs: *.ts,*.tsx
+---
+
+### TypeScript style in this repo
+
+- Prefer explicit function and exported API types; avoid `any` unless interop or mocking requires it.
+- Use meaningful names (no 1–2 character identifiers) and keep code readable (prefer multi-line over dense one-liners).
+- Use early returns to simplify control flow and handle errors up front.
+- Keep comments minimal and focused on intent, not mechanics.
+- Match existing formatting; do not reformat unrelated code in edits.
