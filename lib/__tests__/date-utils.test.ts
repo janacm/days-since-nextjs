@@ -2,6 +2,8 @@
  * Test suite for date utility functions
  */
 
+import { formatDateForInput } from '../date-utils';
+
 describe('Date Utilities', () => {
   describe('Local Date Formatting', () => {
     beforeEach(() => {
@@ -11,10 +13,6 @@ describe('Date Utilities', () => {
     afterEach(() => {
       jest.useRealTimers();
     });
-
-    const formatDateForInput = (date: Date): string => {
-      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-    };
 
     it('formats date correctly for HTML date input', () => {
       const testDate = new Date('2025-06-03T15:30:00');
@@ -111,8 +109,7 @@ describe('Date Utilities', () => {
 
       dates.forEach((testDate) => {
         jest.setSystemTime(testDate);
-        const now = new Date();
-        const formatted = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+        const formatted = formatDateForInput(new Date());
 
         expect(formatted).toMatch(/^\d{4}-\d{2}-\d{2}$/);
         expect(formatted.length).toBe(10);
@@ -137,8 +134,7 @@ describe('Date Utilities', () => {
         const testDate = new Date(`2025-06-03T${time}`);
         jest.setSystemTime(testDate);
 
-        const now = new Date();
-        const formatted = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+        const formatted = formatDateForInput(new Date());
 
         expect(formatted).toBe('2025-06-03');
       });

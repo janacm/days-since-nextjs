@@ -1,10 +1,9 @@
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { AddEventForm } from './add-event-form';
+import { formatDateForInput } from '@/lib/date-utils';
 
 export default function AddEventPage() {
-  // Get today's date in YYYY-MM-DD format using local timezone
-  const now = new Date();
-  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  const today = formatDateForInput(new Date());
 
   return (
     <div className="max-w-md mx-auto p-4 md:p-6">

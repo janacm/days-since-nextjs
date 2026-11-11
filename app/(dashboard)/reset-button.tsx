@@ -14,6 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RotateCcw } from 'lucide-react';
 import { useLongPress } from '@/lib/hooks/use-long-press';
+import { formatDateForInput } from '@/lib/date-utils';
 import { resetEvent, resetEventWithDate } from './actions';
 
 interface ResetButtonProps {
@@ -35,7 +36,7 @@ export function ResetButton({ eventId, onOpenChange }: ResetButtonProps) {
   const handleLongPress = () => {
     setIsModalOpen(true);
     // Set default date to today
-    const today = new Date().toISOString().split('T')[0];
+    const today = formatDateForInput(new Date());
     setResetDate(today);
   };
 
