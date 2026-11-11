@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState, type ChangeEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -14,34 +14,16 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RotateCcw } from 'lucide-react';
 import { useLongPress } from '@/lib/hooks/use-long-press';
+import {
+  formatDateDisplay,
+  parseDateInput,
+  todayIsoDate
+} from '@/lib/date-input';
 import { resetEvent, resetEventWithDate } from './actions';
 
 interface ResetButtonProps {
   eventId: number;
   onOpenChange?: (open: boolean) => void;
-}
-
-// Helper function to format date from YYYY-MM-DD to "MMM DD, YYYY"
-function formatDateDisplay(dateString: string): string {
-  if (!dateString) return '';
-  const date = new Date(dateString + 'T00:00:00');
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: '2-digit'
-  });
-}
-
-// Helper function to parse date from "MMM DD, YYYY" format to YYYY-MM-DD
-function parseDateFromDisplay(displayDate: string): string {
-  if (!displayDate) return '';
-  try {
-    const date = new Date(displayDate);
-    if (isNaN(date.getTime())) return '';
-    return date.toISOString().split('T')[0];
-  } catch {
-    return '';
-  }
 }
 
 export function ResetButton({ eventId, onOpenChange }: ResetButtonProps) {
@@ -58,8 +40,8 @@ export function ResetButton({ eventId, onOpenChange }: ResetButtonProps) {
 
   const handleLongPress = () => {
     setIsModalOpen(true);
-    // Set default date to today
-    const today = new Date().toISOString().split('T')[0];
+    // Default to today in the user's local timezone
+    const today = todayIsoDate();
     setResetDate(today);
     setDisplayDate(formatDateDisplay(today));
   };
@@ -74,14 +56,13 @@ export function ResetButton({ eventId, onOpenChange }: ResetButtonProps) {
     setIsModalOpen(false);
   };
 
-  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleDateChange = (e: ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value;
     setDisplayDate(inputValue);
-    
-    // Try to parse the date and convert to YYYY-MM-DD format
-    const parsedDate = parseDateFromDisplay(inputValue);
-    setResetDate(parsedDate);
+    setResetDate(parseDateInput(inputValue));
   };
+
+  const isDateInvalid = displayDate.trim() !== '' && !resetDate;
 
   const longPressResult = useLongPress({
     onLongPress: handleLongPress,
@@ -178,11 +159,26 @@ export function ResetButton({ eventId, onOpenChange }: ResetButtonProps) {
               <Input
                 id="reset-date"
                 type="text"
+                inputMode="text"
+                autoComplete="off"
                 value={displayDate}
                 onChange={handleDateChange}
-                placeholder="Jul 07, 2025"
+                placeholder="MMM DD, YYYY"
+                aria-invalid={isDateInvalid}
+                aria-describedby="reset-date-hint"
                 className="col-span-3"
               />
+              <p
+                id="reset-date-hint"
+                role={isDateInvalid ? 'alert' : undefined}
+                className={`col-span-3 col-start-2 text-xs ${
+                  isDateInvalid ? 'text-destructive' : 'text-muted-foreground'
+                }`}
+              >
+                {isDateInvalid
+                  ? 'Enter a valid date, e.g. Jul 07, 2025'
+                  : 'Format: MMM DD, YYYY (e.g. Jul 07, 2025)'}
+              </p>
             </div>
           </div>
           <DialogFooter>
