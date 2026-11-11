@@ -244,3 +244,46 @@ describe('editEvent duplicate names', () => {
     expect(redirect).not.toHaveBeenCalled();
   });
 });
+
+describe('editEvent ownership and input', () => {
+  it('limits the update to events owned by the current user', async () => {
+    const formData = new FormData();
+    formData.append('id', '1');
+    formData.append('name', 'Event');
+    formData.append('date', '2025-06-01');
+
+    await editEvent(formData);
+
+    const { and, eq } = jest.requireActual('drizzle-orm');
+    expect((global as any).dbTestMocks.mockWhere).toHaveBeenCalledWith(
+      and(eq(events.id, 1), eq(events.userId, 'user@example.com'))
+    );
+  });
+
+  it('rejects a non-numeric id', async () => {
+    const formData = new FormData();
+    formData.append('id', 'abc');
+    formData.append('name', 'Event');
+    formData.append('date', '2025-06-01');
+
+    await expect(editEvent(formData)).rejects.toThrow('Invalid event id');
+    expect((global as any).dbTestMocks.mockUpdate).not.toHaveBeenCalled();
+  });
+});
+
+describe('event name trimming', () => {
+  it('trims the name before checking and saving', async () => {
+    const formData = new FormData();
+    formData.append('name', '  Dentist  ');
+    formData.append('date', '2025-06-01');
+
+    await addEvent(formData);
+
+    expect(
+      (global as any).dbTestMocks.mockCheckEventNameExists
+    ).toHaveBeenCalledWith('user@example.com', 'Dentist');
+    expect((global as any).dbTestMocks.mockValues).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'Dentist' })
+    );
+  });
+});

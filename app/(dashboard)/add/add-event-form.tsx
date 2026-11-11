@@ -21,9 +21,9 @@ export function AddEventForm({ defaultDate }: AddEventFormProps) {
   // On success the server action redirects to '/'. It only returns when the
   // event was not saved, e.g. because the name is already taken. onSubmit is
   // used instead of `action` so React does not clear the fields on an error.
-  function handleSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
+  function handleSubmit(submitEvent: FormEvent<HTMLFormElement>) {
+    submitEvent.preventDefault();
+    const formData = new FormData(submitEvent.currentTarget);
     setError(null);
     startTransition(async () => {
       setMessage('Adding event...');

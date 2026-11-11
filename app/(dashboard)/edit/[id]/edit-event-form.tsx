@@ -24,9 +24,9 @@ export function EditEventForm({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  function handleSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
+  function handleSubmit(submitEvent: FormEvent<HTMLFormElement>) {
+    submitEvent.preventDefault();
+    const formData = new FormData(submitEvent.currentTarget);
     setError(null);
     startTransition(async () => {
       const result = await editEvent(formData);

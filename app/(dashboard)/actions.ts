@@ -11,7 +11,7 @@ import {
 import { revalidatePath } from 'next/cache';
 import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
-import { eq, sql } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import nodemailer from 'nodemailer';
 
 // Initialize Nodemailer transporter
@@ -39,7 +39,7 @@ export async function addEvent(
     throw new Error('You must be logged in to add an event');
   }
 
-  const name = formData.get('name') as string;
+  const name = ((formData.get('name') as string | null) ?? '').trim();
   const dateStr = formData.get('date') as string;
   const reminderDaysStr = formData.get('reminderDays') as string | null;
   const isPrivateRaw = formData.get('isPrivate');
@@ -119,7 +119,10 @@ export async function editEvent(
   }
 
   const id = Number(formData.get('id'));
-  const name = formData.get('name') as string;
+  if (!Number.isInteger(id)) {
+    throw new Error('Invalid event id');
+  }
+  const name = ((formData.get('name') as string | null) ?? '').trim();
   const dateStr = formData.get('date') as string;
   const reminderDaysStr = formData.get('reminderDays') as string | null;
   const isPrivateRaw = formData.get('isPrivate');
@@ -158,7 +161,9 @@ export async function editEvent(
       isPrivate,
       resettable
     })
-    .where(eq(events.id, id));
+    // Only the owner may edit; the page checks this too, but the action can be
+    // called directly.
+    .where(and(eq(events.id, id), eq(events.userId, session.user.email)));
 
   revalidatePath('/');
   redirect('/');
