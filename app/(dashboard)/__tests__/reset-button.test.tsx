@@ -3,6 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ResetButton } from '../reset-button';
 import { resetEvent, resetEventWithDate } from '../actions';
+import { formatDateDisplay, todayIsoDate } from '@/lib/date-input';
 
 // Mock the actions
 jest.mock('../actions', () => ({
@@ -157,8 +158,8 @@ describe('ResetButton', () => {
 
     await waitFor(() => {
       const dateInput = screen.getByLabelText('Reset Date') as HTMLInputElement;
-      const today = new Date().toISOString().split('T')[0];
-      expect(dateInput.value).toBe(today);
+      expect(dateInput.value).toBe(formatDateDisplay(todayIsoDate()));
+      expect(dateInput.value).toMatch(/^[A-Z][a-z]{2} \d{2}, \d{4}$/);
     });
   });
 
@@ -322,6 +323,58 @@ describe('ResetButton', () => {
     expect(submitButton).toBeDisabled();
     expect(mockResetEventWithDate).not.toHaveBeenCalled();
   });
+
+  const openModal = async () => {
+    const { useLongPress } = require('../../../lib/hooks/use-long-press');
+    let longPressCallback: () => void;
+    useLongPress.mockImplementation(({ onLongPress }) => {
+      longPressCallback = onLongPress;
+      return {
+        onMouseDown: jest.fn(),
+        onMouseUp: jest.fn(),
+        onMouseLeave: jest.fn(),
+        onTouchStart: jest.fn(),
+        onTouchEnd: jest.fn(),
+        onClick: jest.fn(),
+        isPressed: false
+      };
+    });
+    render(<ResetButton eventId={eventId} />);
+    longPressCallback!();
+    await waitFor(() => {
+      expect(screen.getByText('Reset Event')).toBeInTheDocument();
+    });
+    return screen.getByLabelText('Reset Date') as HTMLInputElement;
+  };
+
+  it('submits the typed MMM DD, YYYY date without shifting the day', async () => {
+    const dateInput = await openModal();
+    await userEvent.clear(dateInput);
+    await userEvent.type(dateInput, 'Jul 07, 2025');
+
+    expect(dateInput).toHaveAttribute('aria-invalid', 'false');
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Reset to Date' })
+    );
+
+    const formDataCall = mockResetEventWithDate.mock.calls[0][0] as FormData;
+    expect(formDataCall.get('resetDate')).toBe('2025-07-07');
+  });
+
+  it.each(['Feb 30, 2025', 'Jul 1', '5', 'Foo 01, 2025'])(
+    'rejects invalid or partial input %p',
+    async (value) => {
+      const dateInput = await openModal();
+      await userEvent.clear(dateInput);
+      await userEvent.type(dateInput, value);
+
+      expect(
+        screen.getByRole('button', { name: 'Reset to Date' })
+      ).toBeDisabled();
+      expect(dateInput).toHaveAttribute('aria-invalid', 'true');
+      expect(screen.getByRole('alert')).toHaveTextContent('Enter a valid date');
+    }
+  );
 
   it('updates date input value when changed', async () => {
     const { useLongPress } = require('../../../lib/hooks/use-long-press');

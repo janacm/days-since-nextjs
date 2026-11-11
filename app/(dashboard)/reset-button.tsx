@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type ChangeEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -14,6 +14,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RotateCcw } from 'lucide-react';
 import { useLongPress } from '@/lib/hooks/use-long-press';
+import {
+  formatDateDisplay,
+  parseDateInput,
+  todayIsoDate
+} from '@/lib/date-input';
 import { resetEvent, resetEventWithDate } from './actions';
 
 interface ResetButtonProps {
@@ -24,6 +29,7 @@ interface ResetButtonProps {
 export function ResetButton({ eventId, onOpenChange }: ResetButtonProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [resetDate, setResetDate] = useState('');
+  const [displayDate, setDisplayDate] = useState('');
   const [progress, setProgress] = useState(0);
 
   const handleQuickReset = () => {
@@ -34,9 +40,10 @@ export function ResetButton({ eventId, onOpenChange }: ResetButtonProps) {
 
   const handleLongPress = () => {
     setIsModalOpen(true);
-    // Set default date to today
-    const today = new Date().toISOString().split('T')[0];
+    // Default to today in the user's local timezone
+    const today = todayIsoDate();
     setResetDate(today);
+    setDisplayDate(formatDateDisplay(today));
   };
 
   const handleCustomReset = () => {
@@ -48,6 +55,14 @@ export function ResetButton({ eventId, onOpenChange }: ResetButtonProps) {
     resetEventWithDate(formData);
     setIsModalOpen(false);
   };
+
+  const handleDateChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const inputValue = e.target.value;
+    setDisplayDate(inputValue);
+    setResetDate(parseDateInput(inputValue));
+  };
+
+  const isDateInvalid = displayDate.trim() !== '' && !resetDate;
 
   const longPressResult = useLongPress({
     onLongPress: handleLongPress,
@@ -143,11 +158,27 @@ export function ResetButton({ eventId, onOpenChange }: ResetButtonProps) {
               </Label>
               <Input
                 id="reset-date"
-                type="date"
-                value={resetDate}
-                onChange={(e) => setResetDate(e.target.value)}
+                type="text"
+                inputMode="text"
+                autoComplete="off"
+                value={displayDate}
+                onChange={handleDateChange}
+                placeholder="MMM DD, YYYY"
+                aria-invalid={isDateInvalid}
+                aria-describedby="reset-date-hint"
                 className="col-span-3"
               />
+              <p
+                id="reset-date-hint"
+                role={isDateInvalid ? 'alert' : undefined}
+                className={`col-span-3 col-start-2 text-xs ${
+                  isDateInvalid ? 'text-destructive' : 'text-muted-foreground'
+                }`}
+              >
+                {isDateInvalid
+                  ? 'Enter a valid date, e.g. Jul 07, 2025'
+                  : 'Format: MMM DD, YYYY (e.g. Jul 07, 2025)'}
+              </p>
             </div>
           </div>
           <DialogFooter>
