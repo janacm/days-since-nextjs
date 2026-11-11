@@ -3,7 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ResetButton } from '../reset-button';
 import { resetEvent, resetEventWithDate } from '../actions';
-import { formatDateDisplay, todayIsoDate } from '../../../lib/date-input';
+import { formatDateDisplay, todayIsoDate } from '@/lib/date-input';
 
 // Mock the actions
 jest.mock('../actions', () => ({

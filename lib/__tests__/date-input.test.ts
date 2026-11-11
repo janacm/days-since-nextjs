@@ -1,4 +1,8 @@
-import { formatDateDisplay, parseDateInput, todayIsoDate } from '../date-input';
+import {
+  formatDateDisplay,
+  parseDateInput,
+  todayIsoDate
+} from '@/lib/date-input';
 
 describe('date-input helpers', () => {
   describe('parseDateInput', () => {
@@ -23,7 +27,12 @@ describe('date-input helpers', () => {
       '2025-13-01',
       'Foo 01, 2025',
       'July 07, 2025',
-      '07/07/2025'
+      '07/07/2025',
+      'Feb 29, 0024',
+      '0024-02-29',
+      '0001-01-01',
+      'Jan 01, 0999',
+      '0999-01-01'
     ])('rejects %p', (input) => {
       expect(parseDateInput(input)).toBe('');
     });

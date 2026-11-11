@@ -22,13 +22,19 @@ const DISPLAY_PATTERN = /^([A-Za-z]{3})\s+(\d{1,2}),?\s+(\d{4})$/;
 const ISO_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
 
 const pad = (n: number) => (n < 10 ? `0${n}` : String(n));
+const padYear = (n: number) => {
+  if (n < 10) return `000${n}`;
+  if (n < 100) return `00${n}`;
+  if (n < 1000) return `0${n}`;
+  return String(n);
+};
 
 function toIsoDate(year: number, month: number, day: number): string {
-  return `${year}-${pad(month)}-${pad(day)}`;
+  return `${padYear(year)}-${pad(month)}-${pad(day)}`;
 }
 
 function isRealDate(year: number, month: number, day: number): boolean {
-  if (month < 1 || month > 12 || day < 1) return false;
+  if (year < 1000 || month < 1 || month > 12 || day < 1) return false;
   // Day 0 of the next month is the last day of this month.
   const daysInMonth = new Date(year, month, 0).getDate();
   return day <= daysInMonth;
