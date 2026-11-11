@@ -287,3 +287,41 @@ describe('event name trimming', () => {
     );
   });
 });
+
+describe('blank names and missing events', () => {
+  it('returns an error for a whitespace-only name when adding', async () => {
+    const formData = new FormData();
+    formData.append('name', '   ');
+    formData.append('date', '2025-06-01');
+
+    await expect(addEvent(formData)).resolves.toEqual({
+      error: 'Name and date are required'
+    });
+    expect((global as any).dbTestMocks.mockInsert).not.toHaveBeenCalled();
+  });
+
+  it('returns an error for a whitespace-only name when editing', async () => {
+    const formData = new FormData();
+    formData.append('id', '1');
+    formData.append('name', '   ');
+    formData.append('date', '2025-06-01');
+
+    await expect(editEvent(formData)).resolves.toEqual({
+      error: 'Name and date are required'
+    });
+    expect((global as any).dbTestMocks.mockUpdate).not.toHaveBeenCalled();
+  });
+
+  it('returns an error and does not redirect when no owned event matched', async () => {
+    (global as any).dbTestMocks.mockReturning.mockResolvedValueOnce([]);
+    const formData = new FormData();
+    formData.append('id', '99');
+    formData.append('name', 'Event');
+    formData.append('date', '2025-06-01');
+
+    await expect(editEvent(formData)).resolves.toEqual({
+      error: 'Event not found'
+    });
+    expect(redirect).not.toHaveBeenCalled();
+  });
+});

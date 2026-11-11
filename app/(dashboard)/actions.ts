@@ -54,7 +54,7 @@ export async function addEvent(
   const reminderDays = reminderDaysStr ? Number(reminderDaysStr) : null;
 
   if (!name || !dateStr) {
-    throw new Error('Name and date are required');
+    return { error: 'Name and date are required' };
   }
 
   if (reminderDays !== null && reminderDays < 1) {
@@ -137,7 +137,7 @@ export async function editEvent(
   const reminderDays = reminderDaysStr ? Number(reminderDaysStr) : null;
 
   if (!name || !dateStr) {
-    throw new Error('Name and date are required');
+    return { error: 'Name and date are required' };
   }
 
   if (reminderDays !== null && reminderDays < 1) {
@@ -150,7 +150,7 @@ export async function editEvent(
     return { error: DUPLICATE_EVENT_NAME_ERROR };
   }
 
-  await db
+  const updated = await db
     .update(events)
     .set({
       name,
@@ -163,7 +163,12 @@ export async function editEvent(
     })
     // Only the owner may edit; the page checks this too, but the action can be
     // called directly.
-    .where(and(eq(events.id, id), eq(events.userId, session.user.email)));
+    .where(and(eq(events.id, id), eq(events.userId, session.user.email)))
+    .returning({ id: events.id });
+
+  if (updated.length === 0) {
+    return { error: 'Event not found' };
+  }
 
   revalidatePath('/');
   redirect('/');
