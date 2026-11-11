@@ -1,9 +1,8 @@
 'use server';
 
 import {
-  createEvent,
+  checkEventNameExists,
   deleteEventById,
-  updateEvent,
   deleteProductById,
   db,
   events,
@@ -12,7 +11,7 @@ import {
 import { revalidatePath } from 'next/cache';
 import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
-import { eq, sql } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import nodemailer from 'nodemailer';
 
 // Initialize Nodemailer transporter
@@ -25,13 +24,22 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-export async function addEvent(formData: FormData) {
+// 'use server' files may only export async functions, so this stays private.
+const DUPLICATE_EVENT_NAME_ERROR =
+  'You already have an event with this name. Please choose a different name.';
+
+/** Returned by addEvent/editEvent for errors the form should show inline. */
+export type EventFormResult = { error: string } | undefined;
+
+export async function addEvent(
+  formData: FormData
+): Promise<EventFormResult> {
   const session = await auth();
   if (!session?.user?.email) {
     throw new Error('You must be logged in to add an event');
   }
 
-  const name = formData.get('name') as string;
+  const name = ((formData.get('name') as string | null) ?? '').trim();
   const dateStr = formData.get('date') as string;
   const reminderDaysStr = formData.get('reminderDays') as string | null;
   const isPrivateRaw = formData.get('isPrivate');
@@ -46,7 +54,7 @@ export async function addEvent(formData: FormData) {
   const reminderDays = reminderDaysStr ? Number(reminderDaysStr) : null;
 
   if (!name || !dateStr) {
-    throw new Error('Name and date are required');
+    return { error: 'Name and date are required' };
   }
 
   if (reminderDays !== null && reminderDays < 1) {
@@ -55,7 +63,11 @@ export async function addEvent(formData: FormData) {
 
   const date = new Date(dateStr);
 
-  const result = await db
+  if (await checkEventNameExists(session.user.email, name)) {
+    return { error: DUPLICATE_EVENT_NAME_ERROR };
+  }
+
+  await db
     .insert(events)
     .values({
       userId: session.user.email,
@@ -66,8 +78,7 @@ export async function addEvent(formData: FormData) {
       lastReminderSentAt: null,
       isPrivate,
       resettable
-    })
-    .returning();
+    });
 
   revalidatePath('/');
   redirect('/');
@@ -99,14 +110,19 @@ export async function deleteProduct(formData: FormData) {
   revalidatePath('/products');
 }
 
-export async function editEvent(formData: FormData) {
+export async function editEvent(
+  formData: FormData
+): Promise<EventFormResult> {
   const session = await auth();
   if (!session?.user?.email) {
     throw new Error('You must be logged in to edit an event');
   }
 
   const id = Number(formData.get('id'));
-  const name = formData.get('name') as string;
+  if (!Number.isInteger(id)) {
+    throw new Error('Invalid event id');
+  }
+  const name = ((formData.get('name') as string | null) ?? '').trim();
   const dateStr = formData.get('date') as string;
   const reminderDaysStr = formData.get('reminderDays') as string | null;
   const isPrivateRaw = formData.get('isPrivate');
@@ -121,7 +137,7 @@ export async function editEvent(formData: FormData) {
   const reminderDays = reminderDaysStr ? Number(reminderDaysStr) : null;
 
   if (!name || !dateStr) {
-    throw new Error('Name and date are required');
+    return { error: 'Name and date are required' };
   }
 
   if (reminderDays !== null && reminderDays < 1) {
@@ -130,7 +146,11 @@ export async function editEvent(formData: FormData) {
 
   const date = new Date(dateStr);
 
-  const result = await db
+  if (await checkEventNameExists(session.user.email, name, id)) {
+    return { error: DUPLICATE_EVENT_NAME_ERROR };
+  }
+
+  const updated = await db
     .update(events)
     .set({
       name,
@@ -141,8 +161,14 @@ export async function editEvent(formData: FormData) {
       isPrivate,
       resettable
     })
-    .where(eq(events.id, id))
-    .returning();
+    // Only the owner may edit; the page checks this too, but the action can be
+    // called directly.
+    .where(and(eq(events.id, id), eq(events.userId, session.user.email)))
+    .returning({ id: events.id });
+
+  if (updated.length === 0) {
+    return { error: 'Event not found' };
+  }
 
   revalidatePath('/');
   redirect('/');

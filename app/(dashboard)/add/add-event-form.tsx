@@ -1,7 +1,6 @@
 'use client';
 
-import { useOptimistic, useTransition, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useOptimistic, useState, useTransition, type FormEvent } from 'react';
 import { addEvent } from '../actions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,25 +14,28 @@ interface AddEventFormProps {
 }
 
 export function AddEventForm({ defaultDate }: AddEventFormProps) {
-  const router = useRouter();
   const [message, setMessage] = useOptimistic('');
+  const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  useEffect(() => {
-    if (message === 'Event added!') {
-      router.push('/');
-    }
-  }, [message, router]);
-
-  async function handleSubmit(formData: FormData) {
-    setMessage('Event added!');
+  // On success the server action redirects to '/'. It only returns when the
+  // event was not saved, e.g. because the name is already taken. onSubmit is
+  // used instead of `action` so React does not clear the fields on an error.
+  function handleSubmit(submitEvent: FormEvent<HTMLFormElement>) {
+    submitEvent.preventDefault();
+    const formData = new FormData(submitEvent.currentTarget);
+    setError(null);
     startTransition(async () => {
-      await addEvent(formData);
+      setMessage('Adding event...');
+      const result = await addEvent(formData);
+      if (result?.error) {
+        setError(result.error);
+      }
     });
   }
 
   return (
-    <form action={handleSubmit} className="contents">
+    <form onSubmit={handleSubmit} className="contents">
       <CardContent className="space-y-4 p-4 md:p-6">
         <div className="space-y-1.5 md:space-y-2">
           <Label htmlFor="name">Event Name</Label>
@@ -91,7 +93,13 @@ export function AddEventForm({ defaultDate }: AddEventFormProps) {
             When enabled, this event cannot be reset. You can still delete it.
           </p>
         </div>
-        {message && <p className="text-sm text-muted-foreground">{message}</p>}
+        {error ? (
+          <p role="alert" className="text-sm text-destructive">
+            {error}
+          </p>
+        ) : (
+          message && <p className="text-sm text-muted-foreground">{message}</p>
+        )}
       </CardContent>
       <CardFooter className="flex justify-between gap-2 p-4 md:p-6">
         <Button variant="outline" asChild className="h-11 min-w-[44px] px-4">

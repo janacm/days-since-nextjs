@@ -8,7 +8,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { editEvent } from '../../actions';
+import { EditEventForm, SubmitButton } from './edit-event-form';
 import Link from 'next/link';
 import { db, events } from '@/lib/db';
 import { eq } from 'drizzle-orm';
@@ -49,7 +49,7 @@ export default async function EditEventPage({
         <CardHeader className="p-4 md:p-6">
           <CardTitle>Edit Event</CardTitle>
         </CardHeader>
-        <form action={editEvent}>
+        <EditEventForm>
           <CardContent className="space-y-4 p-4 md:p-6">
             <input type="hidden" name="id" value={event.id} />
             <div className="space-y-1.5 md:space-y-2">
@@ -125,9 +125,9 @@ export default async function EditEventPage({
             <Button variant="outline" asChild className="h-11 min-w-[44px] px-4">
               <Link href="/">Cancel</Link>
             </Button>
-            <Button type="submit" className="h-11 min-w-[44px] px-4">Save Changes</Button>
+            <SubmitButton />
           </CardFooter>
-        </form>
+        </EditEventForm>
       </Card>
     </div>
   );

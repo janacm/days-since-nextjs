@@ -2,6 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import AddEventPage from '../add/page';
+import { addEvent } from '../actions';
 
 // Mock the addEvent action
 jest.mock('../actions', () => ({
@@ -225,6 +226,26 @@ describe('Add Event Page', () => {
         screen.getByRole('button', { name: 'Add Event' })
       ).toBeInTheDocument();
       expect(screen.getByRole('link', { name: 'Cancel' })).toBeInTheDocument();
+    });
+  });
+
+  describe('Duplicate names', () => {
+    it('shows the error returned by addEvent and keeps the typed name', async () => {
+      (addEvent as jest.Mock).mockResolvedValue({
+        error:
+          'You already have an event with this name. Please choose a different name.'
+      });
+      const user = userEvent.setup();
+      render(<AddEventPage />);
+
+      const nameInput = screen.getByLabelText('Event Name');
+      await user.type(nameInput, 'Dentist');
+      await user.click(screen.getByRole('button', { name: 'Add Event' }));
+
+      expect(await screen.findByRole('alert')).toHaveTextContent(
+        'You already have an event with this name'
+      );
+      expect(nameInput).toHaveValue('Dentist');
     });
   });
 });

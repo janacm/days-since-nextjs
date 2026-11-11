@@ -15,7 +15,7 @@ import {
   varchar,
   boolean
 } from 'drizzle-orm/pg-core';
-import { count, eq, ilike, desc, sql, and } from 'drizzle-orm';
+import { count, eq, ne, ilike, desc, sql, and } from 'drizzle-orm';
 import { createInsertSchema } from 'drizzle-zod';
 
 // Define the schema
@@ -193,6 +193,29 @@ export async function getEvents(userId: string): Promise<Event[]> {
     ...event,
     resetCount: 'resetCount' in event ? event.resetCount : 0
   }));
+}
+
+/**
+ * Returns true when the user already has an event with this exact name.
+ * Pass `excludeId` when renaming an event so it does not match itself.
+ */
+export async function checkEventNameExists(
+  userId: string,
+  name: string,
+  excludeId?: number
+): Promise<boolean> {
+  const conditions = [eq(events.userId, userId), eq(events.name, name)];
+  if (excludeId !== undefined) {
+    conditions.push(ne(events.id, excludeId));
+  }
+
+  const result = await db
+    .select({ id: events.id })
+    .from(events)
+    .where(and(...conditions))
+    .limit(1);
+
+  return result.length > 0;
 }
 
 export async function createEvent(
