@@ -3,6 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ResetButton } from '../reset-button';
 import { resetEvent, resetEventWithDate } from '../actions';
+import { formatDateForInput } from '@/lib/date-utils';
 
 // Mock the actions
 jest.mock('../actions', () => ({
@@ -157,7 +158,7 @@ describe('ResetButton', () => {
 
     await waitFor(() => {
       const dateInput = screen.getByLabelText('Reset Date') as HTMLInputElement;
-      const today = new Date().toISOString().split('T')[0];
+      const today = formatDateForInput(new Date());
       expect(dateInput.value).toBe(today);
     });
   });

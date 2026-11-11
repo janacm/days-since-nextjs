@@ -109,8 +109,7 @@ describe('Date Utilities', () => {
 
       dates.forEach((testDate) => {
         jest.setSystemTime(testDate);
-        const now = new Date();
-        const formatted = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+        const formatted = formatDateForInput(new Date());
 
         expect(formatted).toMatch(/^\d{4}-\d{2}-\d{2}$/);
         expect(formatted.length).toBe(10);
@@ -135,8 +134,7 @@ describe('Date Utilities', () => {
         const testDate = new Date(`2025-06-03T${time}`);
         jest.setSystemTime(testDate);
 
-        const now = new Date();
-        const formatted = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+        const formatted = formatDateForInput(new Date());
 
         expect(formatted).toBe('2025-06-03');
       });
