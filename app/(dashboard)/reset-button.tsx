@@ -49,11 +49,9 @@ export function ResetButton({ eventId, onOpenChange }: ResetButtonProps) {
   const handleCustomReset = () => {
     if (!resetDate) return;
 
-    const [y, m, d] = resetDate.split('-').map(Number);
     const formData = new FormData();
     formData.append('id', eventId.toString());
-    // Local midnight of the chosen day, so the instant-based counter shows 0 for today in any timezone
-    formData.append('resetDate', new Date(y, m - 1, d).toISOString());
+    formData.append('resetDate', resetDate);
     resetEventWithDate(formData);
     setIsModalOpen(false);
   };

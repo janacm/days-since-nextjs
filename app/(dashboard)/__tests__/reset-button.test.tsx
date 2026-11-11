@@ -241,9 +241,7 @@ describe('ResetButton', () => {
     // Check that the FormData contains the correct data
     const formDataCall = mockResetEventWithDate.mock.calls[0][0] as FormData;
     expect(formDataCall.get('id')).toBe(eventId.toString());
-    expect(formDataCall.get('resetDate')).toBe(
-      new Date(2023, 11, 25).toISOString()
-    );
+    expect(formDataCall.get('resetDate')).toBe('2023-12-25');
 
     // Modal should be closed
     await waitFor(() => {
@@ -360,9 +358,7 @@ describe('ResetButton', () => {
     );
 
     const formDataCall = mockResetEventWithDate.mock.calls[0][0] as FormData;
-    expect(formDataCall.get('resetDate')).toBe(
-      new Date(2025, 6, 7).toISOString()
-    );
+    expect(formDataCall.get('resetDate')).toBe('2025-07-07');
   });
 
   it.each(['Feb 30, 2025', 'Jul 1', '5', 'Foo 01, 2025'])(
